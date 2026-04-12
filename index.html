@@ -125,6 +125,7 @@ tbody td{padding:7px 10px;vertical-align:middle;}
   table{font-size:11px;}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -140,6 +141,8 @@ tbody td{padding:7px 10px;vertical-align:middle;}
   <button class="step-btn" id="stab-4" onclick="goto(4)"><span class="step-num">4</span>ผลลัพธ์เบื้องต้น</button>
   <button class="step-btn" id="stab-5" onclick="goto(5)"><span class="step-num">5</span>กล่องพัสดุ</button>
   <button class="step-btn" id="stab-6" onclick="goto(6)"><span class="step-num">6</span>ผลลัพธ์สุดท้าย</button>
+  <button class="step-btn" id="stab-7" onclick="goto(7)"><span class="step-num">7</span>Export to VCANBUY</button>
+  <button class="step-btn" id="stab-8" onclick="goto(8)"><span class="step-num">8</span>Export to Peak</button>
 </div>
 
 <div class="panels">
@@ -154,7 +157,7 @@ tbody td{padding:7px 10px;vertical-align:middle;}
     <div class="action-row">
       <button class="btn btn-primary" onclick="doStep1()">▶ ประมวลผล →</button>
       <button class="btn btn-outline btn-sm" onclick="loadDemo()">📄 โหลดตัวอย่าง</button>
-      <button class="btn btn-outline btn-sm" onclick="document.getElementById('inp-orders').value='';document.getElementById('alert-1').innerHTML=''">🗑 ล้าง</button>
+      <button class="btn btn-outline btn-sm" onclick="clearAll()" style="color:var(--accent3);border-color:rgba(247,129,102,.3);">🗑 ล้างข้อมูลทั้งหมด</button>
     </div>
   </div>
 </div>
@@ -296,12 +299,75 @@ tbody td{padding:7px 10px;vertical-align:middle;}
     </div>
   </div>
   <div class="action-row">
+    <button class="btn btn-primary" onclick="buildStep7();goto(7)">▶ Export to VCANBUY →</button>
+    <button class="btn btn-primary" style="background:var(--accent2);" onclick="buildStep8();goto(8)">▶ Export to Peak →</button>
     <button class="btn btn-outline btn-sm" onclick="goto(5)">← กลับ</button>
     <button class="btn btn-outline" onclick="goto(1)">🔄 เริ่มใหม่</button>
   </div>
 </div>
 
-</div><!-- /panels -->
+<!-- ══════════ STEP 7: Export to VCANBUY ══════════ -->
+<div class="panel" id="p7">
+  <div class="result-title">📋 Export to VCANBUY — ใบกำกับภาษี</div>
+  <div class="alert alert-info" style="margin-bottom:14px;">
+    <span>ℹ️</span>
+    <span>รวมรหัสสินค้าเดียวกันทุก Order เป็นรายการเดียว — ราคา/หน่วย = ราคาเฉลี่ยถ่วงน้ำหนัก</span>
+  </div>
+
+  <!-- Preview table -->
+  <div class="tbl-wrap" style="margin-bottom:16px;">
+    <table>
+      <thead><tr>
+        <th style="width:50px;">ลำดับ</th>
+        <th>รายการสินค้า</th>
+        <th style="width:90px;">จำนวน</th>
+        <th style="width:70px;">หน่วย</th>
+        <th style="width:110px;">ราคา/หน่วย</th>
+        <th style="width:120px;">รวมทั้งหมด</th>
+      </tr></thead>
+      <tbody id="tbody-7"></tbody>
+    </table>
+  </div>
+  <div class="copy-bar">
+    <span id="sum-7" style="color:var(--text2);"></span>
+  </div>
+
+  <div class="action-row">
+    <button class="btn btn-success" onclick="exportVcanbuyExcel()" style="font-size:14px;padding:10px 20px;">
+      ⬇️ Download Excel (.xlsx)
+    </button>
+    <button class="btn btn-outline btn-sm" onclick="goto(6)">← กลับ</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 8: Export to Peak ══════════ -->
+<div class="panel" id="p8">
+  <div class="result-title">📊 Export to Peak — นำเข้าสินค้าคงคลัง</div>
+  <div class="alert alert-info" style="margin-bottom:14px;">
+    <span>ℹ️</span>
+    <span>รวม SKU เดียวกันทุก Order เป็นรายการเดียว — 1 บรรทัดต่อ 1 SKU (สี) — ราคาต่อหน่วย = weighted average</span>
+  </div>
+
+  <!-- Preview -->
+  <div class="tbl-wrap" style="margin-bottom:16px;">
+    <table>
+      <thead><tr>
+        <th>ลำดับที่</th><th>สินค้า/บริการ (SKU)</th><th>บัญชี</th>
+        <th>คำอธิบาย</th><th>จำนวน</th><th>ราคาต่อหน่วย</th><th>อัตราภาษี</th>
+      </tr></thead>
+      <tbody id="tbody-8"></tbody>
+    </table>
+  </div>
+  <div class="copy-bar">
+    <span id="sum-8" style="color:var(--text2);"></span>
+  </div>
+  <div class="action-row">
+    <button class="btn btn-success" onclick="exportPeakExcel()" style="font-size:14px;padding:10px 20px;">
+      ⬇️ Download Excel (.xlsx)
+    </button>
+    <button class="btn btn-outline btn-sm" onclick="goto(6)">← ผลลัพธ์สุดท้าย</button>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -363,9 +429,11 @@ function saveStorage(){
 
 // ── Navigation
 function goto(n){
-  for(let i=1;i<=6;i++){
-    document.getElementById('p'+i).classList.toggle('active',i===n);
+  for(let i=1;i<=8;i++){
+    const p=document.getElementById('p'+i);
+    if(p) p.classList.toggle('active',i===n);
     const b=document.getElementById('stab-'+i);
+    if(!b) continue;
     b.classList.remove('active');
     if(i<n) b.classList.add('done'); else b.classList.remove('done');
     if(i===n) b.classList.add('active');
@@ -389,6 +457,7 @@ function doStep1(){
   if(!parsedOrders.length){alert_('alert-1','error','ไม่พบข้อมูล Order — ตรวจสอบ format ข้อมูล');return;}
   alert_('alert-1','success',`parse สำเร็จ: ${parsedOrders.length} Orders`);
   renderStep2();
+  saveState();
   goto(2);
 }
 
@@ -573,6 +642,7 @@ function checkUnmapped(){
 
 function buildAndGoStep4(){
   buildStep4();
+  saveState();
   goto(4);
   alert_('alert-4','success',`✅ สร้างผลลัพธ์เบื้องต้น ${rows4.length} รายการ`);
 }
@@ -903,6 +973,7 @@ function doStep5(){
   const raw=document.getElementById('inp-boxes').value.trim();
   parsedBoxes=parseBoxes(raw);
   buildStep6();
+  saveState();
   goto(6);
 }
 
@@ -946,7 +1017,11 @@ function buildStep6(){
     // Get box data for this order
     const boxes=parsedBoxes[orderId]||[];
     const sumShpCNTH=boxes.reduce((s,b)=>s+b.shpCNTH,0);
-    const sumShpTH=boxes.reduce((s,b)=>s+b.shpTH,0);
+    const sumShpTH=(()=>{
+      if(boxes.length===0) return 200;
+      const s=boxes.reduce((a,b)=>a+b.shpTH,0);
+      return s===0?200:s;
+    })();
     const sumDeliv=boxes.reduce((s,b)=>s+b.delivFee,0);
     const sumPack=boxes.reduce((s,b)=>s+b.packFee,0);
     const boxId=boxes.length>0?boxes.map(b=>b.boxId).join(', '):(items[0]?.boxId||'-');
@@ -1104,12 +1179,332 @@ function loadDemo(){
 ฿21.46\t150\t฿9649.3`;
 }
 
+// ═══════════════════════════════════════════════════════════
+// STEP 7 — GROUP BY CODE + EXPORT TO VCANBUY EXCEL
+// ═══════════════════════════════════════════════════════════
+let rows7=[];
+
+function buildStep7(){
+  // Group rows6 by code → รวม qty และ weighted avg unitAfter
+  const grouped={};
+  for(const r of rows6){
+    const code=r.code||'?';
+    const sv=skuVariants.find(v=>v.code===code);
+    const name=sv?.name?`เข็มขัด ${code}`:`เข็มขัด ${code}`;
+    if(!grouped[code]) grouped[code]={code,name,totalQty:0,totalCost:0};
+    grouped[code].totalQty+=r.qty;
+    grouped[code].totalCost+=r.total;
+  }
+  rows7=Object.values(grouped).map((g,i)=>({
+    seq:i+1,
+    name:g.name,
+    qty:g.totalQty,
+    unit:'ชิ้น',
+    unitPrice:g.totalQty>0?r2(g.totalCost/g.totalQty):0,
+    total:r2(g.totalCost)
+  }));
+
+  // Render preview
+  const tbody=document.getElementById('tbody-7');
+  tbody.innerHTML=rows7.map(r=>`<tr>
+    <td class="ncell">${r.seq}</td>
+    <td>${esc(r.name)}</td>
+    <td class="ncell">${r.qty.toLocaleString()}</td>
+    <td style="text-align:center;">${esc(r.unit)}</td>
+    <td class="ncell">${fmt(r.unitPrice)}</td>
+    <td class="ncell" style="color:var(--accent2);font-weight:600;">${fmt(r.total)}</td>
+  </tr>`).join('');
+
+  const grandTotal=rows7.reduce((s,r)=>s+r.total,0);
+  const vat=r2(grandTotal*0.07);
+  document.getElementById('sum-7').innerHTML=
+    `${rows7.length} รายการ | ยอดรวม ฿${fmt(grandTotal)} | VAT 7% ฿${fmt(vat)} | <b>ยอดทั้งหมด ฿${fmt(r2(grandTotal+vat))}</b>`;
+}
+
+function exportVcanbuyExcel(){
+  if(!rows7.length){alert('ไม่มีข้อมูล กรุณาไปขั้นตอน 6 ก่อน');return;}
+  if(typeof XLSX==='undefined'){alert('กำลังโหลด SheetJS กรุณารอสักครู่แล้วลองใหม่');return;}
+
+  const wb=XLSX.utils.book_new();
+
+  // ══════════ Sheet 1: ฟอร์ม ══════════
+  const MAX_ROWS=11; // template has rows 12-22 = 11 data slots
+  const ws_data=[];
+
+  // Row 1: Title
+  ws_data.push([null,null,null,null,null,null,null,'แบบฟอร์มขอใบกำกับภาษี',null,null,null,null]);
+  // Row 2
+  ws_data.push([null,'กรอกข้อมูลที่มี * ให้ครบถ้วน']);
+  // Row 3: รหัสลูกค้า
+  ws_data.push([null,'*รหัสลูกค้า TH','1029528']);
+  // Row 4: ชื่อ
+  ws_data.push([null,'*ชื่อ  :','บริษัท ลำแสง กรุ๊ป จำกัด']);
+  // Row 5: ที่อยู่
+  ws_data.push([null,'*ที่อยู่  :','41/8 หมู่ที่ 6 ต.เนินปอ อ.สามง่าม จ.พิจิตร 66140']);
+  // Row 6: เบอร์โทร
+  ws_data.push([null,'*เบอร์โทร :','0984456397']);
+  // Row 7: เลขประจำผู้เสียภาษี
+  ws_data.push([null,'*เลขประจำผู้เสียภาษี  :',null,null,'0665567000361']);
+  // Row 8: สาขา
+  ws_data.push([null,'*สาขา  :','สำนักงานใหญ่']);
+
+  // Row 9: เดือน (Thai month/year)
+  const now=new Date();
+  const thaiMonths=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const monthStr=`${now.getDate()} ${thaiMonths[now.getMonth()]}`;
+  const yearBE=now.getFullYear()+543;
+  ws_data.push([null,'*ขอออกใบกำกับภาษี เดือน  :',null,null,null,null,monthStr,yearBE]);
+
+  // Row 10: notes
+  ws_data.push([null,null,null,null,null,null,null,null,null,null,'**ทศนิยม 2 ตำแหน่งเท่านั้น**','** มีสูตรกรุณาอย่าใส่ตัวเลขทับมีผลกับการออกเอกสาร**']);
+
+  // Row 11: headers
+  ws_data.push([null,'ลำดับ','* รายการสินค้า',null,null,null,null,null,'* จำนวน ','* หน่วย(ชิ้น/อัน)','* ราคา/หน่วย','รวมทั้งหมด']);
+
+  // Rows 12–22: data (max 11)
+  for(let i=0;i<MAX_ROWS;i++){
+    const r=rows7[i];
+    if(r){
+      ws_data.push([null,r.seq,r.name,null,null,null,null,null,r.qty,r.unit,r.unitPrice,{f:`K${12+i}*I${12+i}`}]);
+    } else {
+      ws_data.push([null,12-12+i+1+rows7.length||i+rows7.length+1,'',null,null,null,null,null,null,null,null,{f:`K${12+i}*I${12+i}`}]);
+    }
+  }
+
+  // Row 23: ยอดรวม
+  ws_data.push([null,'รวมสินค้า ',null,null,null,null,null,null,null,null,'ยอดรวม',{f:'SUM(L12:L22)'}]);
+  // Row 24: VAT
+  ws_data.push([null,'เงื่อนไขมีค่าใช้จ่ายเพิ่ม 7%',null,null,null,null,null,null,null,null,'VAT 7%',{f:'ROUND(L23*0.07,2)'}]);
+  // Row 25: ยอดทั้งหมด
+  ws_data.push([null,null,null,null,null,null,null,null,null,null,'ยอดทั้งหมด',{f:'L24+L23'}]);
+
+  const ws=XLSX.utils.aoa_to_sheet(ws_data);
+
+  // Set column widths to match template
+  ws['!cols']=[
+    {wch:3},   // A
+    {wch:14},  // B ลำดับ
+    {wch:30},  // C รายการสินค้า
+    {wch:4},{wch:4},{wch:4},{wch:4},{wch:4}, // D-H (merged)
+    {wch:11},  // I จำนวน
+    {wch:16},  // J หน่วย
+    {wch:17},  // K ราคา/หน่วย
+    {wch:24},  // L รวม
+  ];
+
+  // Merges matching template
+  ws['!merges']=[
+    {s:{r:2,c:2},e:{r:2,c:5}},  // C3:F3 รหัสลูกค้า
+    {s:{r:3,c:2},e:{r:3,c:11}}, // C4:L4 ชื่อ
+    {s:{r:4,c:2},e:{r:4,c:11}}, // C5:L5 ที่อยู่
+    {s:{r:7,c:2},e:{r:7,c:6}},  // C8:G8 สาขา
+    {s:{r:6,c:4},e:{r:6,c:11}}, // E7:L7 เลขภาษี
+    {s:{r:10,c:2},e:{r:10,c:7}},// C11:H11 รายการสินค้า header
+    {s:{r:22,c:1},e:{r:22,c:8}},// B23:I23 รวมสินค้า
+    {s:{r:23,c:1},e:{r:23,c:9}},// B24:J24 VAT
+  ];
+  // Data rows: C merged C:H
+  for(let i=0;i<MAX_ROWS;i++){
+    ws['!merges'].push({s:{r:11+i,c:2},e:{r:11+i,c:7}});
+  }
+
+  XLSX.utils.book_append_sheet(wb,ws,'ฟอร์ม');
+
+  // ══════════ Sheet 2: รูปภาพสินค้า ══════════
+  const img_data=[[null,null,'*แนบบภาพสินค้า','ชื่อสินค้า','รูปภาพ']];
+  rows7.forEach(r=>img_data.push([null,null,null,r.name,null]));
+  const ws2=XLSX.utils.aoa_to_sheet(img_data);
+  XLSX.utils.book_append_sheet(wb,ws2,'รูปภาพสินค้า');
+
+  // Download
+  const today=new Date();
+  const fname=`vcanbuy_export_${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}.xlsx`;
+  XLSX.writeFile(wb,fname);
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// STEP 8 — GROUP BY SKU + EXPORT TO PEAK EXCEL
+// ═══════════════════════════════════════════════════════════
+let rows8=[];
+
+function buildStep8(){
+  if(!rows6.length){alert('ไม่มีข้อมูล กรุณาทำขั้นตอน 5-6 ก่อน');return;}
+
+  // Group rows6 by SKU → รวม qty และ weighted avg unitAfter
+  // 1 แถว = 1 SKU (สี) เหมือน template
+  const bysku={};
+  for(const r of rows6){
+    const sku=r.sku||'';
+    if(!sku||sku==='?') continue;
+    if(!bysku[sku]) bysku[sku]={sku, code:r.code, name:r.name, color:r.color, totalQty:0, totalCost:0};
+    bysku[sku].totalQty+=r.qty;
+    bysku[sku].totalCost+=r.total;
+  }
+
+  rows8=Object.values(bysku).map(g=>({
+    sku:   g.sku,
+    code:  g.code,
+    name:  g.name,
+    color: g.color,
+    desc:  `${g.code} - ${g.name} - (${g.color})`,
+    qty:   g.totalQty,
+    unitPrice: g.totalQty>0 ? r2(g.totalCost/g.totalQty) : 0
+  }));
+
+  // Render preview
+  const tbody=document.getElementById('tbody-8');
+  tbody.innerHTML=rows8.map((r,i)=>`<tr>
+    <td class="ncell">${i+1}</td>
+    <td class="mono" style="font-size:10px;">${esc(r.sku.slice(0,18))}…</td>
+    <td class="ncell">114102</td>
+    <td style="font-size:11px;">${esc(r.desc)}</td>
+    <td class="ncell">${r.qty.toLocaleString()}</td>
+    <td class="ncell">${fmt(r.unitPrice)}</td>
+    <td class="ncell">7%</td>
+  </tr>`).join('');
+
+  const totalQty=rows8.reduce((s,r)=>s+r.qty,0);
+  document.getElementById('sum-8').textContent=`${rows8.length} รายการ (SKU) | รวม ${totalQty.toLocaleString()} ชิ้น`;
+}
+
+function exportPeakExcel(){
+  if(!rows8.length){buildStep8();}
+  if(!rows8.length){alert('ไม่มีข้อมูล');return;}
+  if(typeof XLSX==='undefined'){alert('กำลังโหลด SheetJS กรุณารอสักครู่แล้วลองใหม่');return;}
+
+  const now=new Date();
+  const dateStr=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+
+  // Header row — เหมือน template เป๊ะ
+  const headers=[
+    'ลำดับที่*','วันที่เอกสาร','อ้างอิงถึง','ผู้รับเงิน/คู่ค้า',
+    'เลขทะเบียน 13 หลัก','เลขสาขา 5 หลัก','เลขที่ใบกำกับฯ (ถ้ามี)',
+    'วันที่ใบกำกับฯ (ถ้ามี)','วันที่บันทึกภาษีซื้อ (ถ้ามี)','ประเภทราคา',
+    'สินค้า/บริการ','บัญชี','คำอธิบาย','จำนวน','ราคาต่อหน่วย','อัตราภาษี',
+    'หัก ณ ที่จ่าย (ถ้ามี)','ชำระโดย','จำนวนเงินที่ชำระ','ภ.ง.ด. (ถ้ามี)',
+    'หมายเหตุ','กลุ่มจัดประเภท'
+  ];
+
+  // Data rows — ลำดับที่ = 1 ทุกแถว (เอกสารเดียวกัน)
+  const dataRows=rows8.map(r=>[
+    1,              // A ลำดับที่
+    parseInt(dateStr), // B วันที่เอกสาร YYYYMMDD
+    null,           // C อ้างอิงถึง
+    'C00253',       // D ผู้รับเงิน/คู่ค้า
+    125566031560,   // E เลขทะเบียน 13 หลัก
+    0,              // F เลขสาขา 5 หลัก
+    null,           // G เลขที่ใบกำกับฯ
+    parseInt(dateStr), // H วันที่ใบกำกับฯ
+    parseInt(dateStr), // I วันที่บันทึกภาษีซื้อ
+    1,              // J ประเภทราคา
+    r.sku,          // K สินค้า/บริการ (SKU เต็ม)
+    114102,         // L บัญชี
+    r.desc,         // M คำอธิบาย "B21 - Charming Belt - (น้ำตาลอ่อน)"
+    r.qty,          // N จำนวน
+    r.unitPrice,    // O ราคาต่อหน่วย
+    0.07,           // P อัตราภาษี
+    null,           // Q หัก ณ ที่จ่าย
+    'ADV001',       // R ชำระโดย
+    null,           // S จำนวนเงินที่ชำระ
+    null,           // T ภ.ง.ด.
+    null,           // U หมายเหตุ
+    null            // V กลุ่มจัดประเภท
+  ]);
+
+  const wb=XLSX.utils.book_new();
+  const wsData=[headers,...dataRows];
+  const ws=XLSX.utils.aoa_to_sheet(wsData);
+
+  // Column widths — เหมือน template
+  ws['!cols']=[
+    {wch:8},{wch:10},{wch:12},{wch:12},{wch:17},{wch:14},
+    {wch:18},{wch:17},{wch:20},{wch:11},{wch:22},{wch:8},
+    {wch:28},{wch:8},{wch:13},{wch:10},{wch:16},{wch:8},
+    {wch:14},{wch:12},{wch:17},{wch:19}
+  ];
+
+  XLSX.utils.book_append_sheet(wb,ws,'Import_PurchaseInventory');
+  XLSX.writeFile(wb,`peak_import_${dateStr}.xlsx`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATE PERSISTENCE — จดจำข้อมูลทั้งหมดใน localStorage
+// ═══════════════════════════════════════════════════════════
+function saveState(){
+  try{
+    const state={
+      rawOrders: document.getElementById('inp-orders')?.value||'',
+      rawProducts: document.getElementById('inp-products')?.value||'',
+      rawBoxes: document.getElementById('inp-boxes')?.value||'',
+      parsedOrders, parsedBoxes, rows4, rows6,
+      lastStep: currentStep
+    };
+    localStorage.setItem('vcb_state', JSON.stringify(state));
+  }catch(e){console.warn('saveState failed',e);}
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem('vcb_state');
+    if(!raw) return;
+    const state=JSON.parse(raw);
+
+    // Restore textarea values
+    if(state.rawOrders) document.getElementById('inp-orders').value=state.rawOrders;
+    if(state.rawProducts) document.getElementById('inp-products').value=state.rawProducts;
+    if(state.rawBoxes) document.getElementById('inp-boxes').value=state.rawBoxes;
+
+    // Restore parsed data
+    if(state.parsedOrders?.length){
+      parsedOrders=state.parsedOrders;
+      renderStep2();
+    }
+    if(state.parsedBoxes && Object.keys(state.parsedBoxes).length){
+      parsedBoxes=state.parsedBoxes;
+    }
+    if(state.rows4?.length){
+      rows4=state.rows4;
+      renderStep4();
+    }
+    if(state.rows6?.length){
+      rows6=state.rows6;
+      renderStep6();
+    }
+
+    // Restore last step
+    const step=state.lastStep||1;
+    if(step>1){
+      goto(step);
+      if(step===1) alert_('alert-1','info','โหลดข้อมูลเดิมแล้ว — กด "ประมวลผล" เพื่อใช้งาน');
+    }
+  }catch(e){console.warn('loadState failed',e);}
+}
+
+function clearAll(){
+  if(!confirm('ล้างข้อมูลทั้งหมด? (คำสั่งสั่งซื้อ, ผลลัพธ์ทุกขั้นตอน)')) return;
+  localStorage.removeItem('vcb_state');
+  parsedOrders=[];parsedBoxes={};rows4=[];rows6=[];rows7=[];
+  document.getElementById('inp-orders').value='';
+  document.getElementById('inp-products').value='';
+  document.getElementById('inp-boxes').value='';
+  document.getElementById('alert-1').innerHTML='';
+  document.getElementById('orders-display').innerHTML='';
+  document.getElementById('tbody-4').innerHTML='';
+  document.getElementById('tbody-6').innerHTML='';
+  document.getElementById('unmapped-warn').innerHTML='';
+  document.getElementById('unmap-section').style.display='none';
+  goto(1);
+  alert_('alert-1','success','ล้างข้อมูลทั้งหมดแล้ว');
+}
+
 // ── INIT
 // ล้าง localStorage เก่าที่อาจ corrupt (vcb3_cn, vcb3_vt ไม่ใช้แล้ว)
 localStorage.removeItem('vcb3_cn');
 localStorage.removeItem('vcb3_vt');
 loadStorage();
 renderSkuTable();
+loadState(); // restore ข้อมูลเดิม
 </script>
 </body>
 </html>
