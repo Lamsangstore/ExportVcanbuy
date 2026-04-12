@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VCANBUY Data Processor</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;
+  --border:#30363d;--border2:#444c56;
+  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --accent:#58a6ff;--accent2:#3fb950;--accent3:#f78166;--accent4:#e3b341;
+  --purple:#bc8cff;--teal:#39d353;
+  --r:6px;--r2:10px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;min-height:100vh;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;}
+.topbar-sub{font-size:11px;color:var(--text3);}
+
+/* ── STEPPER ── */
+.stepper{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;}
+.step-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;cursor:pointer;border:none;background:none;color:var(--text2);font-family:'Sarabun',sans-serif;font-size:13px;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.step-btn:hover{color:var(--text);background:rgba(88,166,255,.05);}
+.step-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.step-btn.done{color:var(--accent2);}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+.step-btn.active .step-num{background:var(--accent);border-color:var(--accent);color:#fff;}
+.step-btn.done .step-num{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+
+/* ── PANELS ── */
+.panels{position:relative;}
+.panel{display:none;padding:20px;max-width:1400px;margin:0 auto;}
+.panel.active{display:block;}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:16px;}
+.card-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+
+/* ── FORM ELEMENTS ── */
+textarea,input,select{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:8px 10px;font-family:'Sarabun',sans-serif;font-size:13px;outline:none;transition:border .2s;}
+textarea:focus,input:focus,select:focus{border-color:var(--accent);}
+textarea{resize:vertical;width:100%;}
+label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);border:none;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;transition:all .15s;}
+.btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{filter:brightness(1.1);}
+.btn-success{background:var(--accent2);color:#fff;}.btn-success:hover{filter:brightness(1.1);}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2);}.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:rgba(247,129,102,.15);border:1px solid rgba(247,129,102,.3);color:var(--accent3);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+/* ── ALERTS ── */
+.alert{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:12px;}
+.alert-info{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);}
+.alert-success{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.2);color:var(--accent2);}
+.alert-warn{background:rgba(227,179,65,.08);border:1px solid rgba(227,179,65,.2);color:var(--accent4);}
+.alert-error{background:rgba(247,129,102,.08);border:1px solid rgba(247,129,102,.2);color:var(--accent3);}
+
+/* ── TAGS ── */
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:500;background:rgba(88,166,255,.12);color:var(--accent);white-space:nowrap;}
+.tag-green{background:rgba(63,185,80,.12);color:var(--accent2);}
+.tag-orange{background:rgba(247,129,102,.12);color:var(--accent3);}
+.tag-purple{background:rgba(188,140,255,.12);color:var(--purple);}
+.tag-yellow{background:rgba(227,179,65,.12);color:var(--accent4);}
+
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{background:var(--bg3);color:var(--text2);padding:8px 10px;text-align:left;font-weight:600;white-space:nowrap;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:hover{background:rgba(88,166,255,.04);}
+tbody td{padding:7px 10px;vertical-align:middle;}
+.ncell{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+.sum-row{background:var(--bg3)!important;font-weight:600;}
+
+/* ── STEP 2 ORDER CARDS ── */
+.order-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:12px;}
+.order-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.order-id{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--accent);}
+.order-meta{font-size:11px;color:var(--text3);display:flex;gap:12px;flex-wrap:wrap;margin-top:3px;}
+.item-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--border);flex-wrap:wrap;}
+.item-color{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ── STEP 4/6 RESULT TABLE ── */
+.result-section{margin-bottom:20px;}
+.result-title{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.action-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;align-items:center;}
+.copy-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg3);border-top:1px solid var(--border);font-size:11px;color:var(--text3);}
+
+/* ── UPLOAD AREA ── */
+.upload-area{border:2px dashed var(--border2);border-radius:var(--r2);padding:24px;text-align:center;cursor:pointer;transition:all .2s;}
+.upload-area:hover,.upload-area.drag{border-color:var(--accent);background:rgba(88,166,255,.05);}
+.upload-area input{display:none;}
+
+/* ── UNMAPPED ALERT ── */
+.unmap-card{padding:8px 12px;border-radius:6px;background:rgba(247,129,102,.06);border:1px solid rgba(247,129,102,.2);margin-bottom:8px;}
+.unmap-cn{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);word-break:break-all;}
+.unmap-btns{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.map-btn{padding:2px 8px;border-radius:4px;border:1px solid rgba(63,185,80,.3);background:rgba(63,185,80,.08);color:var(--accent2);font-size:11px;cursor:pointer;font-family:'Sarabun',sans-serif;}
+.map-btn:hover{background:rgba(63,185,80,.2);}
+
+/* ── SKU MANAGE TABLE ── */
+.sku-tbl-wrap{max-height:440px;overflow-y:auto;}
+.sku-edit{background:transparent;border:1px solid transparent;color:var(--text);border-radius:4px;padding:3px 6px;font-size:12px;font-family:'Sarabun',sans-serif;width:100%;}
+.sku-edit:focus{background:var(--bg3);border-color:var(--accent);outline:none;}
+.del-btn{width:22px;height:22px;border-radius:4px;border:1px solid rgba(247,129,102,.3);background:rgba(247,129,102,.08);color:var(--accent3);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .stepper{overflow-x:auto;}
+  .step-btn{padding:10px 10px;font-size:12px;}
+  table{font-size:11px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-logo">⚡ VCANBUY</span>
+  <span class="topbar-sub">Data Processor</span>
+</div>
+
+<div class="stepper" id="stepper">
+  <button class="step-btn active" id="stab-1" onclick="goto(1)"><span class="step-num">1</span>คำสั่งสั่งซื้อ</button>
+  <button class="step-btn" id="stab-2" onclick="goto(2)"><span class="step-num">2</span>ข้อมูล Order</button>
+  <button class="step-btn" id="stab-3" onclick="goto(3)"><span class="step-num">3</span>ชื่อสินค้า</button>
+  <button class="step-btn" id="stab-4" onclick="goto(4)"><span class="step-num">4</span>ผลลัพธ์เบื้องต้น</button>
+  <button class="step-btn" id="stab-5" onclick="goto(5)"><span class="step-num">5</span>กล่องพัสดุ</button>
+  <button class="step-btn" id="stab-6" onclick="goto(6)"><span class="step-num">6</span>ผลลัพธ์สุดท้าย</button>
+</div>
+
+<div class="panels">
+
+<!-- ══════════ STEP 1: คำสั่งสั่งซื้อ ══════════ -->
+<div class="panel active" id="p1">
+  <div class="card">
+    <div class="card-title">📋 วางข้อมูลคำสั่งสั่งซื้อจาก VCANBUY</div>
+    <div class="alert alert-info" style="margin-bottom:12px;"><span>💡</span><span>Copy ข้อมูลคำสั่งสั่งซื้อจาก VCANBUY แล้ว Paste ลงด้านล่าง — รองรับหลาย Order พร้อมกัน</span></div>
+    <textarea id="inp-orders" rows="16" placeholder="วางข้อมูลคำสั่งสั่งซื้อที่นี่...&#10;&#10;เลขที่ออเดอร์: XLY260330100427&#10;韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发&#10;深咖Deep,&#10;深咖Deep,&#10;฿20.96  100  ฿7334.6&#10;..."></textarea>
+    <div id="alert-1" style="margin-top:10px;"></div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="doStep1()">▶ ประมวลผล →</button>
+      <button class="btn btn-outline btn-sm" onclick="loadDemo()">📄 โหลดตัวอย่าง</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('inp-orders').value='';document.getElementById('alert-1').innerHTML=''">🗑 ล้าง</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STEP 2: แสดงข้อมูล Order ══════════ -->
+<div class="panel" id="p2">
+  <div id="alert-2" style="margin-bottom:12px;"></div>
+  <div class="result-title">📦 ข้อมูลในคำสั่งสั่งซื้อ <span id="order-count-badge" class="tag" style="margin-left:4px;"></span></div>
+  <div id="orders-display"></div>
+  <div class="action-row">
+    <button class="btn btn-primary" onclick="goto(3)">▶ ถัดไป: ใส่ชื่อสินค้า →</button>
+    <button class="btn btn-outline btn-sm" onclick="goto(1)">← กลับ</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 3: ชื่อสินค้า ══════════ -->
+<div class="panel" id="p3">
+  <div id="unmapped-warn"></div>
+  <div class="card">
+    <div class="card-title">📄 วางข้อมูลชื่อสินค้า (Product SKU)</div>
+    <div class="alert alert-info" style="margin-bottom:12px;"><span>💡</span><span>Paste ข้อมูลชื่อสินค้าจากหน้า Product ของ VCANBUY — ระบบจะ match ชื่อจีนกับ SKU อัตโนมัติ</span></div>
+    <textarea id="inp-products" rows="10" placeholder="วางข้อมูลชื่อสินค้าที่นี่..."></textarea>
+    <div id="alert-3" style="margin-top:10px;"></div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="doStep3()">▶ ตรวจสอบ &amp; ไปขั้นตอนที่ 4 →</button>
+      <button class="btn btn-outline btn-sm" onclick="goto(2)">← กลับ</button>
+    </div>
+  </div>
+
+  <!-- Unmapped CN quick-map section -->
+  <div id="unmap-section" style="display:none;" class="card">
+    <div class="card-title" style="color:var(--accent3);">⚠️ ชื่อจีนที่ยังไม่ได้ map กับ SKU</div>
+    <div id="unmap-list"></div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
+      <button class="btn btn-success" onclick="buildAndGoStep4()" style="font-weight:600;">▶ Map เสร็จแล้ว — ไปขั้นตอน 4 →</button>
+    </div>
+  </div>
+
+  <!-- SKU Management -->
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between;">
+      <span>🗂 จัดการ SKU Mapping</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-outline btn-sm" onclick="exportSku()">⬇️ Export</button>
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;">⬆️ Import<input type="file" accept=".json" onchange="importSku(event)" style="display:none;"></label>
+        <button class="btn btn-outline btn-sm" onclick="resetSku()" style="color:var(--text3);">↺ Reset</button>
+      </div>
+    </div>
+    <!-- Add row -->
+    <div style="display:grid;grid-template-columns:80px 160px 110px 75px 1fr 1fr auto;gap:6px;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:8px;">
+      <input id="nw-code" placeholder="รหัส (B21)">
+      <input id="nw-sku" placeholder="SKU (B1732...)">
+      <input id="nw-name" placeholder="ชื่อสินค้า">
+      <input id="nw-color" placeholder="สี">
+      <input id="nw-cn1" placeholder="ชื่อจีน 1">
+      <input id="nw-cn2" placeholder="ชื่อจีน 2">
+      <button class="btn btn-success btn-sm" onclick="addSkuRow()">+ เพิ่ม</button>
+    </div>
+    <div class="sku-tbl-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:75px;">รหัสสินค้า</th>
+          <th style="min-width:175px;">SKU</th>
+          <th style="min-width:100px;">ชื่อสินค้า</th>
+          <th style="min-width:75px;">สี</th>
+          <th style="min-width:180px;">ชื่อจีน 1</th>
+          <th style="min-width:180px;">ชื่อจีน 2</th>
+          <th style="width:30px;"></th>
+        </tr></thead>
+        <tbody id="sku-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STEP 4: ผลลัพธ์เบื้องต้น ══════════ -->
+<div class="panel" id="p4">
+  <div id="alert-4" style="margin-bottom:12px;"></div>
+  <div class="result-title">📊 ผลลัพธ์เบื้องต้น (ก่อนข้อมูลกล่องพัสดุ)</div>
+  <div class="tbl-wrap">
+    <table id="tbl-4">
+      <thead><tr>
+        <th>Order</th><th>เลขกล่องพัสดุ</th><th>รหัสสินค้า</th><th>SKU</th>
+        <th>ชื่อสินค้า</th><th>สี</th><th>จำนวน</th>
+        <th>ราคา/ชิ้น(฿)</th><th>ขนส่งจีน-จีน</th><th>ค่าบริการ</th>
+        <th>ราคาชิ้นละ(หลังรวม)</th><th>ราคารวมสุทธิ</th>
+      </tr></thead>
+      <tbody id="tbody-4"></tbody>
+    </table>
+  </div>
+  <div class="copy-bar">
+    <span id="sum-4" style="color:var(--text2);"></span>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-outline btn-sm" onclick="copyTSV(4)">📋 Copy TSV</button>
+      <button class="btn btn-success btn-sm" onclick="dlTSV(4)">⬇️ Download</button>
+    </div>
+  </div>
+  <div class="action-row">
+    <button class="btn btn-primary" onclick="goto(5)">▶ ถัดไป: ใส่ข้อมูลกล่องพัสดุ →</button>
+    <button class="btn btn-outline btn-sm" onclick="goto(3)">← กลับ</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 5: กล่องพัสดุ ══════════ -->
+<div class="panel" id="p5">
+  <div class="card">
+    <div class="card-title">📦 วางข้อมูลกล่องพัสดุ</div>
+    <div class="alert alert-info" style="margin-bottom:12px;"><span>💡</span><span>Copy ข้อมูลกล่องพัสดุจาก VCANBUY — ค่าขนส่งจีน-ไทย ค่าบริการนำส่ง ค่าบรรจุภัณฑ์</span></div>
+    <textarea id="inp-boxes" rows="12" placeholder="วางข้อมูลกล่องพัสดุที่นี่...&#10;&#10;ตัวอย่าง:&#10;ออเดอร์ XLY260222100104&#10;เลขซื้อออเดอร์/กล่องพัสดุ: นำมูลค่าตามบิลสินค้าจีน-ไทย...&#10;กล่อง CX26031900..."></textarea>
+    <div id="alert-5" style="margin-top:10px;"></div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="doStep5()">▶ ประมวลผล &amp; ดูผลลัพธ์สุดท้าย →</button>
+      <button class="btn btn-outline btn-sm" onclick="goto(4)">← กลับ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STEP 6: ผลลัพธ์สุดท้าย ══════════ -->
+<div class="panel" id="p6">
+  <div id="alert-6" style="margin-bottom:12px;"></div>
+  <div class="result-title">✅ ผลลัพธ์สุดท้าย (รวมข้อมูลกล่องพัสดุ)</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Order</th><th>กล่องพัสดุ</th><th>รหัสสินค้า</th><th>SKU</th>
+        <th>ชื่อสินค้า</th><th>สี</th><th>จำนวน</th>
+        <th>ราคา/ชิ้น(฿)</th><th>ขนส่งจีน-จีน</th><th>ขนส่งจีน-ไทย</th>
+        <th>ค่าบริการ</th><th>ค่าบริการนำส่ง</th><th>ค่าบรรจุภัณฑ์</th>
+        <th>ขนส่งไทย-ไทย</th><th>ราคาชิ้นละ(หลังรวม)</th><th>ราคารวมสุทธิ</th>
+      </tr></thead>
+      <tbody id="tbody-6"></tbody>
+    </table>
+  </div>
+  <div class="copy-bar">
+    <span id="sum-6" style="color:var(--text2);"></span>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-outline btn-sm" onclick="copyTSV(6)">📋 Copy TSV</button>
+      <button class="btn btn-success btn-sm" onclick="dlTSV(6)">⬇️ Download</button>
+    </div>
+  </div>
+  <div class="action-row">
+    <button class="btn btn-outline btn-sm" onclick="goto(5)">← กลับ</button>
+    <button class="btn btn-outline" onclick="goto(1)">🔄 เริ่มใหม่</button>
+  </div>
+</div>
+
+</div><!-- /panels -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+const DFLT_DATA={"skuVariants":[{"code":"B01","sku":"B1731987624811923275","name":"Anchor Belt","color":"ดำ","cn1":"真皮牛皮皮带女百搭简约装饰高级感牛仔裤带搭阔腿裤ins潮流腰带","cn2":""},{"code":"B01","sku":"B1731987624811988811","name":"Anchor Belt","color":"น้ำตาล","cn1":"真皮牛皮皮带女百搭简约装饰高级感牛仔裤带搭阔腿裤ins潮流腰带","cn2":""},{"code":"B02","sku":"B1732144982167029579","name":"Shiny Belt","color":"ดำ","cn1":"高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins","cn2":"高级感女士皮带简约百搭韩版2024春夏季新款女式配牛仔裤腰带ins"},{"code":"B02","sku":"B1732144982167160651","name":"Shiny Belt","color":"คาราเมล","cn1":"高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins","cn2":"高级感女士皮带简约百搭韩版2024春夏季新款女式配牛仔裤腰带ins"},{"code":"B02","sku":"B1732144982167095115","name":"Shiny Belt","color":"น้ำตาล","cn1":"高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins","cn2":"高级感女士皮带简约百搭韩版2024春夏季新款女式配牛仔裤腰带ins"},{"code":"B03","sku":"B1732145008732702539","name":"Vintage Belt","color":"ดำ","cn1":"女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带","cn2":""},{"code":"B03","sku":"B1732145008732768075","name":"Vintage Belt","color":"น้ำตาล","cn1":"女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带","cn2":""},{"code":"B03","sku":"B1732145008732833611","name":"Vintage Belt","color":"กรม","cn1":"女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带","cn2":""},{"code":"B04","sku":"B1734055299012593483","name":"Chloe Belt","color":"ชานม","cn1":"厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发","cn2":""},{"code":"B04","sku":"B1734055299012331339","name":"Chloe Belt","color":"ดำ","cn1":"厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发","cn2":""},{"code":"B04","sku":"B1734055299012462411","name":"Chloe Belt","color":"คาราเมล","cn1":"厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发","cn2":""},{"code":"B04","sku":"B1734055299012396875","name":"Chloe Belt","color":"น้ำตาลเข้ม","cn1":"厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发","cn2":""},{"code":"B04","sku":"B1734055299012527947","name":"Chloe Belt","color":"กาแฟ","cn1":"厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发","cn2":""},{"code":"B05","sku":"B1734054839872816971","name":"Pixie Belt","color":"ดำ","cn1":"真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货","cn2":""},{"code":"B05","sku":"B1734054839872948043","name":"Pixie Belt","color":"น้ำตาล","cn1":"真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货","cn2":""},{"code":"B05","sku":"B1734054839873079115","name":"Pixie Belt","color":"ครีม","cn1":"真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货","cn2":""},{"code":"B05","sku":"B1734054839873013579","name":"Pixie Belt","color":"กากี","cn1":"真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货","cn2":""},{"code":"B05","sku":"B1734054839873144651","name":"Pixie Belt","color":"ขาว","cn1":"真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货","cn2":""},{"code":"B05","sku":"B1734054839872882507","name":"Pixie Belt","color":"เทา","cn1":"真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货","cn2":""},{"code":"B06","sku":"B1734417334917695307","name":"LUNA Belt","color":"ดำ","cn1":"韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士","cn2":""},{"code":"B06","sku":"B1734417334917826379","name":"LUNA Belt","color":"ครีม","cn1":"韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士","cn2":""},{"code":"B06","sku":"B1734417334917760843","name":"LUNA Belt","color":"น้ำตาลอ่อน","cn1":"韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士","cn2":""},{"code":"B06","sku":"B1734417334917891915","name":"LUNA Belt","color":"ขาว","cn1":"韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士","cn2":""},{"code":"B07","sku":"B1734417394897618763","name":"Twinny Belt","color":"ดำ & ขาว","cn1":"新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带","cn2":""},{"code":"B07","sku":"B1734417396263782219","name":"Twinny Belt","color":"ดำ & กากี","cn1":"新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带","cn2":""},{"code":"B07","sku":"B1734417396263847755","name":"Twinny Belt","color":"ดำ & ส้ม","cn1":"新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带","cn2":""},{"code":"B07","sku":"B1734417396263913291","name":"Twinny Belt","color":"ขาว & กากี","cn1":"新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带","cn2":""},{"code":"B17","sku":"B1729659628623727435","name":"Classic Belt","color":"ดำ","cn1":"韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发","cn2":""},{"code":"B17","sku":"B1729659628623924043","name":"Classic Belt","color":"แดง","cn1":"韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发","cn2":""},{"code":"B17","sku":"B1729659628623792971","name":"Classic Belt","color":"น้ำตาลเข้ม","cn1":"韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发","cn2":""},{"code":"B17","sku":"B1729659628623661899","name":"Classic Belt","color":"ขาว","cn1":"韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发","cn2":""},{"code":"B17","sku":"B1729659628623858507","name":"Classic Belt","color":"น้ำตาลอ่อน","cn1":"韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发","cn2":""},{"code":"B18","sku":"B1729775084205017931","name":"Tiny Belt","color":"ดำ","cn1":"皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货","cn2":""},{"code":"B18","sku":"B1729775084205083467","name":"Tiny Belt","color":"ขาว","cn1":"皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货","cn2":""},{"code":"B18","sku":"B1729775084205149003","name":"Tiny Belt","color":"น้ำตาลอ่อน","cn1":"皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货","cn2":""},{"code":"B18","sku":"B1729775084205214539","name":"Tiny Belt","color":"กากี","cn1":"皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货","cn2":""},{"code":"B20","sku":"B1730760027744602955","name":"Glowing Belt","color":"ดำ","cn1":"时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带","cn2":""},{"code":"B20","sku":"B1730760027744734027","name":"Glowing Belt","color":"ขาว","cn1":"时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带","cn2":""},{"code":"B20","sku":"B1730760027744668491","name":"Glowing Belt","color":"น้ำตาลเข้ม","cn1":"时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带","cn2":""},{"code":"B21","sku":"B1730760313732434763","name":"Charming Belt","color":"น้ำตาลอ่อน","cn1":"韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女","cn2":""},{"code":"B21","sku":"B1730760313732500299","name":"Charming Belt","color":"กากี","cn1":"韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女","cn2":""},{"code":"B21","sku":"B1730760313732303691","name":"Charming Belt","color":"ดำ","cn1":"韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女","cn2":""},{"code":"B21","sku":"B1730760313732369227","name":"Charming Belt","color":"น้ำตาลเข้ม","cn1":"韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女","cn2":""},{"code":"B21","sku":"B1734414838340093771","name":"Charming Belt","color":"ขาว","cn1":"韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女","cn2":""},{"code":"กล่องเข็มขัด","sku":"","name":"กล่องเข็มขัด","color":"","cn1":"天地盖牛皮纸皮带包装盒饰品礼盒腰带纸盒正方形首饰小黑盒礼品盒","cn2":""}],"cnToCode":{"cn:真皮牛皮皮带女百搭简约装饰高级感牛仔裤带搭阔腿裤ins潮流腰带":"B01","cn:高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins":"B02","cn:高级感女士皮带简约百搭韩版2024春夏季新款女式配牛仔裤腰带ins":"B02","cn:女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带":"B03","cn:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发":"B04","cn:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货":"B05","cn:韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士":"B06","cn:新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带":"B07","cn:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发":"B17","cn:皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货":"B18","cn:时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带":"B20","cn:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女":"B21","cn:天地盖牛皮纸皮带包装盒饰品礼盒腰带纸盒正方形首饰小黑盒礼品盒":"กล่องเข็มขัด"},"variantToSku":{"variant:韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士::黑色":"B1734417334917695307","variant:韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士::黑色Black":"B1734417334917695307","variant:韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士::杏色":"B1734417334917826379","variant:韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士::杏色Apricot":"B1734417334917826379","variant:韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士::驼色":"B1734417334917760843","variant:韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士::驼色Lighttan":"B1734417334917760843","variant:韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士::白色":"B1734417334917891915","variant:韩国ins百搭方形日字扣皮带女黑色时尚大气装饰年仔裤腰带女士::白色White":"B1734417334917891915","variant:新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带::白色":"B1734417394897618763","variant:新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带::白色+黑色White+Black":"B1734417394897618763","variant:新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带::浅灰色":"B1734417396263913291","variant:新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带::浅灰色+黑色LightGray+Black":"B1734417396263782219","variant:新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带::橙色":"B1734417396263847755","variant:新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带::橙色+黑色Orange+Black":"B1734417396263847755","variant:新款皮带女夏季配裙子西装百搭女士双面两用收腰裤带两面用腰带::浅灰色+白色LightGray+White":"B1734417396263913291","variant:皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货::黑色":"B1729775084205017931","variant:皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货::黑色Black":"B1729775084205017931","variant:皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货::白色":"B1729775084205083467","variant:皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货::白色White":"B1729775084205083467","variant:皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货::卡其色":"B1729775084205149003","variant:皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货::卡其色Khaki":"B1729775084205149003","variant:皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货::杏色":"B1729775084205214539","variant:皮带女士牛仔裤时尚百搭腰带女细装饰ins风简约韩国裤带黑色现货::杏色Apricot":"B1729775084205214539","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::驼色":"B1730760313732434763","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::驼色Lighttan":"B1730760313732434763","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::卡其色":"B1730760313732500299","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::卡其色Khaki":"B1730760313732500299","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::黑色":"B1730760313732303691","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::黑色Black":"B1730760313732303691","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::咖啡色":"B1730760313732369227","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::咖啡色Brown":"B1730760313732369227","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::白色":"B1734414838340093771","variant:韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女::白色White":"B1734414838340093771","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::黑色":"B1729659628623727435","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::黑色Black":"B1729659628623727435","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::红棕":"B1729659628623924043","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::红棕RedPalm":"B1729659628623924043","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::深咖":"B1729659628623792971","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::深咖Deep":"B1729659628623792971","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::白色":"B1729659628623661899","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::白色White":"B1729659628623661899","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::驼色":"B1729659628623858507","variant:韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发::驼色Lighttan":"B1729659628623858507","variant:时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带::黑色":"B1730760027744602955","variant:时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带::黑色Black":"B1730760027744602955","variant:时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带::白色":"B1730760027744734027","variant:时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带::白色White":"B1730760027744734027","variant:时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带::棕色":"B1730760027744668491","variant:时尚百搭黑色牛皮细皮带女装饰配连衣裙子简约韩版西装白色小腰带::棕色Brown":"B1730760027744668491","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::米色":"B1734055299012593483","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::米色Cream-colored":"B1734055299012593483","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::黑色":"B1734055299012331339","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::黑色Black":"B1734055299012331339","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::焦糖色":"B1734055299012462411","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::焦糖色CaramelColor":"B1734055299012462411","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::咖啡色":"B1734055299012396875","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::咖啡色Brown":"B1734055299012396875","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::大象灰":"B1734055299012527947","variant:厂家直销小皮带女简约百搭腰带细配裙子衬衫西装裤带细款一件代发::大象灰ElephantGray":"B1734055299012527947","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-黑色16586-":"B1734054839872816971","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-黑色16586-Black":"B1734054839872816971","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-焦糖色16586-":"B1734054839872948043","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-焦糖色16586-CaramelColor":"B1734054839872948043","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-米色16586-":"B1734054839873079115","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-米色16586-Cream-colored":"B1734054839873079115","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-卡其16586-":"B1734054839873013579","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-卡其16586-สีกากี":"B1734054839873013579","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-白色16586-":"B1734054839873144651","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-白色16586-White":"B1734054839873144651","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-深灰16586-":"B1734054839872882507","variant:真皮女士细腰带牛皮百搭时尚女式韩版简约港风牛仔裤女生皮带现货::16586-深灰16586-หมอก":"B1734054839872882507","variant:高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins::黑色":"B1732144982167029579","variant:高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins::黑色Black":"B1732144982167029579","variant:高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins::焦糖色":"B1732144982167160651","variant:高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins::焦糖色CaramelColor":"B1732144982167160651","variant:高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins::咖色":"B1732144982167095115","variant:高级感女士皮带简约百搭韩版春夏季新款女式配牛仔裤腰带ins::咖色Brown":"B1732144982167095115","variant:女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带::黑色":"B1732145008732702539","variant:女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带::黑色Black":"B1732145008732702539","variant:女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带::咖啡色":"B1732145008732768075","variant:女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带::咖啡色Brown":"B1732145008732768075","variant:女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带::藏青色":"B1732145008732833611","variant:女士腰带ins风韩版休闲女学生皮带百搭潮流商务针扣青年装饰腰带::藏青色Navy":"B1732145008732833611","variant:真皮牛皮皮带女百搭简约装饰高级感牛仔裤带搭阔腿裤ins潮流腰带::黑色":"B1731987624811923275","variant:真皮牛皮皮带女百搭简约装饰高级感牛仔裤带搭阔腿裤ins潮流腰带::黑色Black":"B1731987624811923275","variant:真皮牛皮皮带女百搭简约装饰高级感牛仔裤带搭阔腿裤ins潮流腰带::咖啡色":"B1731987624811988811","variant:真皮牛皮皮带女百搭简约装饰高级感牛仔裤带搭阔腿裤ins潮流腰带::咖啡色Brown":"B1731987624811988811"}};
+
+// ── State
+let skuVariants=[...DFLT_DATA.skuVariants];
+let cnToCode={...DFLT_DATA.cnToCode};
+let variantToSku={...DFLT_DATA.variantToSku};
+
+let parsedOrders=[]; // [{orderId,boxId,serviceFee,shpCNCN,items:[{variantLine,qty,priceThb,cancelled}]}]
+let rows4=[];        // step 4 result rows
+let rows6=[];        // step 6 result rows
+let currentStep=1;
+
+// ── Helpers
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const r2=v=>Math.round(v*100)/100;
+const fmt=v=>v.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function loadStorage(){
+  // skuVariants: โหลดจาก localStorage ถ้ามี ไม่งั้นใช้ DFLT
+  try{
+    const sv=localStorage.getItem('vcb3_sv');
+    skuVariants=sv?JSON.parse(sv):JSON.parse(JSON.stringify(DFLT_DATA.skuVariants));
+  }catch(e){
+    skuVariants=JSON.parse(JSON.stringify(DFLT_DATA.skuVariants));
+  }
+
+  // cnToCode + variantToSku: สร้างใหม่จาก DFLT_DATA + skuVariants เสมอ
+  // ไม่ใช้ localStorage เพราะอาจ corrupt
+  rebuildLookups();
+}
+
+function rebuildLookups(){
+  // เริ่มจาก DFLT_DATA
+  cnToCode=JSON.parse(JSON.stringify(DFLT_DATA.cnToCode));
+  variantToSku=JSON.parse(JSON.stringify(DFLT_DATA.variantToSku));
+  // เพิ่มจาก skuVariants (รวม user-added rows)
+  for(const v of skuVariants){
+    if(v.cn1&&v.code) cnToCode['cn:'+v.cn1]=v.code;
+    if(v.cn2&&v.code) cnToCode['cn:'+v.cn2]=v.code;
+    if(v.sku&&v.cn1&&v.color){
+      const cp=(v.color.match(/^([\u4e00-\u9fff\-\d]+)/)||[])[1];
+      // ไม่ rebuild variantToSku จาก color ไทย เพราะ key ใช้ CN prefix
+      // variantToSku ใช้จาก DFLT เท่านั้น + สิ่งที่ quickMap เพิ่ม (session only)
+    }
+  }
+}
+
+function saveStorage(){
+  // บันทึกแค่ skuVariants
+  localStorage.setItem('vcb3_sv',JSON.stringify(skuVariants));
+  // ไม่บันทึก cnToCode และ variantToSku — rebuild ทุกครั้ง
+}
+// saveStorage defined below
+
+// ── Navigation
+function goto(n){
+  for(let i=1;i<=6;i++){
+    document.getElementById('p'+i).classList.toggle('active',i===n);
+    const b=document.getElementById('stab-'+i);
+    b.classList.remove('active');
+    if(i<n) b.classList.add('done'); else b.classList.remove('done');
+    if(i===n) b.classList.add('active');
+  }
+  currentStep=n;
+  window.scrollTo(0,0);
+}
+
+function alert_(id,type,msg){
+  const ic={success:'✅',error:'❌',warn:'⚠️',info:'ℹ️'};
+  document.getElementById(id).innerHTML=`<div class="alert alert-${type}"><span>${ic[type]||'•'}</span><div>${msg}</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STEP 1 — PARSE ORDERS
+// ═══════════════════════════════════════════════════════════
+function doStep1(){
+  const raw=document.getElementById('inp-orders').value.trim();
+  if(!raw){alert_('alert-1','error','กรุณาวางข้อมูลคำสั่งสั่งซื้อก่อน');return;}
+  parsedOrders=parseOrders(raw);
+  if(!parsedOrders.length){alert_('alert-1','error','ไม่พบข้อมูล Order — ตรวจสอบ format ข้อมูล');return;}
+  alert_('alert-1','success',`parse สำเร็จ: ${parsedOrders.length} Orders`);
+  renderStep2();
+  goto(2);
+}
+
+function parseOrders(raw){
+  const blocks=raw.split(/(?=เลขที่ออเดอร์:)/);
+  const orders=[];
+  for(const blk of blocks){
+    if(!blk.trim()) continue;
+    const lines=blk.split('\n').map(l=>l.trim()).filter(Boolean);
+    const order={orderId:'',boxId:'',serviceFee:0,exRate:0,totalShpCNCN:0,items:[]};
+    let curCn='';let curVariant='';let variantCount=0;let curStatus='';
+
+    for(let i=0;i<lines.length;i++){
+      const ln=lines[i];
+
+      // Order ID (อาจอยู่บรรทัดเดียวกับอัตราแลก)
+      const mOid=ln.match(/เลขที่ออเดอร์:\s*([A-Z0-9]+)/);
+      if(mOid) order.orderId=mOid[1];
+
+      // Exchange rate
+      const mEx=ln.match(/อัตราแลกเปลี่ยน[:\s]+([\d.]+)\s*บาท/);
+      if(mEx) order.exRate=parseFloat(mEx[1]);
+
+      // Box ID
+      const mBox=ln.match(/เลขกล่องพัสดุ[:\s]+([A-Z0-9]+)/);
+      if(mBox){order.boxId=mBox[1];continue;}
+
+      // ค่าบริการ
+      if(/^ค่าบริการ[:\s]/.test(ln)){
+        const m=ln.match(/฿([\d,]+\.?\d*)/);
+        if(m) order.serviceFee=parseFloat(m[1].replace(/,/g,''));
+        continue;
+      }
+
+      // Skip noise
+      if(/^(บิลสั่งซื้อ|ดูรายละเอียด|วันที่เปิด|ราคารวม|ขนส่งจีนไทย|ค่าตี|ค่าใช้|ค่าขนส่งภายใน|ขนส่งใน|รูปแบบ|ประกัน|คูปอง|ส่วนลด|หมายเหตุ|ที่อยู่|ผู้รับ|เบอร์โทร|รหัสไปรษณีย์|สถานะ|สินค้าจำนวน|Surprise|Welcome|รวม\()/.test(ln)) continue;
+
+      // Status
+      if(/^(ทั่วไป|กำลังเดินทาง|นำส่งบริษัท|รอร้านค้า|สินค้าหมด|ยกเลิก)/.test(ln)){curStatus=ln;continue;}
+
+      // ── FORMAT A no-tab: 40￥4.5￥0฿0฿0฿887.4-
+      const fmtA=ln.match(/^(\d+)￥([\d,]+\.?\d*)￥([\d,]+\.?\d*)/);
+      if(fmtA){
+        const qty=parseInt(fmtA[1]);
+        const priceY=parseFloat(fmtA[2].replace(/,/g,''));
+        const shpY=parseFloat(fmtA[3].replace(/,/g,''));
+        const price=r2(priceY*(order.exRate||1));
+        const shp=r2(shpY*(order.exRate||1));
+        if(shp>0) order.totalShpCNCN=r2(order.totalShpCNCN+shp);
+        const cancelled=curStatus.includes('ยกเลิก');
+        order.items.push({chineseName:curCn,variantLine:curVariant||curCn,fullCnKey:curCn+(curVariant?'\n'+curVariant+'\n'+curVariant:''),qty,priceThb:price,cancelled});
+        curVariant='';variantCount=0;curStatus='';
+        continue;
+      }
+
+      // ── FORMAT B: ฿price TAB qty
+      const fmtB=ln.match(/^฿([\d,]+\.?\d*)\t(\d+)/);
+      if(fmtB){
+        const price=parseFloat(fmtB[1].replace(/,/g,''));
+        const qty=parseInt(fmtB[2]);
+        const cancelled=curStatus.includes('ยกเลิก');
+        order.items.push({chineseName:curCn,variantLine:curVariant||curCn,fullCnKey:curCn+(curVariant?'\n'+curVariant+'\n'+curVariant:''),qty,priceThb:price,cancelled});
+        curVariant='';variantCount=0;curStatus='';
+        continue;
+      }
+
+      // ── FORMAT A with TAB: qty TAB ￥price TAB ￥shp ...
+      const fmtAT=ln.match(/^(\d+)\t[฿￥]/);
+      if(fmtAT){
+        const qty=parseInt(fmtAT[1]);
+        const yuanVals=[...ln.matchAll(/￥([\d,]+\.?\d*)/g)].map(m=>parseFloat(m[1].replace(/,/g,'')));
+        const priceRaw=yuanVals[0]||0;
+        const shpY=yuanVals[1]||0;
+        const price=order.exRate>0?r2(priceRaw*order.exRate):priceRaw;
+        const shp=order.exRate>0?r2(shpY*order.exRate):shpY;
+        if(shp>0) order.totalShpCNCN=r2(order.totalShpCNCN+shp);
+        const cancelled=curStatus.includes('ยกเลิก');
+        order.items.push({chineseName:curCn,variantLine:curVariant||curCn,fullCnKey:curCn+(curVariant?'\n'+curVariant+'\n'+curVariant:''),qty,priceThb:price,cancelled});
+        curVariant='';variantCount=0;curStatus='';
+        continue;
+      }
+
+      // ── CHINESE LINE
+      if(/[\u4e00-\u9fff]/.test(ln)){
+        // Strip "1. " numbering + status suffix
+        let cln=ln.replace(/^\d+\.\s*/,'')
+          .replace(/\s*(ทั่วไป|กำลังเดินทาง|นำส่งบริษัท|รอร้านค้า|ยกเลิก|สินค้าหมด).*$/,'').trim();
+        if(!cln) continue;
+        const cnChars=cln.replace(/[^\u4e00-\u9fff]/g,'').length;
+        const isVariant=!!(cln.match(/,\s*$|,\s*\d+cm\s*$/)||
+          (cln.length<60&&/[A-Z]/.test(cln)&&!/[\u0e00-\u0e7f]{5,}/.test(cln)));
+        if(!isVariant&&cnChars<10) continue; // supplier name
+        if(isVariant){
+          variantCount++;
+          if(variantCount===1) curVariant=cln;
+          // variantCount===2 = ซ้ำ (VCANBUY แสดง 2 ครั้ง) → ไม่ต้องทำอะไร
+        } else {
+          curCn=cln; curVariant=''; variantCount=0;
+        }
+        continue;
+      }
+    }
+    if(order.orderId||order.items.length) orders.push(order);
+  }
+  return orders;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STEP 2 — DISPLAY ORDER INFO (no product names yet)
+// ═══════════════════════════════════════════════════════════
+function renderStep2(){
+  const activeOrders=parsedOrders.filter(o=>!o.orderCancelled);
+  document.getElementById('order-count-badge').textContent=activeOrders.length+' Orders';
+  const html=parsedOrders.map(o=>{
+    const activeItems=o.items.filter(i=>!i.cancelled);
+    const totalQty=activeItems.reduce((s,i)=>s+i.qty,0);
+    const totalPrice=activeItems.reduce((s,i)=>s+i.qty*i.priceThb,0);
+    const totalSvc=r2(o.serviceFee||0);
+    const totalShpCNCN=r2(o.totalShpCNCN||0);
+
+    const itemsHtml=activeItems.map(i=>`
+      <div class="item-row">
+        <span class="item-color" title="${esc(i.chineseName)}">${esc(i.variantLine.slice(0,50))}</span>
+        <span class="tag">${i.qty.toLocaleString()} ชิ้น</span>
+        <span class="tag tag-yellow">฿${fmt(i.priceThb)}/ชิ้น</span>
+        ${i.shpCNCN>0?`<span class="tag tag-orange">จีน-จีน ฿${fmt(i.shpCNCN)}</span>`:''}
+        ${i.serviceFee>0?`<span class="tag" style="background:rgba(188,140,255,.12);color:var(--purple);">ค่าบริการ ฿${fmt(i.serviceFee)}</span>`:''}
+      </div>`).join('');
+
+    const cancelHtml=o.items.filter(i=>i.cancelled).length>0?
+      `<div style="font-size:11px;color:var(--accent3);margin-top:6px;">🚫 ยกเลิก ${o.items.filter(i=>i.cancelled).length} รายการ</div>`:'';
+
+    // Summary chips
+    const chips=[
+      `<span style="font-size:11px;color:var(--text2);">${activeItems.length} รายการ</span>`,
+      `<span style="font-size:11px;color:var(--text2);">รวม ${totalQty.toLocaleString()} ชิ้น</span>`,
+      `<span style="font-size:11px;color:var(--accent4);">฿${fmt(totalPrice)}</span>`,
+    ];
+    if(o.exRate>0) chips.push(`<span class="tag tag-green" style="font-size:10px;">อัตราแลก ${o.exRate} ฿/¥</span>`);
+    if(totalSvc>0) chips.push(`<span class="tag" style="font-size:10px;background:rgba(188,140,255,.12);color:var(--purple);">ค่าบริการรวม ฿${fmt(totalSvc)}</span>`);
+    if(totalShpCNCN>0) chips.push(`<span class="tag tag-orange" style="font-size:10px;">จีน-จีน ฿${fmt(totalShpCNCN)}</span>`);
+
+    return `<div class="order-card">
+      <div class="order-header">
+        <div>
+          <div class="order-id">${esc(o.orderId)}</div>
+          <div class="order-meta" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+            ${o.boxId?`<span>📦 ${esc(o.boxId)}</span>`:'<span style="color:var(--accent3);">⚠️ ไม่มีเลขกล่อง</span>'}
+            ${chips.join('')}
+          </div>
+        </div>
+      </div>
+      ${itemsHtml}${cancelHtml}
+    </div>`;
+  }).join('');
+  document.getElementById('orders-display').innerHTML=html;
+  alert_('alert-2','info',`แสดงข้อมูล ${parsedOrders.length} Orders — สินค้าแสดงเป็น <b>ชื่อจีน/สี</b> เท่านั้น กด "ถัดไป" เพื่อเพิ่มชื่อสินค้า`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// STEP 3 — PRODUCT NAMES + SKU MAPPING
+// ═══════════════════════════════════════════════════════════
+function doStep3(){
+  const rawP=document.getElementById('inp-products').value.trim();
+  if(rawP) parseProductNames(rawP);
+  checkUnmapped();
+}
+
+function checkUnmapped(){
+  const unmapped=getUnmappedVariants();
+  if(unmapped.length>0){
+    renderUnmapSection(unmapped);
+    alert_('alert-3','warn',`พบ <b>${unmapped.length} SKU variant</b> ที่ยังไม่ได้ map — เลือก SKU แล้วกด ✓ Map`);
+    document.getElementById('unmap-section').style.display='block';
+    setTimeout(()=>document.getElementById('unmap-section').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  } else {
+    // ไม่มี unmapped → ไป Step 4 เลย
+    document.getElementById('unmap-section').style.display='none';
+    buildAndGoStep4();
+  }
+}
+
+function buildAndGoStep4(){
+  buildStep4();
+  goto(4);
+  alert_('alert-4','success',`✅ สร้างผลลัพธ์เบื้องต้น ${rows4.length} รายการ`);
+}
+
+function parseProductNames(raw){
+  if(!raw) return;
+
+  // Parse Step 3 data เป็น [{cn, variant}] pairs
+  // รูปแบบ: ชื่อจีนหลัก → variant line → variant line (ซ้ำ) → ราคา qty
+  const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  const productPairs=[]; // {cn, variantLine}
+  let curCn='';
+
+  for(const ln of lines){
+    if(!/[\u4e00-\u9fff]/.test(ln)) continue;
+    // strip "1. " numbering and status suffix
+    let cln=ln.replace(/^\d+\.\s*/,'')
+              .replace(/\s*(ทั่วไป|นำส่งบริษัท|กำลังเดินทาง|รอร้านค้า).*$/,'').trim();
+    if(!cln) continue;
+    const cnChars=cln.replace(/[^\u4e00-\u9fff]/g,'').length;
+    const isVariant=!!(cln.match(/,\s*$|,\s*\d+cm\s*$/)||
+      (cln.length<60&&/[A-Z]/.test(cln)&&!/[\u0e00-\u0e7f]{5,}/.test(cln)));
+
+    // Skip supplier name เฉพาะ non-variant สั้น เช่น 平阳县青碟服饰商行
+    // (variant line มี CN น้อยก็ OK เช่น 驼色Lighttan = 2 ตัว)
+    if(!isVariant && cnChars<5) continue;
+
+    if(!isVariant && cnChars>=10){
+      curCn=cln;
+    } else if(isVariant && curCn){
+      if(!productPairs.find(p=>p.cn===curCn&&p.variantLine===cln)){
+        productPairs.push({cn:curCn, variantLine:cln});
+      }
+    }
+  }
+
+  if(productPairs.length===0) return;
+
+  // สร้าง lookup: colorPrefix → {cn, variantLine}
+  const pfxMap={}; // '驼色' → {cn, variantLine}
+  for(const p of productPairs){
+    const cp=p.variantLine.split(',')[0].trim();
+    const pfx=(cp.match(/^([\u4e00-\u9fff\-\d]+)/)||[])[1]||'';
+    if(pfx) pfxMap[pfx]=p;
+    // also exact color string
+    pfxMap[cp]=p;
+  }
+
+  // Inject chineseName เข้า order items ที่ยังไม่มี (หรือมีแค่ variant)
+  let injected=0;
+  for(const o of parsedOrders){
+    for(const item of o.items){
+      if(item.cancelled) continue;
+      // ถ้ามี chineseName ที่ใช้งานได้แล้ว (match ใน cnToCode) → ข้าม
+      if(item.chineseName && cnToCode['cn:'+item.chineseName]) continue;
+
+      // หา match จาก variantLine
+      const vl=item.variantLine||'';
+      const cp=vl.split(',')[0].trim();
+      const pfx=(cp.match(/^([\u4e00-\u9fff\-\d]+)/)||[])[1]||'';
+
+      const match=pfxMap[cp]||pfxMap[pfx];
+      if(match){
+        item.chineseName=match.cn;
+        item.fullCnKey=match.cn+'\n'+match.variantLine+'\n'+match.variantLine;
+        // อัปเดต cnToCode ถ้ายังไม่มี
+        if(!cnToCode['cn:'+match.cn]){
+          // ลอง match กับ DFLT_DATA โดย cn prefix
+          const pfx8=match.cn.slice(0,8);
+          const found=Object.keys(DFLT_DATA.cnToCode).find(k=>k.startsWith('cn:'+pfx8));
+          if(found) cnToCode['cn:'+match.cn]=DFLT_DATA.cnToCode[found];
+        }
+        injected++;
+      }
+    }
+  }
+
+  if(injected>0) console.log(`Injected chineseName into ${injected} order items`);
+}
+
+// ── detect unmapped at VARIANT level (cn + variantLine → specific SKU)
+function getUnmappedVariants(){
+  const seen=new Set();
+  const result=[];
+  for(const o of parsedOrders){
+    for(const i of o.items){
+      if(i.cancelled) continue;
+      const key=(i.fullCnKey||i.chineseName||'')+'::'+i.variantLine;
+      if(seen.has(key)) continue;
+      seen.add(key);
+      const resolved=lookupSku(i.chineseName, i.variantLine, i.fullCnKey);
+      if(!resolved||resolved.code==='?'||!resolved.sku||!resolved.sku.startsWith('B1')){
+        result.push({cn:i.chineseName, variantLine:i.variantLine, fullCnKey:i.fullCnKey||i.chineseName, orderId:o.orderId, qty:i.qty});
+      }
+    }
+  }
+  return result;
+}
+
+function renderUnmapSection(unmapped){
+  const byCn=new Map();
+  for(const u of unmapped){
+    if(!byCn.has(u.cn)) byCn.set(u.cn,[]);
+    byCn.get(u.cn).push(u);
+  }
+
+  window._unmapData={};
+  let idx=0;
+  const html=Array.from(byCn.entries()).map(([cn,variants])=>{
+    const variantHtml=variants.map(u=>{
+      const i=idx++;
+      window._unmapData[i]={cn:u.cn, variantLine:u.variantLine, fullCnKey:u.fullCnKey||u.cn};
+      const opts=skuVariants
+        .filter(v=>v.sku&&v.sku.startsWith('B1'))
+        .map(v=>`<option value="${esc(v.sku)}">${esc(v.code)} ${esc(v.name)} — ${esc(v.color)}</option>`)
+        .join('');
+
+      // แสดง fullCnKey ของ variant นี้ (cn หลัก + variant line x2)
+      const fullLines=(u.fullCnKey||u.cn).split('\n');
+      const fullDisplay=fullLines.map((l,li)=>
+        `<div style="font-family:monospace;font-size:${li===0?'11px':'10px'};color:${li===0?'var(--text)':'var(--text3);margin-top:1px'};">${esc(l)}</div>`
+      ).join('');
+
+      return `<div id="ucard-${i}" style="margin:6px 0;padding:10px 12px;background:rgba(88,166,255,.04);border-radius:6px;border-left:3px solid var(--border2);">
+        <div style="margin-bottom:8px;">${fullDisplay}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <select class="umap-sel" data-idx="${i}" style="flex:1;min-width:220px;max-width:360px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:5px;padding:5px 8px;font-size:12px;font-family:'Sarabun',sans-serif;">
+            <option value="">— เลือก SKU —</option>
+            ${opts}
+          </select>
+          <button class="btn btn-success btn-sm" onclick="doMap(${i})" style="white-space:nowrap;">✓ Map</button>
+          <span style="font-size:10px;color:var(--text3);">${u.qty} ชิ้น | ${esc(u.orderId.slice(-8))}</span>
+          <span id="ustatus-${i}" style="font-size:11px;color:var(--accent2);"></span>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="unmap-card" style="margin-bottom:12px;">${variantHtml}</div>`;
+  }).join('');
+
+  document.getElementById('unmap-list').innerHTML=html;
+  document.getElementById('unmapped-warn').innerHTML=`
+    <div class="alert alert-warn">
+      <span>⚠️</span>
+      <div>พบ <b>${unmapped.length} SKU variant</b> ที่ยังไม่ได้ map — เลือก SKU แล้วกด ✓ Map
+        <button class="btn btn-primary btn-sm" style="margin-left:10px;" onclick="buildAndGoStep4()">ข้ามไปก่อน →</button>
+      </div>
+    </div>`;
+}
+
+function doMap(i){
+  const data=window._unmapData[i];
+  if(!data) return;
+  const sel=document.querySelector(`.umap-sel[data-idx="${i}"]`);
+  if(!sel||!sel.value){alert('กรุณาเลือก SKU ก่อน');return;}
+  quickMap(data.fullCnKey||data.cn, data.cn, data.variantLine, sel.value, i);
+}
+
+function quickMap(fullCnKey, cn, variantLine, sku, cardIdx){
+  const sv=skuVariants.find(v=>v.sku===sku);
+  if(!sv) return;
+  const code=sv.code;
+
+  // 1. Map ทั้ง cn (บรรทัดแรก) และ fullCnKey → code
+  cnToCode['cn:'+cn]=code;
+  if(fullCnKey && fullCnKey!==cn) cnToCode['cn:'+fullCnKey]=code;
+
+  // 2. เพิ่ม cn ใหม่เข้า skuVariant row — cn1 คือ cn เดิม, cn2 = cn ใหม่ที่ต่างออกไป
+  const existing=skuVariants.find(v=>v.sku===sku);
+  if(existing){
+    if(existing.cn1!==cn && existing.cn2!==cn){
+      if(!existing.cn2) existing.cn2=cn;
+    }
+  }
+
+  // 3. เพิ่ม variantToSku keys สำหรับ cn ใหม่นี้ (session only - ไม่ save localStorage)
+  const colorFull=variantLine.split(',')[0].trim();
+  const cnPfx=(colorFull.match(/^([\u4e00-\u9fff\-\d]+)/)||[])[1]||'';
+  variantToSku[`variant:${cn}::${colorFull}`]=sku;
+  if(cnPfx&&cnPfx!==colorFull) variantToSku[`variant:${cn}::${cnPfx}`]=sku;
+  if(fullCnKey&&fullCnKey!==cn){
+    variantToSku[`variant:${fullCnKey}::${colorFull}`]=sku;
+    if(cnPfx&&cnPfx!==colorFull) variantToSku[`variant:${fullCnKey}::${cnPfx}`]=sku;
+  }
+
+  // บันทึก skuVariants (เฉพาะ table) และ rebuild lookups
+  saveStorage();
+
+  const card=document.getElementById(`ucard-${cardIdx}`);
+  if(card){
+    card.style.background='rgba(63,185,80,.06)';
+    card.style.borderLeftColor='var(--accent2)';
+    const s2=card.querySelector('.umap-sel');if(s2) s2.disabled=true;
+    const btn=card.querySelector('.btn-success');if(btn) btn.disabled=true;
+  }
+  const st=document.getElementById(`ustatus-${cardIdx}`);
+  if(st) st.textContent=`✅ ${code} ${sv.name} ${sv.color}`;
+
+  const remaining=getUnmappedVariants();
+  if(remaining.length===0){
+    document.getElementById('unmapped-warn').innerHTML=`<div class="alert alert-success"><span>✅</span><span>Map ครบทุก SKU แล้ว — กด <b>▶ Map เสร็จแล้ว — ไปขั้นตอน 4</b> ด้านล่างได้เลย</span></div>`;
+  } else {
+    document.getElementById('unmapped-warn').innerHTML=`<div class="alert alert-warn"><span>⚠️</span><span>ยังเหลือ <b>${remaining.length} SKU</b> ที่ยังไม่ได้ map</span></div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOOKUP HELPERS
+// ═══════════════════════════════════════════════════════════
+function getCnPrefix(s){
+  const m=s.match(/^([\u4e00-\u9fff\-\d]+)/);
+  return m?m[1]:'';
+}
+
+function lookupSku(chineseName, variantLine, fullCnKey){
+  const vLine=(variantLine||'').split(',')[0].trim();
+  const vPfx=getCnPrefix(vLine);
+
+  function makeResult(code, sku){
+    const sv=skuVariants.find(v=>v.sku===sku)||skuVariants.find(v=>v.code===code);
+    return{code,sku,name:sv?.name||code,color:sv?.color||vLine};
+  }
+
+  // 1. Lookup โดย chineseName → cnToCode → variantToSku
+  if(chineseName){
+    let code=cnToCode['cn:'+chineseName];
+    if(!code&&fullCnKey) code=cnToCode['cn:'+fullCnKey];
+    if(code){
+      const exact=`variant:${chineseName}::${vLine}`;
+      if(variantToSku[exact]) return makeResult(code,variantToSku[exact]);
+      if(vPfx){
+        for(const [k,sku] of Object.entries(variantToSku)){
+          if(!k.startsWith(`variant:${chineseName}::`)) continue;
+          if(getCnPrefix(k.split('::')[1]||'')===vPfx) return makeResult(code,sku);
+        }
+      }
+      const sv=skuVariants.find(v=>v.code===code);
+      if(sv) return makeResult(code,sv.sku||code);
+    }
+  }
+
+  // 2. Fallback: ไม่มี / หาไม่เจอ chineseName
+  //    ค้นหาจาก colorPrefix ทั่วทั้ง variantToSku
+  if(vPfx){
+    for(const [k,sku] of Object.entries(variantToSku)){
+      const kColor=k.split('::')[1]||'';
+      if(getCnPrefix(kColor)===vPfx){
+        const sv=skuVariants.find(v=>v.sku===sku);
+        if(sv) return makeResult(sv.code,sku);
+      }
+    }
+  }
+
+  // 3. Exact color string match ทั่วทั้ง variantToSku
+  for(const [k,sku] of Object.entries(variantToSku)){
+    if(k.endsWith('::'+vLine)){
+      const sv=skuVariants.find(v=>v.sku===sku);
+      if(sv) return makeResult(sv.code,sku);
+    }
+  }
+
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STEP 4 — BUILD & RENDER (no box data)
+// ═══════════════════════════════════════════════════════════
+function buildStep4(){
+  rows4=[];
+  for(const o of parsedOrders){
+    const active=o.items.filter(i=>!i.cancelled);
+    const totQty=active.reduce((s,i)=>s+i.qty,0);
+    // ค่าขนส่งจีน-จีน และ ค่าบริการ เป็นของทั้ง Order — หาร proportional ตาม qty
+    const orderShpCNCN=r2(o.totalShpCNCN||0); // สะสมจาก Format A items
+    const orderSvcFee=r2(o.serviceFee||0);     // จาก header "ค่าบริการ: ฿68.77"
+    for(const item of active){
+      const info=lookupSku(item.chineseName, item.variantLine, item.fullCnKey);
+      const code=info?.code||'?';
+      const sku=info?.sku||'';
+      const name=info?.name||item.chineseName?.slice(0,20)||'-';
+      const color=info?.color||item.variantLine?.split(',')[0]||'-';
+      const priceUnit=r2(item.priceThb);
+      // แบ่ง shpCNCN และ svcFee proportional ตาม qty
+      const prop=totQty>0?item.qty/totQty:0;
+      const shpCNCN=r2(orderShpCNCN*prop);
+      const svcFee=r2(orderSvcFee*prop);
+      const total=r2(item.qty*priceUnit+shpCNCN+svcFee);
+      const unitAfter=item.qty>0?r2(total/item.qty):0;
+      rows4.push({
+        orderId:o.orderId,boxId:o.boxId||'-',
+        code,sku,name,color,
+        qty:item.qty,priceUnit,shpCNCN,svcFee,
+        unitAfter,total,
+        chineseName:item.chineseName,variantLine:item.variantLine,priceThb:priceUnit
+      });
+    }
+  }
+  renderStep4();
+}
+
+function renderStep4(){
+  const tbody=document.getElementById('tbody-4');
+  tbody.innerHTML=rows4.map(r=>`<tr>
+    <td class="mono" style="font-size:11px;">${esc(r.orderId)}</td>
+    <td class="mono" style="font-size:11px;">${esc(r.boxId)}</td>
+    <td><span class="tag">${esc(r.code)}</span></td>
+    <td class="mono" style="font-size:10px;" title="${esc(r.sku)}">${r.sku?r.sku.slice(0,15)+'…':'-'}</td>
+    <td>${esc(r.name)}</td>
+    <td><span class="tag tag-purple">${esc(r.color)}</span></td>
+    <td class="ncell">${r.qty.toLocaleString()}</td>
+    <td class="ncell">${fmt(r.priceUnit)}</td>
+    <td class="ncell">${fmt(r.shpCNCN)}</td>
+    <td class="ncell">${fmt(r.svcFee)}</td>
+    <td class="ncell">${fmt(r.unitAfter)}</td>
+    <td class="ncell" style="color:var(--accent2);">${fmt(r.total)}</td>
+  </tr>`).join('');
+  const totalQty=rows4.reduce((s,r)=>s+r.qty,0);
+  const totalAmt=rows4.reduce((s,r)=>s+r.total,0);
+  document.getElementById('sum-4').textContent=`${rows4.length} รายการ | ${totalQty.toLocaleString()} ชิ้น | รวม ฿${fmt(totalAmt)}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STEP 5 — PARSE BOXES
+// ═══════════════════════════════════════════════════════════
+let parsedBoxes={};
+
+function doStep5(){
+  const raw=document.getElementById('inp-boxes').value.trim();
+  parsedBoxes=parseBoxes(raw);
+  buildStep6();
+  goto(6);
+}
+
+function parseBoxes(raw){
+  const result={};// orderId → [{boxId, shpCNTH, shpTH, delivFee, packFee}]
+  if(!raw) return result;
+  const lines=raw.split('\n').map(l=>l.trim());
+  let curOrder='';
+  let curBox='';
+  for(let i=0;i<lines.length;i++){
+    const ln=lines[i];
+    const mOrd=ln.match(/ออเดอร์\s+(\S+)|Order[:\s]+(\S+)|เลขที่ออเดอร์[:\s]+(\S+)/);
+    if(mOrd){curOrder=mOrd[1]||mOrd[2]||mOrd[3];continue;}
+    const mBox=ln.match(/กล่อง\s+(C[A-Z0-9]+|T[A-Z0-9]+)/i)||ln.match(/^(CX\d+|TX\d+)/);
+    if(mBox){curBox=mBox[1]||mBox[0];continue;}
+    // Price line: multiple ฿ values
+    const prices=[...ln.matchAll(/฿([\d,]+\.?\d*)/g)].map(m=>parseFloat(m[1].replace(/,/g,'')));
+    if(prices.length>=3&&curOrder){
+      const [shpCNTH,shpTH,delivFee,packFee]=prices;
+      if(!result[curOrder]) result[curOrder]=[];
+      result[curOrder].push({boxId:curBox,shpCNTH:shpCNTH||0,shpTH:shpTH||0,delivFee:delivFee||0,packFee:packFee||0});
+      curBox='';
+    }
+  }
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STEP 6 — FINAL RESULTS
+// ═══════════════════════════════════════════════════════════
+function buildStep6(){
+  rows6=[];
+  // Group rows4 by orderId
+  const byOrder={};
+  for(const r of rows4){
+    if(!byOrder[r.orderId]) byOrder[r.orderId]=[];
+    byOrder[r.orderId].push(r);
+  }
+  for(const [orderId,items] of Object.entries(byOrder)){
+    const totQty=items.reduce((s,i)=>s+i.qty,0);
+    // Get box data for this order
+    const boxes=parsedBoxes[orderId]||[];
+    const sumShpCNTH=boxes.reduce((s,b)=>s+b.shpCNTH,0);
+    const sumShpTH=boxes.reduce((s,b)=>s+b.shpTH,0);
+    const sumDeliv=boxes.reduce((s,b)=>s+b.delivFee,0);
+    const sumPack=boxes.reduce((s,b)=>s+b.packFee,0);
+    const boxId=boxes.length>0?boxes.map(b=>b.boxId).join(', '):(items[0]?.boxId||'-');
+
+    for(const item of items){
+      const prop=totQty>0?item.qty/totQty:0;
+      const cnthA=r2(sumShpCNTH*prop);
+      const thA=r2(sumShpTH*prop);
+      const delivA=r2(sumDeliv*prop);
+      const packA=r2(sumPack*prop);
+      const svcA=r2(item.svcFee||0);  // ← ค่าบริการจาก Order จริง
+      const total=r2(item.qty*item.priceUnit+item.shpCNCN+cnthA+svcA+delivA+packA+thA);
+      const unitAfter=item.qty>0?r2(total/item.qty):0;
+      rows6.push({...item,boxId,shpCNTH:cnthA,shpTH:thA,delivFee:delivA,packFee:packA,svcFee:svcA,total,unitAfter});
+    }
+  }
+  renderStep6();
+}
+
+function renderStep6(){
+  const tbody=document.getElementById('tbody-6');
+  tbody.innerHTML=rows6.map(r=>`<tr>
+    <td class="mono" style="font-size:11px;">${esc(r.orderId)}</td>
+    <td class="mono" style="font-size:11px;">${esc(r.boxId)}</td>
+    <td><span class="tag">${esc(r.code)}</span></td>
+    <td class="mono" style="font-size:10px;" title="${esc(r.sku)}">${r.sku?r.sku.slice(0,15)+'…':'-'}</td>
+    <td>${esc(r.name)}</td>
+    <td><span class="tag tag-purple">${esc(r.color)}</span></td>
+    <td class="ncell">${r.qty.toLocaleString()}</td>
+    <td class="ncell">${fmt(r.priceUnit)}</td>
+    <td class="ncell">${fmt(r.shpCNCN)}</td>
+    <td class="ncell">${fmt(r.shpCNTH)}</td>
+    <td class="ncell">${fmt(r.svcFee)}</td>
+    <td class="ncell">${fmt(r.delivFee)}</td>
+    <td class="ncell">${fmt(r.packFee)}</td>
+    <td class="ncell">${fmt(r.shpTH)}</td>
+    <td class="ncell">${fmt(r.unitAfter)}</td>
+    <td class="ncell" style="color:var(--accent2);">${fmt(r.total)}</td>
+  </tr>`).join('');
+  const totalQty=rows6.reduce((s,r)=>s+r.qty,0);
+  const totalAmt=rows6.reduce((s,r)=>s+r.total,0);
+  document.getElementById('sum-6').textContent=`${rows6.length} รายการ | ${totalQty.toLocaleString()} ชิ้น | รวม ฿${fmt(totalAmt)}`;
+  alert_('alert-6','success',`ผลลัพธ์สุดท้าย ${rows6.length} รายการ — รวม ฿${fmt(totalAmt)}`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// TSV EXPORT
+// ═══════════════════════════════════════════════════════════
+function getTSV(step){
+  if(step===4){
+    const hdr=['Order','เลขกล่องพัสดุ','รหัสสินค้า','SKU','ชื่อสินค้า','สี','จำนวน','ราคา/ชิ้น(฿)','ขนส่งจีน-จีน','ค่าบริการ','ราคาชิ้นละ(หลังรวม)','ราคารวมสุทธิ'];
+    const rows=rows4.map(r=>[r.orderId,r.boxId,r.code,r.sku,r.name,r.color,r.qty,r.priceUnit,r.shpCNCN,r.svcFee,r.unitAfter,r.total]);
+    return [hdr,...rows].map(r=>r.join('\t')).join('\n');
+  }
+  if(step===6){
+    const hdr=['Order','กล่องพัสดุ','รหัสสินค้า','SKU','ชื่อสินค้า','สี','จำนวน','ราคา/ชิ้น(฿)','ขนส่งจีน-จีน','ขนส่งจีน-ไทย','ค่าบริการ','ค่าบริการนำส่ง','ค่าบรรจุภัณฑ์','ขนส่งไทย-ไทย','ราคาชิ้นละ(หลังรวม)','ราคารวมสุทธิ'];
+    const rows=rows6.map(r=>[r.orderId,r.boxId,r.code,r.sku,r.name,r.color,r.qty,r.priceUnit,r.shpCNCN,r.shpCNTH,r.svcFee,r.delivFee,r.packFee,r.shpTH,r.unitAfter,r.total]);
+    return [hdr,...rows].map(r=>r.join('\t')).join('\n');
+  }
+  return '';
+}
+function copyTSV(step){
+  navigator.clipboard.writeText(getTSV(step)).then(()=>alert(`Copy TSV สำเร็จ`));
+}
+function dlTSV(step){
+  const blob=new Blob([getTSV(step)],{type:'text/tab-separated-values'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`vcanbuy_step${step}_${new Date().toISOString().slice(0,10)}.tsv`;
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════════
+// SKU MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+function renderSkuTable(){
+  const tbody=document.getElementById('sku-tbody');
+  const codes=[...new Set(skuVariants.map(v=>v.code))];
+  const colors={};let ci=0;
+  codes.forEach(c=>{colors[c]=ci++%2;});
+  tbody.innerHTML=skuVariants.map((v,i)=>`<tr style="${colors[v.code]===1?'background:rgba(255,255,255,.015);':''}">
+    <td><span class="tag">${esc(v.code)}</span></td>
+    <td class="mono" style="font-size:10px;" title="${esc(v.sku)}">${v.sku?(v.sku.slice(0,16)+'…'):'-'}</td>
+    <td><input class="sku-edit" value="${esc(v.name)}" onchange="updateSv(${i},'name',this.value)"></td>
+    <td><input class="sku-edit" value="${esc(v.color)}" onchange="updateSv(${i},'color',this.value)"></td>
+    <td style="font-size:10px;color:var(--text2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(v.cn1)}">${esc((v.cn1||'').slice(0,28))}${(v.cn1||'').length>28?'…':''}</td>
+    <td style="font-size:10px;color:var(--text3);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(v.cn2)}">${esc((v.cn2||'').slice(0,28))}${(v.cn2||'').length>28?'…':''}</td>
+    <td><button class="del-btn" onclick="delSv(${i})">✕</button></td>
+  </tr>`).join('');
+}
+function updateSv(i,f,v){skuVariants[i][f]=v.trim();saveStorage();}
+function delSv(i){if(!confirm('ลบ?'))return;skuVariants.splice(i,1);saveStorage();renderSkuTable();}
+function addSkuRow(){
+  const code=document.getElementById('nw-code').value.trim();
+  const sku=document.getElementById('nw-sku').value.trim();
+  const name=document.getElementById('nw-name').value.trim();
+  const color=document.getElementById('nw-color').value.trim();
+  const cn1=document.getElementById('nw-cn1').value.trim();
+  const cn2=document.getElementById('nw-cn2').value.trim();
+  if(!code||!sku){alert('ต้องใส่รหัสสินค้าและ SKU');return;}
+  skuVariants.push({code,sku,name,color,cn1,cn2});
+  if(cn1) cnToCode['cn:'+cn1]=code;
+  if(cn2) cnToCode['cn:'+cn2]=code;
+  saveStorage(); renderSkuTable();
+  ['nw-code','nw-sku','nw-name','nw-color','nw-cn1','nw-cn2'].forEach(id=>document.getElementById(id).value='');
+}
+function exportSku(){
+  const blob=new Blob([JSON.stringify({skuVariants,cnToCode,variantToSku},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='vcanbuy_sku.json';a.click();
+}
+function importSku(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>{
+    try{const d=JSON.parse(ev.target.result);
+      if(d.skuVariants)skuVariants=d.skuVariants;
+      if(d.cnToCode)cnToCode=d.cnToCode;
+      if(d.variantToSku)variantToSku=d.variantToSku;
+      saveStorage();renderSkuTable();alert('Import สำเร็จ');
+    }catch{alert('ไฟล์ JSON ไม่ถูกต้อง');}
+  };r.readAsText(f);
+}
+function resetSku(){
+  if(!confirm('รีเซ็ต SKU เป็นค่า default? (ล้างข้อมูลที่บันทึกไว้ทั้งหมด)'))return;
+  localStorage.removeItem('vcb3_sv');
+  localStorage.removeItem('vcb3_cn');
+  localStorage.removeItem('vcb3_vt');
+  skuVariants=JSON.parse(JSON.stringify(DFLT_DATA.skuVariants));
+  cnToCode=JSON.parse(JSON.stringify(DFLT_DATA.cnToCode));
+  variantToSku=JSON.parse(JSON.stringify(DFLT_DATA.variantToSku));
+  renderSkuTable();
+  alert('✅ Reset เรียบร้อย');
+}
+
+// ── DEMO
+function loadDemo(){
+  document.getElementById('inp-orders').value=`เลขที่ออเดอร์: XLY260330100427
+เลขกล่องพัสดุ: CX26033100042701
+韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发
+深咖Deep,
+深咖Deep,
+฿20.96\t100\t฿7334.6
+韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发
+黑色Black,
+黑色Black,
+฿20.96\t200\t฿12483.5
+
+เลขที่ออเดอร์: XLY260330100425
+เลขกล่องพัสดุ: CX26033100042501
+韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女
+驼色Lighttan, 105cm
+驼色Lighttan, 105cm
+฿21.46\t340\t฿21846.8
+韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女
+卡其色Khaki, 105cm
+卡其色Khaki, 105cm
+฿21.46\t150\t฿9649.3`;
+}
+
+// ── INIT
+// ล้าง localStorage เก่าที่อาจ corrupt (vcb3_cn, vcb3_vt ไม่ใช้แล้ว)
+localStorage.removeItem('vcb3_cn');
+localStorage.removeItem('vcb3_vt');
+loadStorage();
+renderSkuTable();
+</script>
+</body>
+</html>
