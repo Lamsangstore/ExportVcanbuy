@@ -425,6 +425,161 @@ tbody tr:nth-child(n+9){animation-delay:.18s;}
   #main-content{margin-left:0!important;}
   .hidden-mobile{display:none;}
 }
+
+/* ══ TOPBAR ANIMATIONS ══ */
+header::after{
+  content:'';position:absolute;bottom:0;left:0;height:2px;width:0%;
+  background:linear-gradient(90deg,#68587c,#396478,#68587c);
+  background-size:200% auto;
+  animation:shimmer 3s linear infinite;
+  transition:width .5s cubic-bezier(.22,1,.36,1);
+}
+#step-progress-bar{
+  position:absolute;bottom:0;left:0;height:2.5px;
+  background:linear-gradient(90deg,rgba(104,88,124,.0),#68587c,#396478,#68587c,rgba(57,100,120,.0));
+  background-size:300% auto;
+  animation:shimmer 2.5s linear infinite;
+  border-radius:0 2px 2px 0;
+  transition:width .55s cubic-bezier(.22,1,.36,1);
+}
+
+/* ══ SIDEBAR GLOW ON ACTIVE ══ */
+#sidebar::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent 0%,rgba(104,88,124,.3) 40%,rgba(57,100,120,.25) 60%,transparent 100%);
+  animation:sidebarGlow 3s ease-in-out infinite;
+}
+@keyframes sidebarGlow{
+  0%,100%{opacity:.4;}
+  50%{opacity:1;}
+}
+
+/* ══ ACTIVE SIDEBAR ITEM ══ */
+.sidebar-item.active{
+  background:linear-gradient(90deg,rgba(104,88,124,.15),rgba(104,88,124,.05),transparent)!important;
+  color:#68587c!important;font-weight:700!important;
+  box-shadow:inset 0 0 0 1px rgba(104,88,124,.15);
+}
+.sidebar-item.active::after{
+  content:'';position:absolute;right:0;top:15%;bottom:15%;width:3px;
+  background:linear-gradient(135deg,#68587c,#396478);
+  border-radius:3px 0 0 3px;
+  animation:slideRight .3s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes slideRight{from{transform:scaleY(0);}to{transform:scaleY(1);}}
+
+/* ══ SIDEBAR STEP NUMBER BADGE ══ */
+.sidebar-item .step-badge{
+  width:20px;height:20px;border-radius:50%;
+  background:#e5eeff;color:#3d618c;
+  font-size:10px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-left:auto;
+  transition:all .25s;
+}
+.sidebar-item.active .step-badge{background:linear-gradient(135deg,#68587c,#5c4d6f);color:#fff;box-shadow:0 2px 8px rgba(104,88,124,.4);}
+.sidebar-item.done .step-badge{background:#22c55e;color:#fff;}
+
+/* ══ TOPBAR BRAND PULSE ══ */
+.topbar-logo-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:linear-gradient(135deg,#68587c,#396478);
+  animation:topbarPulse 2s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes topbarPulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(104,88,124,.4);}
+  50%{transform:scale(1.2);box-shadow:0 0 0 6px rgba(104,88,124,.0);}
+}
+
+/* ══ STEPPER CONNECTOR ANIMATION ══ */
+.step-connector{
+  width:20px;height:2px;
+  background:linear-gradient(90deg,#d2e4ff,#b8cfe8);
+  border-radius:1px;margin-bottom:14px;flex-shrink:0;
+  transition:all .4s ease;
+  position:relative;overflow:hidden;
+}
+.step-connector.done{background:linear-gradient(90deg,#22c55e,#16a34a);}
+.step-connector.done::after{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);
+  animation:connectorShine .8s ease both;
+}
+@keyframes connectorShine{from{left:-100%;}to{left:100%;}}
+
+/* ══ PANEL SLIDE INDICATOR ══ */
+.panel-enter{animation:panelSlideIn .4s cubic-bezier(.22,1,.36,1) both;}
+.panel-exit{animation:panelSlideOut .25s ease both;}
+@keyframes panelSlideIn{
+  from{opacity:0;transform:translateX(24px) scale(.99);}
+  to{opacity:1;transform:translateX(0) scale(1);}
+}
+@keyframes panelSlideOut{
+  from{opacity:1;transform:translateX(0);}
+  to{opacity:0;transform:translateX(-16px);}
+}
+
+/* ══ TOPBAR STEP LABEL ACTIVE ══ */
+.step-btn.active .stab-label{
+  background:linear-gradient(90deg,#68587c,#396478);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  font-weight:800!important;
+}
+
+/* ══ SIDEBAR LOGO ANIMATION ══ */
+#sidebar-logo-icon{
+  animation:logoBreathe 4s ease-in-out infinite;
+}
+@keyframes logoBreathe{
+  0%,100%{box-shadow:0 4px 12px rgba(104,88,124,.3);}
+  50%{box-shadow:0 6px 24px rgba(104,88,124,.55),0 0 0 6px rgba(104,88,124,.08);}
+}
+
+/* ══ TABLE ROW COLORS BY ORDER ID ══ */
+/* Palette of 10 gentle alternating hues */
+.trow-0{background:rgba(104,88,124,.04);}
+.trow-1{background:rgba(57,100,120,.04);}
+.trow-2{background:rgba(34,197,94,.04);}
+.trow-3{background:rgba(202,138,4,.04);}
+.trow-4{background:rgba(168,54,75,.04);}
+.trow-5{background:rgba(6,120,166,.04);}
+.trow-6{background:rgba(128,90,155,.04);}
+.trow-7{background:rgba(22,163,74,.04);}
+.trow-8{background:rgba(217,119,6,.04);}
+.trow-9{background:rgba(14,116,144,.04);}
+tbody tr.trow-0:hover{background:rgba(104,88,124,.09)!important;}
+tbody tr.trow-1:hover{background:rgba(57,100,120,.09)!important;}
+tbody tr.trow-2:hover{background:rgba(34,197,94,.09)!important;}
+tbody tr.trow-3:hover{background:rgba(202,138,4,.09)!important;}
+tbody tr.trow-4:hover{background:rgba(168,54,75,.09)!important;}
+tbody tr.trow-5:hover{background:rgba(6,120,166,.09)!important;}
+tbody tr.trow-6:hover{background:rgba(128,90,155,.09)!important;}
+tbody tr.trow-7:hover{background:rgba(22,163,74,.09)!important;}
+tbody tr.trow-8:hover{background:rgba(217,119,6,.09)!important;}
+tbody tr.trow-9:hover{background:rgba(14,116,144,.09)!important;}
+
+/* left border accent for each color group */
+tbody tr[class*="trow-"] td:first-child{border-left:3px solid transparent;}
+tbody tr.trow-0 td:first-child{border-left-color:rgba(104,88,124,.4);}
+tbody tr.trow-1 td:first-child{border-left-color:rgba(57,100,120,.4);}
+tbody tr.trow-2 td:first-child{border-left-color:rgba(34,197,94,.4);}
+tbody tr.trow-3 td:first-child{border-left-color:rgba(202,138,4,.4);}
+tbody tr.trow-4 td:first-child{border-left-color:rgba(168,54,75,.4);}
+tbody tr.trow-5 td:first-child{border-left-color:rgba(6,120,166,.4);}
+tbody tr.trow-6 td:first-child{border-left-color:rgba(128,90,155,.4);}
+tbody tr.trow-7 td:first-child{border-left-color:rgba(22,163,74,.4);}
+tbody tr.trow-8 td:first-child{border-left-color:rgba(217,119,6,.4);}
+tbody tr.trow-9 td:first-child{border-left-color:rgba(14,116,144,.4);}
+
+/* frozen animation on tbody to avoid conflict with stagger */
+tbody tr.trow-0,tbody tr.trow-1,tbody tr.trow-2,tbody tr.trow-3,tbody tr.trow-4,
+tbody tr.trow-5,tbody tr.trow-6,tbody tr.trow-7,tbody tr.trow-8,tbody tr.trow-9{
+  transition:background .2s ease;
+}
+
 </style>
 </head>
 <body class="bg-surface-container-low text-on-surface min-h-screen">
@@ -434,11 +589,11 @@ tbody tr:nth-child(n+9){animation-delay:.18s;}
 <aside id="sidebar" class="h-screen w-60 fixed left-0 top-0 z-40 flex flex-col py-7 px-4 bg-white/80 backdrop-blur-xl shadow-sm border-r border-outline-variant/20">
   <div class="mb-7 px-2">
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full frost-gradient flex items-center justify-center text-white shadow-md flex-shrink-0">
+      <div id="sidebar-logo-icon" class="w-9 h-9 rounded-full frost-gradient flex items-center justify-center text-white shadow-md flex-shrink-0">
         <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">shopping_bag</span>
       </div>
       <div>
-        <h2 class="text-sm font-extrabold text-primary leading-none">VCANBUY</h2>
+        <h2 class="text-sm font-extrabold text-primary leading-none flex items-center gap-1.5">VCANBUY <span class="topbar-logo-dot"></span></h2>
         <p class="text-[10px] uppercase tracking-widest text-on-surface-variant/60 font-bold mt-0.5">Data Processor</p>
       </div>
     </div>
@@ -480,44 +635,45 @@ tbody tr:nth-child(n+9){animation-delay:.18s;}
 </aside>
 
 <!-- ══ TOPBAR ══ -->
-<header class="fixed top-0 left-60 right-0 h-14 z-30 flex justify-between items-center px-6 glass-effect border-b border-outline-variant/15 shadow-sm">
+<header class="fixed top-0 left-60 right-0 h-14 z-30 flex justify-between items-center px-6 glass-effect border-b border-outline-variant/15 shadow-sm" style="position:fixed;">
+  <div id="step-progress-bar" style="width:12.5%;"></div>
   <!-- stepper -->
   <div class="flex items-center gap-0.5 overflow-x-auto" id="stepper">
     <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent group" id="stab-1" onclick="goto(1)">
       <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-on-surface-variant transition-all"><span class="step-num">1</span></div>
       <span class="stab-label text-[9px] font-semibold text-on-surface-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">คำสั่งซื้อ</span>
     </button>
-    <div class="w-3 h-px bg-outline-variant/50 mb-3 flex-shrink-0"></div>
+    <div class="step-connector" id="sc-1"></div>
     <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-2" onclick="goto(2)">
       <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-on-surface-variant transition-all"><span class="step-num">2</span></div>
       <span class="stab-label text-[9px] font-semibold text-on-surface-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">Orders</span>
     </button>
-    <div class="w-3 h-px bg-outline-variant/50 mb-3 flex-shrink-0"></div>
+    <div class="step-connector" id="sc-2"></div>
     <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-3" onclick="goto(3)">
       <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-on-surface-variant transition-all"><span class="step-num">3</span></div>
       <span class="stab-label text-[9px] font-semibold text-on-surface-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">Map SKU</span>
     </button>
-    <div class="w-3 h-px bg-outline-variant/50 mb-3 flex-shrink-0"></div>
+    <div class="step-connector" id="sc-3"></div>
     <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-4" onclick="goto(4)">
       <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-on-surface-variant transition-all"><span class="step-num">4</span></div>
       <span class="stab-label text-[9px] font-semibold text-on-surface-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">เบื้องต้น</span>
     </button>
-    <div class="w-3 h-px bg-outline-variant/50 mb-3 flex-shrink-0"></div>
+    <div class="step-connector" id="sc-4"></div>
     <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-5" onclick="goto(5)">
       <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-on-surface-variant transition-all"><span class="step-num">5</span></div>
       <span class="stab-label text-[9px] font-semibold text-on-surface-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">กล่องพัสดุ</span>
     </button>
-    <div class="w-3 h-px bg-outline-variant/50 mb-3 flex-shrink-0"></div>
+    <div class="step-connector" id="sc-5"></div>
     <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-6" onclick="goto(6)">
       <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-on-surface-variant transition-all"><span class="step-num">6</span></div>
       <span class="stab-label text-[9px] font-semibold text-on-surface-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">สุดท้าย</span>
     </button>
-    <div class="w-3 h-px bg-outline-variant/50 mb-3 flex-shrink-0"></div>
+    <div class="step-connector" id="sc-6"></div>
     <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-7" onclick="goto(7)">
       <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-on-surface-variant transition-all"><span class="step-num">7</span></div>
       <span class="stab-label text-[9px] font-semibold text-on-surface-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">VCANBUY</span>
     </button>
-    <div class="w-3 h-px bg-outline-variant/50 mb-3 flex-shrink-0"></div>
+    <div class="step-connector" id="sc-7"></div>
     <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-8" onclick="goto(8)">
       <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-on-surface-variant transition-all"><span class="step-num">8</span></div>
       <span class="stab-label text-[9px] font-semibold text-on-surface-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">Peak</span>
@@ -790,6 +946,16 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 const r2=v=>Math.round(v*100)/100;
 const fmt=v=>v.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
 
+// Row color: hash key → trow-0..9 (orderId for step 2/4/6, code for others)
+const _colorCache={};
+function rowColor(key){
+  if(!key) return '';
+  if(_colorCache[key]!=null) return 'trow-'+_colorCache[key];
+  let h=0;for(let i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;
+  _colorCache[key]=h%10;
+  return 'trow-'+_colorCache[key];
+}
+
 function loadStorage(){
   // skuVariants: โหลดจาก localStorage ถ้ามี ไม่งั้นใช้ DFLT
   try{
@@ -837,20 +1003,42 @@ function goto(n){
     b.classList.remove('active');
     if(i<n) b.classList.add('done'); else b.classList.remove('done');
     if(i===n) b.classList.add('active');
+    // Animate step connectors
+    const con=document.getElementById('sc-'+i);
+    if(con){
+      if(i<n){con.classList.add('done');}
+      else{con.classList.remove('done');}
+    }
   }
   currentStep=n;
-  // Flash transition
+
+  // Progress bar in topbar (8 steps → each is 12.5%)
+  const bar=document.getElementById('step-progress-bar');
+  if(bar) bar.style.width=((n/8)*100)+'%';
+
+  // Flash overlay
   const ov=document.getElementById('page-overlay');
   if(ov){ov.classList.add('flash');setTimeout(()=>ov.classList.remove('flash'),180);}
+
+  // Slide-in panel class
+  const activePanel=document.getElementById('p'+n);
+  if(activePanel){
+    activePanel.classList.remove('panel-enter');
+    void activePanel.offsetWidth; // reflow
+    activePanel.classList.add('panel-enter');
+  }
+
   window.scrollTo({top:0,behavior:'smooth'});
-  // Update sidebar active state
+
+  // Update sidebar
   document.querySelectorAll('.sidebar-item').forEach(el=>{
     const s=parseInt(el.dataset.step);
     el.classList.remove('active','done');
     if(s===n) el.classList.add('active');
     else if(s<n) el.classList.add('done');
   });
-  // Auto-run Step 3 map when entering
+
+  // Auto-run Step 3 map
   if(n===3 && parsedOrders.length) autoMapOrders();
 }
 
@@ -1034,7 +1222,7 @@ function renderStep2(){
     const vl=esc(r.variantLine||'—');
     const rowStyle=r.cancelled?'opacity:.45;':'';
     const cancelBadge=r.cancelled?'<span class="tag tag-orange" style="font-size:11px;">ยกเลิก</span>':'';
-    return`<tr style="${rowStyle}">
+    return`<tr class="${rowColor(r.orderId)} ${rowStyle?'opacity-50':''}" style="${rowStyle}">
       <td class="mono" style="font-size:11.5px;color:#396478;">${esc(r.orderId)}</td>
       <td class="mono" style="font-size:11.5px;color:#3d618c;">${esc(r.boxId)}</td>
       <td style="font-size:12px;">${vl} ${cancelBadge}</td>
@@ -1215,7 +1403,7 @@ function renderAutoMapUI(){
          </td>`
       : '';
 
-    return`<tr style="${map.confirmed?'':'background:rgba(168,54,75,.02);'}">
+    return`<tr class="${rowColor(r.orderId)}" style="${map.confirmed?'':'outline:1px solid rgba(168,54,75,.15);'}">
       ${orderHeader}
       <td style="font-size:12px;">${esc(r.colorPart)}</td>
       <td class="ncell">${r.qty.toLocaleString()}</td>
@@ -1441,7 +1629,7 @@ function buildStep4(){
 
 function renderStep4(){
   const tbody=document.getElementById('tbody-4');
-  tbody.innerHTML=rows4.map(r=>`<tr>
+  tbody.innerHTML=rows4.map(r=>`<tr class="${rowColor(r.orderId)}">
     <td class="mono" style="font-size:11px;">${esc(r.orderId)}</td>
     <td class="mono" style="font-size:11px;">${esc(r.boxId)}</td>
     <td><span class="tag">${esc(r.code)}</span></td>
@@ -1539,7 +1727,7 @@ function buildStep6(){
 
 function renderStep6(){
   const tbody=document.getElementById('tbody-6');
-  tbody.innerHTML=rows6.map(r=>`<tr>
+  tbody.innerHTML=rows6.map(r=>`<tr class="${rowColor(r.orderId)}">
     <td class="mono" style="font-size:11px;">${esc(r.orderId)}</td>
     <td class="mono" style="font-size:11px;">${esc(r.boxId)}</td>
     <td><span class="tag">${esc(r.code)}</span></td>
@@ -1717,7 +1905,7 @@ function buildStep7(){
 
   // Render preview
   const tbody=document.getElementById('tbody-7');
-  tbody.innerHTML=rows7.map(r=>`<tr>
+  tbody.innerHTML=rows7.map(r=>`<tr class="${rowColor(r.name)}">
     <td class="ncell">${r.seq}</td>
     <td>${esc(r.name)}</td>
     <td class="ncell">${r.qty.toLocaleString()}</td>
@@ -1851,7 +2039,7 @@ function buildStep8(){
 
   // Render preview
   const tbody=document.getElementById('tbody-8');
-  tbody.innerHTML=rows8.map((r,i)=>`<tr>
+  tbody.innerHTML=rows8.map((r,i)=>`<tr class="${rowColor(r.code)}">
     <td class="ncell">${i+1}</td>
     <td class="mono" style="font-size:11px;">${esc(r.sku||'—')}</td>
     <td class="ncell">114102</td>
