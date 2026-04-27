@@ -749,7 +749,7 @@ tbody tr.trow-5,tbody tr.trow-6,tbody tr.trow-7,tbody tr.trow-8,tbody tr.trow-9{
       <span>🗂 จัดการ SKU Mapping</span>
       <div style="display:flex;gap:6px;">
         <button class="btn btn-outline btn-sm" onclick="exportSku()">⬇️ Export</button>
-        <label class="btn btn-outline btn-sm" style="cursor:pointer;">⬆️ Import<input type="file" accept=".json" onchange="importSku(event)" style="display:none;"></label>
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;">⬆️ Import<input type="file" accept=".xlsx,.json" onchange="importSku(event)" style="display:none;"></label>
         <button class="btn btn-outline btn-sm" onclick="resetSku()" style="color:var(--text3);">↺ Reset</button>
       </div>
     </div>
@@ -1285,6 +1285,8 @@ function candidateCodes(variantLine){
 function findSkuByCodeAndVariant(code, variantLine){
   const cp=variantLine.split(',')[0].trim();
   const pfx=getCnPrefix(cp);
+
+  // Pass 1: exact color + code match via variantToSku
   for(const [k,sku] of Object.entries(variantToSku)){
     const kColor=k.split('::')[1]||'';
     if((getCnPrefix(kColor)===pfx||kColor===cp)){
@@ -1292,6 +1294,20 @@ function findSkuByCodeAndVariant(code, variantLine){
       if(sv) return{sku,name:sv.name,color:sv.color};
     }
   }
+
+  // Pass 2: direct color match on skuVariants (color field) for the given code
+  const colorNorm=s=>s.replace(/\s+/g,'').toLowerCase();
+  const cpNorm=colorNorm(cp);
+  const svByColor=skuVariants.find(v=>v.code===code&&colorNorm(v.color)===cpNorm);
+  if(svByColor) return{sku:svByColor.sku,name:svByColor.name,color:svByColor.color};
+
+  // Pass 3: Chinese prefix match on skuVariants color field
+  if(pfx){
+    const svByPfx=skuVariants.find(v=>v.code===code&&getCnPrefix(colorNorm(v.color))===colorNorm(pfx));
+    if(svByPfx) return{sku:svByPfx.sku,name:svByPfx.name,color:svByPfx.color};
+  }
+
+  // Pass 4: fallback — first match by code only (keeps old behavior as last resort)
   const sv=skuVariants.find(v=>v.code===code);
   return sv?{sku:sv.sku,name:sv.name,color:sv.color}:null;
 }
@@ -1828,19 +1844,65 @@ function addSkuRow(){
   ['nw-code','nw-sku','nw-name','nw-color','nw-cn1','nw-cn2'].forEach(id=>document.getElementById(id).value='');
 }
 function exportSku(){
-  const blob=new Blob([JSON.stringify({skuVariants,cnToCode,variantToSku},null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='vcanbuy_sku.json';a.click();
+  // Export skuVariants as Excel sheet (columns: code, sku, name, color, cn1, cn2)
+  const ws_data=[['รหัส (B2...)','SKU (B1732...)','ชื่อสินค้า','สี','ชื่อจีน 1','ชื่อจีน 2']];
+  skuVariants.forEach(v=>ws_data.push([v.code||'',v.sku||'',v.name||'',v.color||'',v.cn1||'',v.cn2||'']));
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(ws_data);
+  // Column widths
+  ws['!cols']=[{wch:12},{wch:26},{wch:20},{wch:14},{wch:46},{wch:46}];
+  XLSX.utils.book_append_sheet(wb,ws,'SKU Mapping');
+  XLSX.writeFile(wb,'vcanbuy_sku_mapping.xlsx');
 }
 function importSku(e){
   const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();r.onload=ev=>{
-    try{const d=JSON.parse(ev.target.result);
-      if(d.skuVariants)skuVariants=d.skuVariants;
-      if(d.cnToCode)cnToCode=d.cnToCode;
-      if(d.variantToSku)variantToSku=d.variantToSku;
-      saveStorage();renderSkuTable();alert('Import สำเร็จ');
-    }catch{alert('ไฟล์ JSON ไม่ถูกต้อง');}
-  };r.readAsText(f);
+  const ext=f.name.split('.').pop().toLowerCase();
+  // Support both xlsx and json
+  if(ext==='json'){
+    const r=new FileReader();r.onload=ev=>{
+      try{const d=JSON.parse(ev.target.result);
+        if(d.skuVariants)skuVariants=d.skuVariants;
+        if(d.cnToCode)cnToCode=d.cnToCode;
+        if(d.variantToSku)variantToSku=d.variantToSku;
+        _rebuildLookups();
+        saveStorage();renderSkuTable();alert('Import JSON สำเร็จ: '+skuVariants.length+' rows');
+      }catch{alert('ไฟล์ JSON ไม่ถูกต้อง');}
+    };r.readAsText(f);
+  } else {
+    const r=new FileReader();r.onload=ev=>{
+      try{
+        const wb=XLSX.read(ev.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+        // Skip header row (row 0)
+        const newVariants=[];
+        for(let i=1;i<rows.length;i++){
+          const [code,sku,name,color,cn1,cn2]=rows[i].map(c=>(c+'').trim());
+          if(!code&&!sku) continue; // skip empty rows
+          newVariants.push({code,sku,name,color,cn1,cn2});
+        }
+        skuVariants=newVariants;
+        _rebuildLookups();
+        saveStorage();renderSkuTable();alert('Import Excel สำเร็จ: '+skuVariants.length+' rows');
+      }catch(err){alert('ไฟล์ Excel ไม่ถูกต้อง: '+err.message);}
+    };r.readAsArrayBuffer(f);
+  }
+}
+function _rebuildLookups(){
+  // Rebuild cnToCode from skuVariants (keep existing entries not in new data)
+  cnToCode={};
+  skuVariants.forEach(v=>{
+    if(v.cn1) cnToCode['cn:'+v.cn1]=v.code;
+    if(v.cn2) cnToCode['cn:'+v.cn2]=v.code;
+  });
+  // variantToSku: rebuild from skuVariants color field
+  // (keep existing user-built entries; just ensure skuVariants-based ones exist)
+  skuVariants.forEach(v=>{
+    if(v.color&&v.cn1&&v.sku){
+      const key=`variant:${v.cn1}::${v.color}`;
+      if(!variantToSku[key]) variantToSku[key]=v.sku;
+    }
+  });
 }
 function resetSku(){
   if(!confirm('รีเซ็ต SKU เป็นค่า default? (ล้างข้อมูลที่บันทึกไว้ทั้งหมด)'))return;
