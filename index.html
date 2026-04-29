@@ -1282,34 +1282,69 @@ function candidateCodes(variantLine){
 }
 
 // หา SKU+info สำหรับ code+variantLine
+// Color keyword map: English words in variantLine → Thai color in skuVariants
+const EN_TO_THAI_COLOR={
+  'black':'ดำ','white':'ขาว','brown':'น้ำตาล','red':'แดง',
+  'navy':'กรม','blue':'น้ำเงิน','gray':'เทา','grey':'เทา',
+  'khaki':'กากี','cream':'ครีม','beige':'ครีม','caramel':'คาราเมล',
+  'lighttan':'น้ำตาลอ่อน','tan':'น้ำตาลอ่อน','coffee':'กาแฟ',
+  'orange':'ส้ม','pink':'ชมพู','purple':'ม่วง','green':'เขียว',
+  'yellow':'เหลือง','dark':'เข้ม',
+};
+// Chinese color keywords → Thai color
+const ZH_TO_THAI_COLOR={
+  '黑':'ดำ','白':'ขาว','棕':'น้ำตาล','咖':'น้ำตาล','驼':'น้ำตาลอ่อน',
+  '红':'แดง','蓝':'น้ำเงิน','灰':'เทา','卡其':'กากี','米':'ครีม',
+  '焦糖':'คาราเมล','深咖':'น้ำตาลเข้ม','藏青':'กรม',
+  '黑色':'ดำ','白色':'ขาว','棕色':'น้ำตาล','咖啡色':'น้ำตาล',
+  '驼色':'น้ำตาลอ่อน','红棕':'แดง','卡其色':'กากี','米色':'ครีม',
+  '焦糖色':'คาราเมล','深灰':'เทาเข้ม','浅灰':'เทา',
+};
+
+function _colorScore(variantColorPart, thaiColor){
+  const v=variantColorPart.toLowerCase().replace(/\s+/g,'');
+  const t=(thaiColor||'').toLowerCase().replace(/\s+/g,'');
+  if(!t) return 0;
+  if(v===t||v.includes(t)||t.includes(v)) return 3;
+  for(const [en,th] of Object.entries(EN_TO_THAI_COLOR)){
+    if(v.includes(en)&&t===th) return 2;
+    if(v.includes(en)&&t.startsWith(th.charAt(0))) return 1;
+  }
+  for(const [zh,th] of Object.entries(ZH_TO_THAI_COLOR)){
+    if(v.includes(zh)&&t===th) return 2;
+    if(v.includes(zh)&&t.startsWith(th.charAt(0))) return 1;
+  }
+  return 0;
+}
+
 function findSkuByCodeAndVariant(code, variantLine){
   const cp=variantLine.split(',')[0].trim();
   const pfx=getCnPrefix(cp);
 
-  // Pass 1: exact color + code match via variantToSku
+  // Pass 1: exact match via variantToSku (existing entries with CN keys)
   for(const [k,sku] of Object.entries(variantToSku)){
     const kColor=k.split('::')[1]||'';
-    if((getCnPrefix(kColor)===pfx||kColor===cp)){
+    if(getCnPrefix(kColor)===pfx||kColor===cp){
       const sv=skuVariants.find(v=>v.sku===sku&&v.code===code);
       if(sv) return{sku,name:sv.name,color:sv.color};
     }
   }
 
-  // Pass 2: direct color match on skuVariants (color field) for the given code
-  const colorNorm=s=>s.replace(/\s+/g,'').toLowerCase();
-  const cpNorm=colorNorm(cp);
-  const svByColor=skuVariants.find(v=>v.code===code&&colorNorm(v.color)===cpNorm);
-  if(svByColor) return{sku:svByColor.sku,name:svByColor.name,color:svByColor.color};
-
-  // Pass 3: Chinese prefix match on skuVariants color field
-  if(pfx){
-    const svByPfx=skuVariants.find(v=>v.code===code&&getCnPrefix(colorNorm(v.color))===colorNorm(pfx));
-    if(svByPfx) return{sku:svByPfx.sku,name:svByPfx.name,color:svByPfx.color};
+  // Pass 2: score-based color matching on skuVariants directly
+  // Handles manually-added SKUs that have no variantToSku entries
+  const candidates=skuVariants.filter(v=>v.code===code&&v.sku);
+  if(candidates.length===1) return{sku:candidates[0].sku,name:candidates[0].name,color:candidates[0].color};
+  if(candidates.length>1){
+    let best=null,bestScore=0;
+    for(const sv of candidates){
+      const score=_colorScore(cp,sv.color);
+      if(score>bestScore){bestScore=score;best=sv;}
+    }
+    if(best&&bestScore>0) return{sku:best.sku,name:best.name,color:best.color};
+    return null;
   }
 
-  // Pass 4: fallback — first match by code only (keeps old behavior as last resort)
-  const sv=skuVariants.find(v=>v.code===code);
-  return sv?{sku:sv.sku,name:sv.name,color:sv.color}:null;
+  return null;
 }
 
 function itemKey(orderId,variantLine){return orderId+'::'+variantLine;}
