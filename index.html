@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html class="dark" lang="th">
+<html class="light" lang="th">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>VCANBUY · Data Processor</title>
 <meta name="description" content="VCANBUY Data Processor — Lamsang Store order management"/>
-<meta name="theme-color" content="#e8650a"/>
+<meta name="theme-color" content="#c084b0"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="VCANBUY"/>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e8650a'/%3E%3Cstop offset='100%25' stop-color='%23396478'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='system-ui' font-size='30' font-weight='900' fill='white'%3EV%3C/text%3E%3C/svg%3E"/>
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e8650a'/%3E%3Cstop offset='100%25' stop-color='%23396478'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='38' fill='url(%23g)'/%3E%3Ccircle cx='90' cy='90' r='62' fill='rgba(255,255,255,.07)'/%3E%3Ctext x='90' y='120' text-anchor='middle' font-family='system-ui' font-size='84' font-weight='900' fill='white'%3EV%3C/text%3E%3C/svg%3E"/>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23e8650a'/><stop offset='100%25' stop-color='%23396478'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='url(%23g)'/><text x='32' y='44' font-size='36' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' fill='white'>V</text></svg>"/>
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23e8650a'/><stop offset='50%25' stop-color='%23523d68'/><stop offset='100%25' stop-color='%23396478'/></linearGradient></defs><rect width='512' height='512' rx='112' fill='url(%23g)'/><rect x='100' y='160' width='312' height='40' rx='20' fill='rgba(255,255,255,0.9)'/><rect x='100' y='236' width='240' height='40' rx='20' fill='rgba(255,255,255,0.7)'/><rect x='100' y='312' width='180' height='40' rx='20' fill='rgba(255,255,255,0.5)'/><circle cx='388' cy='332' r='60' fill='rgba(255,255,255,0.15)' stroke='rgba(255,255,255,0.4)' stroke-width='3'/><text x='388' y='348' font-size='44' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' fill='white'>✓</text></svg>"/>
-<meta name="theme-color" content="#e8650a"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23c084b0'/%3E%3Cstop offset='100%25' stop-color='%237db5d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='system-ui' font-size='30' font-weight='900' fill='white'%3EV%3C/text%3E%3C/svg%3E"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23c084b0'/%3E%3Cstop offset='100%25' stop-color='%237db5d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='38' fill='url(%23g)'/%3E%3Ccircle cx='90' cy='90' r='62' fill='rgba(255,255,255,.07)'/%3E%3Ctext x='90' y='120' text-anchor='middle' font-family='system-ui' font-size='84' font-weight='900' fill='white'%3EV%3C/text%3E%3C/svg%3E"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23c084b0'/><stop offset='100%25' stop-color='%237db5d4'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='url(%23g)'/><text x='32' y='44' font-size='36' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' fill='white'>V</text></svg>"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23c084b0'/><stop offset='50%25' stop-color='%23523d68'/><stop offset='100%25' stop-color='%237db5d4'/></linearGradient></defs><rect width='512' height='512' rx='112' fill='url(%23g)'/><rect x='100' y='160' width='312' height='40' rx='20' fill='rgba(255,255,255,0.9)'/><rect x='100' y='236' width='240' height='40' rx='20' fill='rgba(255,255,255,0.7)'/><rect x='100' y='312' width='180' height='40' rx='20' fill='rgba(255,255,255,0.5)'/><circle cx='388' cy='332' r='60' fill='rgba(255,255,255,0.15)' stroke='rgba(255,255,255,0.4)' stroke-width='3'/><text x='388' y='348' font-size='44' text-anchor='middle' font-family='Arial,sans-serif' font-weight='900' fill='white'>✓</text></svg>"/>
+<meta name="theme-color" content="#c084b0"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
 tailwind.config = {
@@ -23,28 +23,28 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        "primary":         "#ff6b2b",
-        "primary-dim":     "#e55a1a",
-        "primary-container":"#3d1a06",
+        "primary":         "#c084b0",
+        "primary-dim":     "#a96899",
+        "primary-container":"#f9eef6",
         "on-primary":      "#ffffff",
-        "secondary":       "#4a9ebb",
-        "secondary-dim":   "#3a8aaa",
-        "on-secondary":    "#e8f8ff",
-        "surface":         "#0f1117",
-        "surface-container-low":  "#161b24",
-        "surface-container":      "#1c2230",
-        "surface-container-high": "#232c3d",
-        "surface-container-highest":"#2a3347",
-        "surface-variant": "#2a3347",
-        "on-surface":      "#e8edf5",
-        "on-surface-variant": "#8a9ab5",
-        "outline":         "#ff6b2b",
-        "outline-variant": "#2a3347",
-        "error":           "#ff6b7a",
-        "background":      "#0f1117",
-        "on-background":   "#e8edf5",
-        "success":         "#34d47a",
-        "warn":            "#f4b642",
+        "secondary":       "#7db5d4",
+        "secondary-dim":   "#5fa0c4",
+        "on-secondary":    "#ffffff",
+        "surface":         "#fdf8ff",
+        "surface-container-low":  "#fdf4fb",
+        "surface-container":      "#f5ebf8",
+        "surface-container-high": "#ede0f3",
+        "surface-container-highest":"#e4d3ed",
+        "surface-variant": "#f2e5f8",
+        "on-surface":      "#3d2645",
+        "on-surface-variant": "#7a5a88",
+        "outline":         "#c084b0",
+        "outline-variant": "#e8d4f0",
+        "error":           "#e05a7a",
+        "background":      "#fdf8ff",
+        "on-background":   "#3d2645",
+        "success":         "#2daa6a",
+        "warn":            "#c08030",
       },
       fontFamily: {
         "sans": ["DM Sans", "Noto Sans Thai", "sans-serif"],
@@ -56,41 +56,41 @@ tailwind.config = {
 </script>
 <style>
 /* ═══════════════════════════════════════════════════
-   VCANBUY — DARK COMMAND PANEL DESIGN SYSTEM
-   Palette: Deep Navy bg · Orange accent · Teal secondary
-   Type: DM Sans + Noto Sans Thai + IBM Plex Mono
+   VCANBUY — PETAL PASTEL DESIGN SYSTEM
+   Palette: Lavender White · Dusty Rose · Powder Blue
+   Type: Nunito + Noto Sans Thai + JetBrains Mono
 ═══════════════════════════════════════════════════ */
 :root {
-  /* surfaces */
-  --bg:       #0d1018;
-  --bg-panel: #131720;
-  --bg-card:  #181e2b;
-  --bg-card2: #1e2535;
-  --bg-input: #1c2230;
-  --bg-hover: #232c3c;
+  /* surfaces — soft lavender-white pastel */
+  --bg:       #fdf8ff;
+  --bg-panel: #f8f0fc;
+  --bg-card:  #ffffff;
+  --bg-card2: #faf3fd;
+  --bg-input: #f8f2fb;
+  --bg-hover: #f2e8f9;
 
-  /* accent */
-  --accent:   #ff6b2b;
-  --accent2:  #e55a1a;
-  --accent-glow: rgba(255,107,43,.18);
-  --accent-glow2: rgba(255,107,43,.06);
-  --teal:     #4a9ebb;
-  --teal2:    #3a8aaa;
-  --teal-glow: rgba(74,158,187,.12);
+  /* accent — dusty rose / mauve */
+  --accent:   #c084b0;
+  --accent2:  #a96899;
+  --accent-glow: rgba(192,132,176,.2);
+  --accent-glow2: rgba(192,132,176,.08);
+  --teal:     #7db5d4;
+  --teal2:    #5fa0c4;
+  --teal-glow: rgba(125,181,212,.15);
 
   /* text */
-  --tx-primary:  #e8edf5;
-  --tx-secondary:#8a9ab5;
-  --tx-muted:    #556070;
-  --tx-accent:   #ff6b2b;
-  --tx-success:  #34d47a;
-  --tx-warn:     #f4b642;
-  --tx-error:    #ff6b7a;
+  --tx-primary:  #3d2645;
+  --tx-secondary:#7a5a88;
+  --tx-muted:    #b090be;
+  --tx-accent:   #c084b0;
+  --tx-success:  #2daa6a;
+  --tx-warn:     #c08030;
+  --tx-error:    #e05a7a;
 
   /* borders */
-  --border:      rgba(255,107,43,.18);
-  --border-sub:  rgba(255,255,255,.07);
-  --border-card: rgba(255,255,255,.06);
+  --border:      rgba(192,132,176,.25);
+  --border-sub:  rgba(192,132,176,.15);
+  --border-card: rgba(192,132,176,.12);
 
   /* type scale */
   --fs-display: 26px;
@@ -122,6 +122,12 @@ tailwind.config = {
   --radius-lg:  14px;
   --radius-xl:  18px;
   --radius-full: 9999px;
+
+  /* legacy compat aliases */
+  --accent2:     #a96899;
+  --accent3:     #b07aa0;
+  --text2:       #9a78a8;
+  --text3:       #b090be;
 }
 
 /* ── RESET ── */
@@ -129,7 +135,7 @@ tailwind.config = {
 *{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:16px;-webkit-font-smoothing:antialiased;}
 body{
-  font-family:'DM Sans','Noto Sans Thai',sans-serif;
+  font-family:'Nunito','Noto Sans Thai',sans-serif;
   font-size:var(--fs-body);
   font-weight:var(--fw-normal);
   line-height:var(--lh-normal);
@@ -139,15 +145,16 @@ body{
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:var(--bg-card);}
-::-webkit-scrollbar-thumb{background:var(--accent2);border-radius:4px;}
+::-webkit-scrollbar-track{background:rgba(245,235,250,.8);}
+::-webkit-scrollbar-thumb{background:rgba(192,132,176,.5);border-radius:4px;}
 
 /* ── BACKGROUND ── */
 body::before{
   content:'';position:fixed;top:0;left:0;right:0;bottom:0;
   background:
-    radial-gradient(ellipse 70% 60% at 0% 0%, rgba(255,107,43,.07) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(74,158,187,.06) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 70% at -10% -10%, rgba(220,180,240,.35) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 60% at 110% 110%, rgba(160,210,240,.25) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 50% at 50% 0%, rgba(255,200,220,.2) 0%, transparent 60%);
   pointer-events:none;z-index:0;
 }
 
@@ -155,7 +162,7 @@ body::before{
 body::after{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  opacity:.6;
+  opacity:.3;
 }
 
 /* ── TYPOGRAPHY ── */
@@ -167,7 +174,7 @@ body::after{
 .t-data   {font-size:var(--fs-data);font-weight:var(--fw-normal);color:var(--tx-primary);}
 .t-caption{font-size:var(--fs-caption);font-weight:var(--fw-normal);color:var(--tx-muted);}
 .t-micro  {font-size:var(--fs-micro);font-weight:var(--fw-semi);letter-spacing:var(--ls-wide);text-transform:uppercase;color:var(--tx-muted);}
-.mono     {font-family:'IBM Plex Mono',monospace!important;font-size:var(--fs-mono)!important;letter-spacing:-0.01em;}
+.mono     {font-family:'JetBrains Mono',monospace!important;font-size:var(--fs-mono)!important;letter-spacing:-0.01em;}
 
 /* ── KEYFRAMES ── */
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
@@ -177,11 +184,11 @@ body::after{
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes shimmer{0%{background-position:-200% center;}100%{background-position:200% center;}}
-@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(255,107,43,0);}50%{box-shadow:0 0 20px 4px rgba(255,107,43,.2);}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(192,132,176,0);}50%{box-shadow:0 0 20px 4px rgba(192,132,176,.25);}}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
 @keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
 @keyframes sideIn{from{opacity:0;transform:translateX(-12px);}to{opacity:1;transform:translateX(0);}}
-@keyframes orbitPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,107,43,.4);}50%{transform:scale(1.15);box-shadow:0 0 0 7px rgba(255,107,43,0);}}
+@keyframes orbitPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(192,132,176,.45);}50%{transform:scale(1.15);box-shadow:0 0 0 7px rgba(192,132,176,0);}}
 @keyframes stepperPop{0%{transform:scale(.75);}70%{transform:scale(1.18);}100%{transform:scale(1);}}
 @keyframes connectorFill{from{width:0;}to{width:100%;}}
 
@@ -194,28 +201,30 @@ body::after{
 
 /* ── GLASS CARD ── */
 .glass-effect{
-  background:var(--bg-card);
+  background:rgba(255,255,255,.75);
   border:1px solid var(--border-card);
   border-radius:var(--radius-xl);
   position:relative;z-index:1;
-  box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 8px 32px rgba(0,0,0,.3);
+  box-shadow:0 2px 0 rgba(255,255,255,.9) inset, 0 6px 28px rgba(192,132,176,.1);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
 }
 .glass-effect::before{
   content:'';position:absolute;top:0;left:16px;right:16px;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);
   border-radius:var(--radius-full);
 }
 
 /* ── SIDEBAR ── */
 #sidebar{
-  background:var(--bg-panel);
-  border-right:1px solid var(--border-sub);
+  background:rgba(248,240,252,.95);
+  border-right:1px solid rgba(192,132,176,.15);
   position:relative;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
 #sidebar::before{
   content:'';position:absolute;top:0;right:0;bottom:0;width:1px;
-  background:linear-gradient(180deg,transparent 0%,var(--accent) 40%,var(--teal) 70%,transparent 100%);
-  opacity:.25;
+  background:linear-gradient(180deg,transparent 0%,rgba(192,132,176,.4) 40%,rgba(125,181,212,.3) 70%,transparent 100%);
+  opacity:1;
 }
 #sidebar h2{font-size:14px;font-weight:var(--fw-black);letter-spacing:.01em;color:var(--tx-primary);}
 #sidebar p.brand-sub{font-size:var(--fs-micro);font-weight:var(--fw-semi);letter-spacing:var(--ls-widest);text-transform:uppercase;color:var(--tx-muted);}
@@ -230,10 +239,10 @@ body::after{
 }
 .sidebar-item:hover{color:var(--tx-primary);background:var(--bg-hover)!important;}
 .sidebar-item.active{
-  background:rgba(255,107,43,.12)!important;
+  background:rgba(192,132,176,.14)!important;
   color:var(--accent)!important;
   font-weight:var(--fw-semi)!important;
-  box-shadow:inset 0 0 0 1px rgba(255,107,43,.15)!important;
+  box-shadow:inset 0 0 0 1px rgba(192,132,176,.2)!important;
 }
 .sidebar-item.active span.material-symbols-outlined{
   color:var(--accent);
@@ -264,22 +273,22 @@ body::after{
 /* ── SIDEBAR STEP BADGE ── */
 .sidebar-item .step-badge{
   width:19px;height:19px;border-radius:50%;
-  background:var(--bg-card2);color:var(--tx-muted);
+  background:rgba(242,226,250,.7);color:var(--tx-muted);
   font-size:9px;font-weight:700;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;margin-left:auto;
   transition:all .2s;
   border:1px solid var(--border-sub);
 }
-.sidebar-item.active .step-badge{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 10px rgba(255,107,43,.35);}
+.sidebar-item.active .step-badge{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 10px rgba(192,132,176,.4);}
 .sidebar-item.done .step-badge{background:var(--tx-success);color:#fff;border-color:var(--tx-success);}
 
 /* ── TOPBAR ── */
 header{
-  background:rgba(13,16,24,.85);
+  background:rgba(253,248,255,.88);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border-sub);
+  border-bottom:1px solid rgba(192,132,176,.15);
 }
 header .app-name{font-size:12px;font-weight:var(--fw-bold);color:var(--tx-secondary);letter-spacing:var(--ls-wide);text-transform:uppercase;}
 #step-progress-bar{
@@ -300,14 +309,14 @@ header .app-name{font-size:12px;font-weight:var(--fw-bold);color:var(--tx-second
 .step-btn .stab-circle{
   transition:all .3s cubic-bezier(.34,1.56,.64,1);
   border-width:1.5px;border-style:solid;
-  border-color:var(--border-sub);
+  border-color:rgba(192,132,176,.3);
   color:var(--tx-muted);
 }
 .step-btn:hover .stab-circle{border-color:var(--accent);color:var(--accent);transform:scale(1.1);}
 .step-btn.active .stab-circle{
   background:linear-gradient(135deg,var(--accent),var(--accent2))!important;
   border-color:var(--accent)!important;color:#fff!important;
-  box-shadow:0 0 0 3px rgba(255,107,43,.2),0 4px 14px rgba(255,107,43,.4)!important;
+  box-shadow:0 0 0 3px rgba(192,132,176,.25),0 4px 14px rgba(192,132,176,.35)!important;
   animation:stepperPop .45s cubic-bezier(.34,1.56,.64,1) both,glow 2.5s ease-in-out infinite;
 }
 .step-btn.active .stab-label{
@@ -317,7 +326,7 @@ header .app-name{font-size:12px;font-weight:var(--fw-bold);color:var(--tx-second
 }
 .step-btn.done .stab-circle{
   background:var(--tx-success)!important;border-color:var(--tx-success)!important;
-  color:#fff!important;box-shadow:0 3px 10px rgba(52,212,122,.25)!important;
+  color:#fff!important;box-shadow:0 3px 10px rgba(45,170,106,.2)!important;
 }
 .step-btn.done .stab-label{color:var(--tx-success)!important;}
 .stab-label{
@@ -326,7 +335,7 @@ header .app-name{font-size:12px;font-weight:var(--fw-bold);color:var(--tx-second
 }
 .step-connector{
   width:18px;height:1.5px;
-  background:var(--border-sub);
+  background:rgba(192,132,176,.2);
   border-radius:2px;margin-bottom:14px;flex-shrink:0;
   transition:all .4s ease;position:relative;overflow:hidden;
 }
@@ -337,7 +346,7 @@ header .app-name{font-size:12px;font-weight:var(--fw-bold);color:var(--tx-second
   display:inline-flex;align-items:center;gap:7px;
   padding:9px 20px;border-radius:var(--radius-full);border:none;
   cursor:pointer;
-  font-family:'DM Sans','Noto Sans Thai',sans-serif;
+  font-family:'Nunito','Noto Sans Thai',sans-serif;
   font-size:var(--fs-label);font-weight:var(--fw-semi);
   line-height:1;letter-spacing:.01em;
   transition:all .2s cubic-bezier(.22,1,.36,1);
@@ -353,28 +362,28 @@ header .app-name{font-size:12px;font-weight:var(--fw-bold);color:var(--tx-second
 .btn-primary{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   color:#fff;
-  box-shadow:0 4px 16px rgba(255,107,43,.3),0 1px 0 rgba(255,255,255,.12) inset;
+  box-shadow:0 4px 16px rgba(192,132,176,.3),0 1px 0 rgba(255,255,255,.6) inset;
 }
-.btn-primary:hover{box-shadow:0 8px 24px rgba(255,107,43,.45);transform:translateY(-1.5px);}
+.btn-primary:hover{box-shadow:0 8px 24px rgba(192,132,176,.4);transform:translateY(-1.5px);}
 .btn-success{
   background:linear-gradient(135deg,var(--teal),var(--teal2));
   color:#fff;
-  box-shadow:0 4px 16px rgba(74,158,187,.25),0 1px 0 rgba(255,255,255,.1) inset;
+  box-shadow:0 4px 16px rgba(125,181,212,.3),0 1px 0 rgba(255,255,255,.6) inset;
 }
-.btn-success:hover{box-shadow:0 8px 24px rgba(74,158,187,.38);transform:translateY(-1.5px);}
+.btn-success:hover{box-shadow:0 8px 24px rgba(125,181,212,.4);transform:translateY(-1.5px);}
 .btn-outline{
-  background:var(--bg-card2);
-  border:1px solid var(--border-sub);
+  background:rgba(255,255,255,.8);
+  border:1px solid rgba(192,132,176,.25);
   color:var(--tx-secondary);
-  box-shadow:0 2px 8px rgba(0,0,0,.2);
+  box-shadow:0 2px 8px rgba(192,132,176,.1);
 }
-.btn-outline:hover{border-color:var(--accent);color:var(--accent);background:rgba(255,107,43,.06);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);background:rgba(192,132,176,.08);}
 .btn-danger{
-  background:rgba(255,107,122,.07);
-  border:1px solid rgba(255,107,122,.2);
+  background:rgba(224,90,122,.07);
+  border:1px solid rgba(224,90,122,.2);
   color:var(--tx-error);
 }
-.btn-danger:hover{background:rgba(255,107,122,.14);}
+.btn-danger:hover{background:rgba(224,90,122,.14);}
 .btn-sm{padding:5px 13px;font-size:var(--fs-caption);}
 
 /* ── CARDS ── */
@@ -385,10 +394,10 @@ header .app-name{font-size:12px;font-weight:var(--fw-bold);color:var(--tx-second
   padding:20px;margin-bottom:16px;
   position:relative;overflow:hidden;z-index:1;
   transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s ease;
-  box-shadow:0 4px 24px rgba(0,0,0,.25);
+  box-shadow:0 4px 24px rgba(192,132,176,.12);
 }
 .card::before{content:'';position:absolute;top:0;left:14px;right:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);}
-.card:hover{transform:translateY(-1.5px);box-shadow:0 8px 32px rgba(0,0,0,.35),0 0 0 1px rgba(255,107,43,.08);}
+.card:hover{transform:translateY(-1.5px);box-shadow:0 8px 32px rgba(192,132,176,.18),0 0 0 1px rgba(192,132,176,.12);}
 .card-title{
   font-size:var(--fs-title);font-weight:var(--fw-bold);
   color:var(--tx-primary);margin-bottom:14px;
@@ -404,7 +413,7 @@ header .app-name{font-size:12px;font-weight:var(--fw-bold);color:var(--tx-second
   transition:all .2s cubic-bezier(.22,1,.36,1);
   animation:cardIn .3s ease both;
 }
-.order-card:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.3);border-color:rgba(255,107,43,.12);}
+.order-card:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(192,132,176,.15);border-color:rgba(192,132,176,.25);}
 
 /* ── INPUTS ── */
 textarea,input[type=text],select,.sku-edit-input{
@@ -412,7 +421,7 @@ textarea,input[type=text],select,.sku-edit-input{
   border:1px solid var(--border-sub);
   border-radius:var(--radius-md);
   color:var(--tx-primary);
-  font-family:'DM Sans','Noto Sans Thai',sans-serif;
+  font-family:'Nunito','Noto Sans Thai',sans-serif;
   font-size:var(--fs-label);font-weight:var(--fw-normal);
   line-height:var(--lh-normal);
   outline:none;
@@ -421,12 +430,12 @@ textarea,input[type=text],select,.sku-edit-input{
 }
 textarea:focus,input[type=text]:focus,select:focus,.sku-edit-input:focus{
   border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(255,107,43,.12),0 2px 8px rgba(0,0,0,.2);
-  background:rgba(28,34,48,.98);
+  box-shadow:0 0 0 3px rgba(192,132,176,.18),0 2px 8px rgba(192,132,176,.1);
+  background:rgba(255,255,255,.98);
 }
 textarea{resize:vertical;width:100%;}
 select{background-image:none;color:var(--tx-primary);}
-select option{background:var(--bg-card2);color:var(--tx-primary);}
+select option{background:#fff;color:var(--tx-primary);}
 input[type=file]{display:none;}
 
 /* ── ALERTS ── */
@@ -442,13 +451,13 @@ input[type=file]{display:none;}
 }
 .alert b,.alert strong{font-weight:var(--fw-semi);}
 .alert::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2.5px;border-radius:2px 0 0 2px;}
-.alert-info{background:rgba(74,158,187,.08);border:1px solid rgba(74,158,187,.15);color:rgba(74,158,187,.9);}
+.alert-info{background:rgba(125,181,212,.1);border:1px solid rgba(125,181,212,.22);color:#4a8aaa;}
 .alert-info::before{background:var(--teal);}
-.alert-success{background:rgba(52,212,122,.07);border:1px solid rgba(52,212,122,.18);color:var(--tx-success);}
+.alert-success{background:rgba(45,170,106,.08);border:1px solid rgba(45,170,106,.22);color:var(--tx-success);}
 .alert-success::before{background:var(--tx-success);}
-.alert-warn{background:rgba(244,182,66,.07);border:1px solid rgba(244,182,66,.18);color:var(--tx-warn);}
+.alert-warn{background:rgba(192,128,48,.07);border:1px solid rgba(192,128,48,.2);color:var(--tx-warn);}
 .alert-warn::before{background:var(--tx-warn);}
-.alert-error{background:rgba(255,107,122,.07);border:1px solid rgba(255,107,122,.18);color:var(--tx-error);}
+.alert-error{background:rgba(224,90,122,.07);border:1px solid rgba(224,90,122,.2);color:var(--tx-error);}
 .alert-error::before{background:var(--tx-error);}
 
 /* ── TAGS ── */
@@ -460,24 +469,24 @@ input[type=file]{display:none;}
   transition:all .15s;
 }
 .tag:hover{transform:scale(1.04);}
-.tag-green {background:rgba(52,212,122,.12);color:var(--tx-success);border:1px solid rgba(52,212,122,.18);}
-.tag-orange,.tag-red{background:rgba(255,107,122,.1);color:var(--tx-error);border:1px solid rgba(255,107,122,.15);}
-.tag-purple{background:rgba(255,107,43,.1);color:var(--accent);border:1px solid rgba(255,107,43,.18);}
-.tag-blue  {background:rgba(74,158,187,.1);color:var(--teal);border:1px solid rgba(74,158,187,.15);}
-.tag-yellow{background:rgba(244,182,66,.1);color:var(--tx-warn);border:1px solid rgba(244,182,66,.15);}
+.tag-green {background:rgba(45,170,106,.1);color:var(--tx-success);border:1px solid rgba(45,170,106,.22);}
+.tag-orange,.tag-red{background:rgba(224,90,122,.1);color:var(--tx-error);border:1px solid rgba(224,90,122,.18);}
+.tag-purple{background:rgba(192,132,176,.12);color:var(--accent);border:1px solid rgba(192,132,176,.25);}
+.tag-blue  {background:rgba(125,181,212,.12);color:var(--teal);border:1px solid rgba(125,181,212,.25);}
+.tag-yellow{background:rgba(220,170,80,.1);color:var(--tx-warn);border:1px solid rgba(220,170,80,.22);}
 
 /* ── TABLES ── */
 .tbl-wrap{
   overflow-x:auto;
   border-radius:var(--radius-lg);
-  border:1px solid var(--border-sub);
-  box-shadow:0 4px 20px rgba(0,0,0,.25);
+  border:1px solid rgba(192,132,176,.18);
+  box-shadow:0 4px 20px rgba(192,132,176,.1);
   width:100%;
 }
 table{width:100%;border-collapse:collapse;table-layout:auto;}
 thead th{
-  background:linear-gradient(135deg,var(--bg-card2),var(--bg-hover));
-  color:var(--tx-muted);
+  background:linear-gradient(135deg,rgba(248,238,255,.98),rgba(240,225,252,.95));
+  color:#9a70aa;
   padding:9px 11px;
   text-align:left;
   font-size:var(--fs-micro);
@@ -485,10 +494,10 @@ thead th{
   letter-spacing:var(--ls-wider);
   text-transform:uppercase;
   white-space:nowrap;
-  border-bottom:1px solid var(--border-sub);
+  border-bottom:1px solid rgba(192,132,176,.15);
   position:sticky;top:0;z-index:2;
 }
-tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
+tbody tr{border-bottom:1px solid rgba(192,132,176,.08);transition:background .15s;}
 tbody tr:hover{background:var(--bg-hover)!important;}
 tbody tr:last-child{border-bottom:none;}
 tbody td{
@@ -500,35 +509,35 @@ tbody td{
 }
 .ncell{
   text-align:right;
-  font-family:'IBM Plex Mono',monospace;
+  font-family:'JetBrains Mono',monospace;
   font-size:var(--fs-mono);font-weight:var(--fw-medium);
   letter-spacing:-.01em;color:var(--tx-primary);
 }
-.sum-row{background:rgba(255,107,43,.06)!important;}
+.sum-row{background:rgba(192,132,176,.08)!important;}
 .sum-row td{font-size:var(--fs-label);font-weight:var(--fw-bold);color:var(--accent)!important;}
 
 /* table row order colors — subtle dark tints */
-.trow-0{background:rgba(255,107,43,.03);}
-.trow-1{background:rgba(74,158,187,.03);}
-.trow-2{background:rgba(52,212,122,.03);}
-.trow-3{background:rgba(244,182,66,.03);}
-.trow-4{background:rgba(255,107,122,.03);}
-.trow-5{background:rgba(150,120,220,.03);}
-.trow-6{background:rgba(64,190,160,.03);}
-.trow-7{background:rgba(250,160,80,.03);}
-.trow-8{background:rgba(120,190,255,.03);}
-.trow-9{background:rgba(200,100,180,.03);}
+.trow-0{background:rgba(220,160,210,.06);}
+.trow-1{background:rgba(160,200,235,.06);}
+.trow-2{background:rgba(160,220,190,.06);}
+.trow-3{background:rgba(255,220,160,.06);}
+.trow-4{background:rgba(255,170,185,.06);}
+.trow-5{background:rgba(190,170,230,.06);}
+.trow-6{background:rgba(160,220,210,.06);}
+.trow-7{background:rgba(255,200,160,.06);}
+.trow-8{background:rgba(160,210,255,.06);}
+.trow-9{background:rgba(230,160,200,.06);}
 tbody tr[class*="trow-"] td:first-child{border-left:2px solid transparent;}
-tbody tr.trow-0 td:first-child{border-left-color:rgba(255,107,43,.35);}
-tbody tr.trow-1 td:first-child{border-left-color:rgba(74,158,187,.35);}
-tbody tr.trow-2 td:first-child{border-left-color:rgba(52,212,122,.35);}
-tbody tr.trow-3 td:first-child{border-left-color:rgba(244,182,66,.35);}
-tbody tr.trow-4 td:first-child{border-left-color:rgba(255,107,122,.35);}
-tbody tr.trow-5 td:first-child{border-left-color:rgba(150,120,220,.35);}
-tbody tr.trow-6 td:first-child{border-left-color:rgba(64,190,160,.35);}
-tbody tr.trow-7 td:first-child{border-left-color:rgba(250,160,80,.35);}
-tbody tr.trow-8 td:first-child{border-left-color:rgba(120,190,255,.35);}
-tbody tr.trow-9 td:first-child{border-left-color:rgba(200,100,180,.35);}
+tbody tr.trow-0 td:first-child{border-left-color:rgba(210,140,195,.55);}
+tbody tr.trow-1 td:first-child{border-left-color:rgba(125,181,212,.55);}
+tbody tr.trow-2 td:first-child{border-left-color:rgba(100,190,150,.55);}
+tbody tr.trow-3 td:first-child{border-left-color:rgba(220,170,80,.55);}
+tbody tr.trow-4 td:first-child{border-left-color:rgba(225,130,150,.55);}
+tbody tr.trow-5 td:first-child{border-left-color:rgba(160,140,210,.55);}
+tbody tr.trow-6 td:first-child{border-left-color:rgba(90,180,165,.55);}
+tbody tr.trow-7 td:first-child{border-left-color:rgba(225,165,100,.55);}
+tbody tr.trow-8 td:first-child{border-left-color:rgba(110,175,230,.55);}
+tbody tr.trow-9 td:first-child{border-left-color:rgba(205,130,185,.55);}
 tbody tr[class*="trow-"]{transition:background .15s;}
 
 /* table stagger */
@@ -549,21 +558,21 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
   background:transparent;border:1px solid transparent;
   color:var(--tx-primary);border-radius:var(--radius-sm);padding:3px 6px;
   font-size:var(--fs-caption);
-  font-family:'DM Sans','Noto Sans Thai',sans-serif;
+  font-family:'Nunito','Noto Sans Thai',sans-serif;
   width:100%;transition:all .15s;
 }
 .sku-edit:focus{
-  background:var(--bg-input);border-color:var(--accent);
-  outline:none;box-shadow:0 0 0 2.5px rgba(255,107,43,.12);
+  background:#fff;border-color:var(--accent);
+  outline:none;box-shadow:0 0 0 2.5px rgba(192,132,176,.18);
 }
 .del-btn{
   width:24px;height:24px;border-radius:var(--radius-sm);
-  border:1px solid rgba(255,107,122,.2);
-  background:rgba(255,107,122,.06);color:var(--tx-error);
+  border:1px solid rgba(224,90,122,.2);
+  background:rgba(224,90,122,.07);color:var(--tx-error);
   cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;
   transition:all .15s;
 }
-.del-btn:hover{background:rgba(255,107,122,.18);transform:scale(1.1);}
+.del-btn:hover{background:rgba(224,90,122,.16);transform:scale(1.1);}
 
 /* ── SECTION HEADERS ── */
 .result-title{
@@ -582,8 +591,8 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
 .copy-bar{
   display:flex;align-items:center;justify-content:space-between;
   padding:9px 14px;
-  background:var(--bg-card2);
-  border-top:1px solid var(--border-sub);
+  background:rgba(248,240,252,.7);
+  border-top:1px solid rgba(192,132,176,.12);
   font-size:var(--fs-caption);font-weight:var(--fw-medium);
   color:var(--tx-secondary);
   border-radius:0 0 var(--radius-lg) var(--radius-lg);
@@ -591,42 +600,43 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
 .copy-bar b{font-weight:var(--fw-semi);color:var(--tx-primary);}
 .map-btn{
   padding:3px 9px;border-radius:var(--radius-full);
-  border:1px solid rgba(52,212,122,.2);
-  background:rgba(52,212,122,.08);color:var(--tx-success);
+  border:1px solid rgba(45,170,106,.25);
+  background:rgba(45,170,106,.08);color:var(--tx-success);
   font-size:var(--fs-caption);font-weight:var(--fw-semi);
   cursor:pointer;
-  font-family:'DM Sans','Noto Sans Thai',sans-serif;
+  font-family:'Nunito','Noto Sans Thai',sans-serif;
   transition:all .15s;
 }
-.map-btn:hover{background:rgba(52,212,122,.18);}
+.map-btn:hover{background:rgba(45,170,106,.15);}
 .unmap-card{padding:10px 13px;border-radius:var(--radius-md);background:rgba(255,107,122,.05);border:1px solid rgba(255,107,122,.15);margin-bottom:8px;}
 .unmap-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;}
-.order-id{font-family:'IBM Plex Mono',monospace;font-size:var(--fs-mono);font-weight:var(--fw-semi);letter-spacing:-.01em;color:var(--teal);}
+.order-id{font-family:'JetBrains Mono',monospace;font-size:var(--fs-mono);font-weight:var(--fw-semi);letter-spacing:-.01em;color:var(--teal);}
 .order-meta{font-size:var(--fs-caption);color:var(--tx-muted);display:flex;gap:10px;flex-wrap:wrap;margin-top:3px;}
 .item-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid rgba(255,255,255,.04);flex-wrap:wrap;}
-.item-color{font-family:'IBM Plex Mono',monospace;font-size:var(--fs-caption);color:var(--tx-secondary);}
+.item-color{font-family:'JetBrains Mono',monospace;font-size:var(--fs-caption);color:var(--tx-secondary);}
 
 /* ── LOADING SHIMMER ── */
 .shimmer{background:linear-gradient(90deg,var(--bg-card2) 25%,var(--bg-hover) 50%,var(--bg-card2) 75%);background-size:200% auto;animation:shimmer 1.8s linear infinite;}
 
 /* ── PAGE OVERLAY ── */
-#page-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,rgba(255,107,43,.08),rgba(74,158,187,.06));pointer-events:none;opacity:0;transition:opacity .15s;}
+#page-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,rgba(192,132,176,.1),rgba(125,181,212,.08));pointer-events:none;opacity:0;transition:opacity .15s;}
 #page-overlay.flash{opacity:1;}
 
 /* ── MOBILE ── */
 @media(max-width:768px){
-  #sidebar{display:none;}
-  #main-content{margin-left:0!important;}
+  #sidebar{display:none!important;}
+  #main-content{margin-left:0!important;padding-top:56px!important;}
+  header{left:0!important;}
   .hidden-mobile{display:none;}
 }
 
 /* ── FROST GRADIENT (logo/avatar) ── */
-.frost-gradient{background:linear-gradient(135deg,var(--accent),var(--accent2));}
+.frost-gradient{background:linear-gradient(135deg,#d4a0c8,#a96899);}
 
 /* ── SIDEBAR AFTER GLOW ── */
 #sidebar::after{
   content:'';position:absolute;right:0;top:0;bottom:0;width:1px;
-  background:linear-gradient(180deg,transparent 0%,rgba(255,107,43,.3) 40%,rgba(74,158,187,.2) 70%,transparent 100%);
+  background:linear-gradient(180deg,transparent 0%,rgba(192,132,176,.35) 40%,rgba(125,181,212,.25) 70%,transparent 100%);
 }
 </style>
 </head>
@@ -634,110 +644,110 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
 <div id="page-overlay"></div>
 
 <!-- ══ SIDEBAR ══ -->
-<aside id="sidebar" class="h-screen w-60 fixed left-0 top-0 z-40 flex flex-col py-7 px-4 shadow-lg" style="background:var(--bg-panel);border-right:1px solid var(--border-sub);">
-  <div class="mb-7 px-2">
-    <div class="flex items-center gap-3">
-      <div id="sidebar-logo-icon" class="w-9 h-9 rounded-xl frost-gradient flex items-center justify-center text-white flex-shrink-0" style="box-shadow:0 4px 14px rgba(255,107,43,.35);">
-        <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">shopping_bag</span>
+<aside id="sidebar" style="position:fixed;left:0;top:0;width:240px;height:100vh;z-index:40;display:flex;flex-direction:column;padding:28px 16px;background:rgba(248,240,252,.97);border-right:1px solid rgba(192,132,176,.15);box-shadow:2px 0 16px rgba(192,132,176,.08);">
+  <div style="margin-bottom:28px;padding:0 8px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div id="sidebar-logo-icon" class="frost-gradient" style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(192,132,176,.35);">
+        <span class="material-symbols-outlined" style="font-size:18px;color:#fff;font-variation-settings:'FILL' 1;">shopping_bag</span>
       </div>
       <div>
-        <h2 class="text-sm font-extrabold leading-none flex items-center gap-1.5" style="color:var(--tx-primary);">VCANBUY <span class="topbar-logo-dot"></span></h2>
-        <p class="text-[10px] uppercase tracking-widest text-[var(--tx-primary)]-variant/60 font-bold mt-0.5">Data Processor</p>
+        <h2 style="font-size:13px;font-weight:800;line-height:1;display:flex;align-items:center;gap:6px;color:var(--tx-primary);">VCANBUY <span class="topbar-logo-dot"></span></h2>
+        <p style="font-size:9px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-top:2px;color:var(--tx-muted);">Data Processor</p>
       </div>
     </div>
   </div>
 
-  <nav class="flex-1 space-y-0.5">
-    <div onclick="goto(1)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold" data-step="1">
-      <span class="material-symbols-outlined text-[18px]">receipt_long</span><span>คำสั่งสั่งซื้อ</span>
+  <nav style="flex:1;display:flex;flex-direction:column;gap:2px;">
+    <div onclick="goto(1)" class="sidebar-item" data-step="1" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
+      <span class="material-symbols-outlined" style="font-size:18px;">receipt_long</span><span>คำสั่งสั่งซื้อ</span>
     </div>
-    <div onclick="goto(2)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold" data-step="2">
-      <span class="material-symbols-outlined text-[18px]">list_alt</span><span>ข้อมูล Order</span>
+    <div onclick="goto(2)" class="sidebar-item" data-step="2" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
+      <span class="material-symbols-outlined" style="font-size:18px;">list_alt</span><span>ข้อมูล Order</span>
     </div>
-    <div onclick="goto(3)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold" data-step="3">
-      <span class="material-symbols-outlined text-[18px]">manage_search</span><span>จับคู่ SKU</span>
+    <div onclick="goto(3)" class="sidebar-item" data-step="3" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
+      <span class="material-symbols-outlined" style="font-size:18px;">manage_search</span><span>จับคู่ SKU</span>
     </div>
-    <div onclick="goto(4)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold" data-step="4">
-      <span class="material-symbols-outlined text-[18px]">analytics</span><span>ผลลัพธ์เบื้องต้น</span>
+    <div onclick="goto(4)" class="sidebar-item" data-step="4" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
+      <span class="material-symbols-outlined" style="font-size:18px;">analytics</span><span>ผลลัพธ์เบื้องต้น</span>
     </div>
-    <div onclick="goto(5)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold" data-step="5">
-      <span class="material-symbols-outlined text-[18px]">inventory_2</span><span>กล่องพัสดุ</span>
+    <div onclick="goto(5)" class="sidebar-item" data-step="5" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
+      <span class="material-symbols-outlined" style="font-size:18px;">inventory_2</span><span>กล่องพัสดุ</span>
     </div>
-    <div onclick="goto(6)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold" data-step="6">
-      <span class="material-symbols-outlined text-[18px]">task_alt</span><span>ผลลัพธ์สุดท้าย</span>
+    <div onclick="goto(6)" class="sidebar-item" data-step="6" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
+      <span class="material-symbols-outlined" style="font-size:18px;">task_alt</span><span>ผลลัพธ์สุดท้าย</span>
     </div>
-    <div class="mx-2 my-2 h-px" style="background:var(--border-sub);"></div>
-    <div onclick="goto(7)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold" data-step="7">
-      <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span><span>Export VCANBUY</span>
+    <div style="margin:6px 8px;height:1px;background:rgba(192,132,176,.2);"></div>
+    <div onclick="goto(7)" class="sidebar-item" data-step="7" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
+      <span class="material-symbols-outlined" style="font-size:18px;">picture_as_pdf</span><span>Export VCANBUY</span>
     </div>
-    <div onclick="goto(8)" class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold" data-step="8">
-      <span class="material-symbols-outlined text-[18px]">table_chart</span><span>Export Peak</span>
+    <div onclick="goto(8)" class="sidebar-item" data-step="8" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
+      <span class="material-symbols-outlined" style="font-size:18px;">table_chart</span><span>Export Peak</span>
     </div>
   </nav>
 
-  <div class="mt-3 px-1 border-t border-[var(--border-sub)] pt-3">
-    <button onclick="clearAll()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all text-sm font-semibold" style="color:var(--tx-error);opacity:.7;" onmouseover="this.style.background='rgba(255,107,122,.08)';this.style.opacity='1';" onmouseout="this.style.background='';this.style.opacity='.7';">
-      <span class="material-symbols-outlined text-[18px]">delete_sweep</span>ล้างข้อมูลทั้งหมด
+  <div style="margin-top:12px;padding:12px 4px 0;border-top:1px solid rgba(192,132,176,.15);">
+    <button onclick="clearAll()" style="width:100%;display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;border:none;background:transparent;cursor:pointer;font-size:13px;font-weight:600;color:var(--tx-error);opacity:.7;transition:all .2s;font-family:inherit;" onmouseover="this.style.background='rgba(224,90,122,.08)';this.style.opacity='1';" onmouseout="this.style.background='transparent';this.style.opacity='.7';">
+      <span class="material-symbols-outlined" style="font-size:18px;">delete_sweep</span>ล้างข้อมูลทั้งหมด
     </button>
   </div>
 </aside>
 
 <!-- ══ TOPBAR ══ -->
-<header class="fixed top-0 left-60 right-0 h-14 z-30 flex justify-between items-center px-6 shadow-sm" style="position:fixed;background:rgba(13,16,24,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-sub);">
+<header style="position:fixed;top:0;left:240px;right:0;height:56px;z-index:30;display:flex;justify-content:space-between;align-items:center;padding:0 24px;background:rgba(253,248,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(192,132,176,.15);box-shadow:0 1px 12px rgba(192,132,176,.08);">
   <div id="step-progress-bar" style="width:12.5%;"></div>
   <!-- stepper -->
-  <div class="flex items-center gap-0.5 overflow-x-auto" id="stepper">
-    <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent group" id="stab-1" onclick="goto(1)">
-      <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[var(--tx-primary)]-variant transition-all"><span class="step-num">1</span></div>
-      <span class="stab-label text-[9px] font-semibold text-[var(--tx-primary)]-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">คำสั่งซื้อ</span>
+  <div id="stepper" style="display:flex;align-items:center;gap:2px;overflow-x:auto;">
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-1" onclick="goto(1)">
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">1</span></div>
+      <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">คำสั่งซื้อ</span>
     </button>
     <div class="step-connector" id="sc-1"></div>
-    <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-2" onclick="goto(2)">
-      <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[var(--tx-primary)]-variant transition-all"><span class="step-num">2</span></div>
-      <span class="stab-label text-[9px] font-semibold text-[var(--tx-primary)]-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">Orders</span>
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-2" onclick="goto(2)">
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">2</span></div>
+      <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Orders</span>
     </button>
     <div class="step-connector" id="sc-2"></div>
-    <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-3" onclick="goto(3)">
-      <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[var(--tx-primary)]-variant transition-all"><span class="step-num">3</span></div>
-      <span class="stab-label text-[9px] font-semibold text-[var(--tx-primary)]-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">Map SKU</span>
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-3" onclick="goto(3)">
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">3</span></div>
+      <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Map SKU</span>
     </button>
     <div class="step-connector" id="sc-3"></div>
-    <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-4" onclick="goto(4)">
-      <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[var(--tx-primary)]-variant transition-all"><span class="step-num">4</span></div>
-      <span class="stab-label text-[9px] font-semibold text-[var(--tx-primary)]-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">เบื้องต้น</span>
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-4" onclick="goto(4)">
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">4</span></div>
+      <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">เบื้องต้น</span>
     </button>
     <div class="step-connector" id="sc-4"></div>
-    <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-5" onclick="goto(5)">
-      <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[var(--tx-primary)]-variant transition-all"><span class="step-num">5</span></div>
-      <span class="stab-label text-[9px] font-semibold text-[var(--tx-primary)]-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">กล่องพัสดุ</span>
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-5" onclick="goto(5)">
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">5</span></div>
+      <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">กล่องพัสดุ</span>
     </button>
     <div class="step-connector" id="sc-5"></div>
-    <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-6" onclick="goto(6)">
-      <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[var(--tx-primary)]-variant transition-all"><span class="step-num">6</span></div>
-      <span class="stab-label text-[9px] font-semibold text-[var(--tx-primary)]-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">สุดท้าย</span>
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-6" onclick="goto(6)">
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">6</span></div>
+      <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">สุดท้าย</span>
     </button>
     <div class="step-connector" id="sc-6"></div>
-    <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-7" onclick="goto(7)">
-      <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[var(--tx-primary)]-variant transition-all"><span class="step-num">7</span></div>
-      <span class="stab-label text-[9px] font-semibold text-[var(--tx-primary)]-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">VCANBUY</span>
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-7" onclick="goto(7)">
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">7</span></div>
+      <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">VCANBUY</span>
     </button>
     <div class="step-connector" id="sc-7"></div>
-    <button class="step-btn flex flex-col items-center gap-0.5 px-2.5 py-1 cursor-pointer border-none bg-transparent" id="stab-8" onclick="goto(8)">
-      <div class="stab-circle w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[var(--tx-primary)]-variant transition-all"><span class="step-num">8</span></div>
-      <span class="stab-label text-[9px] font-semibold text-[var(--tx-primary)]-variant/70 uppercase tracking-wide whitespace-nowrap transition-all">Peak</span>
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-8" onclick="goto(8)">
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">8</span></div>
+      <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Peak</span>
     </button>
   </div>
-  <div class="flex items-center gap-2 flex-shrink-0">
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
     <span class="text-xs font-bold text-[var(--tx-primary)]-variant hidden md:block">Lamsang Store</span>
-    <div class="w-7 h-7 rounded-lg frost-gradient flex items-center justify-center text-white flex-shrink-0" style="box-shadow:0 2px 8px rgba(255,107,43,.3);">
-      <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">store</span>
+    <div class="frost-gradient" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(192,132,176,.3);">
+      <span class="material-symbols-outlined" style="font-size:16px;color:#fff;font-variation-settings:'FILL' 1;">store</span>
     </div>
   </div>
 </header>
 
 <!-- ══ MAIN ══ -->
-<main id="main-content" class="ml-60 pt-14 min-h-screen" style="background:var(--bg);">
-<div class="p-5 panels" style="max-width:100%;position:relative;z-index:1;">
+<main id="main-content" style="background:var(--bg);margin-left:240px;padding-top:56px;min-height:100vh;">
+<div class="panels" style="padding:20px;max-width:100%;position:relative;z-index:1;">
 
 <!-- ══════════ STEP 1: คำสั่งสั่งซื้อ ══════════ -->
 <div class="panel active py-2" id="p1">
@@ -749,7 +759,7 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
     <div class="action-row">
       <button class="btn btn-primary" onclick="doStep1()">▶ ประมวลผล →</button>
       <button class="btn btn-outline btn-sm" onclick="loadDemo()">📄 โหลดตัวอย่าง</button>
-      <button class="btn btn-outline btn-sm" onclick="clearAll()" style="color:var(--accent3);border-color:rgba(247,129,102,.3);">🗑 ล้างข้อมูลทั้งหมด</button>
+      <button class="btn btn-outline btn-sm" onclick="clearAll()" style="color:var(--tx-error);border-color:rgba(224,90,122,.2);">🗑 ล้างข้อมูลทั้งหมด</button>
     </div>
   </div>
 </div>
@@ -789,7 +799,7 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
       <div style="display:flex;gap:6px;">
         <button class="btn btn-outline btn-sm" onclick="exportSku()">⬇️ Export Excel</button>
         <label class="btn btn-outline btn-sm" style="cursor:pointer;">⬆️ Import Excel<input type="file" accept=".xlsx,.json" onchange="importSku(event)" style="display:none;"></label>
-        <button class="btn btn-outline btn-sm" onclick="resetSku()" style="color:var(--text3);">↺ Reset</button>
+        <button class="btn btn-outline btn-sm" onclick="resetSku()" style="color:var(--tx-muted);">↺ Reset</button>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:80px 160px 110px 75px 1fr 1fr auto;gap:6px;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:8px;">
@@ -835,7 +845,7 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
     </table>
   </div>
   <div class="copy-bar">
-    <span id="sum-4" style="color:var(--text2);"></span>
+    <span id="sum-4" style="color:var(--tx-secondary);"></span>
     <div style="display:flex;gap:6px;">
       <button class="btn btn-outline btn-sm" onclick="copyTSV(4)" title="Copy Tab-separated สำหรับ Google Sheets">📋 Copy TSV</button>
       <button class="btn btn-success btn-sm" onclick="dlXLSX(4)">⬇️ Excel (.xlsx)</button>
@@ -878,7 +888,7 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
     </table>
   </div>
   <div class="copy-bar">
-    <span id="sum-6" style="color:var(--text2);"></span>
+    <span id="sum-6" style="color:var(--tx-secondary);"></span>
     <div style="display:flex;gap:6px;">
       <button class="btn btn-outline btn-sm" onclick="copyTSV(6)" title="Copy Tab-separated สำหรับ Google Sheets">📋 Copy TSV</button>
       <button class="btn btn-success btn-sm" onclick="dlXLSX(6)">⬇️ Excel (.xlsx)</button>
@@ -887,7 +897,7 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
   <div class="action-row">
     <button class="btn btn-success" onclick="exportAll()" style="font-size:13px;font-weight:600;">📋 ดูผลลัพธ์ทั้ง 2 Export</button>
     <button class="btn btn-primary" onclick="buildStep7();goto(7)">▶ Export to VCANBUY →</button>
-    <button class="btn btn-primary" style="background:var(--accent2);" onclick="buildStep8();goto(8)">▶ Export to Peak →</button>
+    <button class="btn btn-primary" style="background:linear-gradient(135deg,var(--teal),var(--teal2));" onclick="buildStep8();goto(8)">▶ Export to Peak →</button>
     <button class="btn btn-outline btn-sm" onclick="goto(5)">← กลับ</button>
     <button class="btn btn-outline" onclick="goto(1)">🔄 เริ่มใหม่</button>
   </div>
@@ -986,7 +996,7 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
     </table>
   </div>
   <div class="copy-bar">
-    <span id="sum-8" style="color:var(--text2);"></span>
+    <span id="sum-8" style="color:var(--tx-secondary);"></span>
   </div>
   <div class="action-row">
     <button class="btn btn-success" onclick="exportPeakExcel()" style="font-size:13px;padding:9px 20px;">
@@ -1518,14 +1528,14 @@ function renderAutoMapUI(){
       : `<span class="tag tag-orange">⚠️ ยังไม่ได้เลือก</span>`;
 
     const orderHeader=r.isFirst
-      ? `<td rowspan="${r.orderTotal}" style="border-right:1px solid rgba(255,255,255,.06);vertical-align:top;padding-top:10px;">
+      ? `<td rowspan="${r.orderTotal}" style="border-right:1px solid rgba(192,132,176,.2);vertical-align:top;padding-top:10px;background:rgba(250,244,255,.6);">
            <div class="mono" style="font-size:11.5px;color:var(--teal);">${esc(r.orderId)}</div>
            <div style="font-size:11px;color:var(--tx-secondary);margin-top:3px;">📦 ${esc(r.boxId)}</div>
            <div style="margin-top:6px;">${r.orderDone
              ?`<span class="tag tag-green" style="font-size:11px;">✅ ${r.doneCount}/${r.orderTotal}</span>`
              :`<span class="tag tag-orange" style="font-size:11px;">⚠️ ${r.doneCount}/${r.orderTotal}</span>`}
            </div>
-           <select style="margin-top:8px;width:100%;background:var(--accent-glow2);border:1px solid var(--border-sub);border-radius:.5rem;padding:5px 7px;font-size:11px;color:var(--tx-primary);"
+           <select style="margin-top:8px;width:100%;background:rgba(192,132,176,.07);border:1px solid var(--border-sub);border-radius:.5rem;padding:5px 7px;font-size:11px;color:var(--tx-primary);"
              onchange="onOrderCodeChange('${esc(r.orderId)}',this.value);this.value=''">
              <option value="">🔀 ตั้งทั้งหมด</option>
              ${codeOpts(r.dominantCode)}
@@ -1533,12 +1543,12 @@ function renderAutoMapUI(){
          </td>`
       : '';
 
-    return`<tr class="${rowColor(r.orderId)}" style="${map.confirmed?'':'outline:1px solid rgba(168,54,75,.15);'}">
+    return`<tr class="${rowColor(r.orderId)}" style="${map.confirmed?'':'outline:1px solid rgba(224,90,122,.15);'}">
       ${orderHeader}
       <td style="font-size:12px;">${esc(r.colorPart)}</td>
       <td class="ncell">${r.qty.toLocaleString()}</td>
       <td>
-        <select style="width:100%;background:var(--bg-input);border:1px solid var(--border-sub);border-radius:var(--radius-sm);padding:5px 8px;font-size:12px;color:var(--tx-primary);"
+        <select style="width:100%;background:#fff;border:1px solid rgba(192,132,176,.2);border-radius:var(--radius-sm);padding:5px 8px;font-size:12px;color:var(--tx-primary);"
           onchange="onItemCodeChange('${esc(r.orderId)}','${esc(r.variantLine)}',this.value)">
           ${codeOpts(map.code||'')}
         </select>
@@ -1771,7 +1781,7 @@ function renderStep4(){
     <td class="ncell">${fmt(r.shpCNCN)}</td>
     <td class="ncell">${fmt(r.svcFee)}</td>
     <td class="ncell">${fmt(r.unitAfter)}</td>
-    <td class="ncell" style="color:var(--accent2);">${fmt(r.total)}</td>
+    <td class="ncell" style="color:var(--accent);font-weight:600;">${fmt(r.total)}</td>
   </tr>`).join('');
   const totalQty=rows4.reduce((s,r)=>s+r.qty,0);
   const totalAmt=rows4.reduce((s,r)=>s+r.total,0);
@@ -1873,7 +1883,7 @@ function renderStep6(){
     <td class="ncell">${fmt(r.packFee)}</td>
     <td class="ncell">${fmt(r.shpTH)}</td>
     <td class="ncell">${fmt(r.unitAfter)}</td>
-    <td class="ncell" style="color:var(--accent2);">${fmt(r.total)}</td>
+    <td class="ncell" style="color:var(--accent);font-weight:600;">${fmt(r.total)}</td>
   </tr>`).join('');
   const totalQty=rows6.reduce((s,r)=>s+r.qty,0);
   const totalAmt=rows6.reduce((s,r)=>s+r.total,0);
@@ -2119,7 +2129,7 @@ function buildStep7(){
     <td class="ncell">${r.qty.toLocaleString()}</td>
     <td style="text-align:center;">${esc(r.unit)}</td>
     <td class="ncell">${fmt(r.unitPrice)}</td>
-    <td class="ncell" style="color:var(--accent2);font-weight:600;">${fmt(r.total)}</td>
+    <td class="ncell" style="color:var(--accent);font-weight:600;">${fmt(r.total)}</td>
   </tr>`).join('');
 
   const grandTotal=rows7.reduce((s,r)=>s+r.total,0);
