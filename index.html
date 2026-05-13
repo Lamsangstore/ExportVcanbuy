@@ -15,6 +15,36 @@
 <meta name="theme-color" content="#c084b0"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
+  collection, getDocs, query, where, orderBy,
+  writeBatch, serverTimestamp, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_3ql-2LcujMPqveyv_ibgAZVJVP1f2mI",
+  authDomain: "vcanbuy-8f241.firebaseapp.com",
+  projectId: "vcanbuy-8f241",
+  storageBucket: "vcanbuy-8f241.firebasestorage.app",
+  messagingSenderId: "174024823578",
+  appId: "1:174024823578:web:3762366225e0aac58352a3",
+  measurementId: "G-8R659GXPNF"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+window.FB = {
+  db, doc, getDoc, setDoc, updateDoc, deleteDoc,
+  collection, getDocs, query, where, orderBy,
+  writeBatch, serverTimestamp, onSnapshot,
+  ready: true
+};
+window.dispatchEvent(new Event('fb-ready'));
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
@@ -91,6 +121,36 @@ tailwind.config = {
   --border:      rgba(192,132,176,.25);
   --border-sub:  rgba(192,132,176,.15);
   --border-card: rgba(192,132,176,.12);
+}
+
+/* ── DARK MODE ── */
+body.dark{
+  --bg:       #1a1320;
+  --bg-panel: #221a2c;
+  --bg-card:  #2a2236;
+  --bg-card2: #251c30;
+  --bg-input: #2a2236;
+  --bg-hover: #322840;
+  --tx-primary:  #f0e6f5;
+  --tx-secondary:#c8b8d4;
+  --tx-muted:    #8a7a9a;
+  --border:      rgba(192,132,176,.35);
+  --border-sub:  rgba(192,132,176,.2);
+  --border-card: rgba(192,132,176,.18);
+}
+body.dark header,body.dark #sidebar{background:rgba(34,26,44,.95)!important;}
+body.dark .glass-effect{background:rgba(42,34,54,.6)!important;}
+body.dark textarea,body.dark input[type=text],body.dark select,body.dark .sku-edit-input{background:#1f1828!important;color:var(--tx-primary)!important;}
+body.dark .vcb-modal{background:#2a2236;color:var(--tx-primary);}
+body.dark .toast{background:#2a2236;color:var(--tx-primary);}
+body.dark .session-row{background:#2a2236;}
+body.dark .session-row.active{background:rgba(192,132,176,.2);}
+body.dark table{color:var(--tx-primary);}
+body.dark thead th{background:#251c30!important;color:var(--tx-secondary);}
+body.dark .shot-uploader{background:rgba(42,34,54,.5);}
+body.dark .shot-btn{background:#322840;color:var(--tx-primary);}
+body.dark .sku-chip{background:#251c30;color:var(--tx-secondary);}
+:root{
 
   /* type scale */
   --fs-display: 26px;
@@ -574,6 +634,270 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
 }
 .del-btn:hover{background:rgba(224,90,122,.16);transform:scale(1.1);}
 
+/* ── SKU CHIPS (Step 3 picker) ── */
+.sku-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.sku-chip{
+  border:1px solid rgba(192,132,176,.28);
+  background:#fff;color:var(--tx-secondary);
+  border-radius:999px;padding:3px 9px;font-size:11px;
+  font-family:'Nunito','Noto Sans Thai',sans-serif;
+  cursor:pointer;transition:all .15s;line-height:1.3;
+}
+.sku-chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(192,132,176,.08);}
+.sku-chip-active{
+  background:var(--tx-success)!important;border-color:var(--tx-success)!important;
+  color:#fff!important;font-weight:var(--fw-semi);
+  box-shadow:0 2px 6px rgba(45,170,106,.25);
+}
+.auto-chip{
+  border:1px solid rgba(125,181,212,.35);
+  background:rgba(125,181,212,.08);color:var(--teal);
+  border-radius:var(--radius-sm);padding:2px 7px;font-size:10.5px;
+  font-family:'Nunito','Noto Sans Thai',sans-serif;
+  cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:2px;
+}
+.auto-chip:hover{background:rgba(125,181,212,.18);border-color:var(--teal);}
+.bulk-bar{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 12px;border-radius:10px;
+  background:linear-gradient(90deg,rgba(192,132,176,.06),rgba(125,181,212,.06));
+  border:1px solid rgba(192,132,176,.18);margin-bottom:10px;
+  font-size:12px;
+}
+.bulk-bar .shot-btn{padding:5px 10px;font-size:11.5px;}
+
+/* ── WORKSPACE / SESSION BAR ── */
+.ws-bar{
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
+  padding:4px 10px;border-radius:999px;
+  background:rgba(192,132,176,.08);border:1px solid rgba(192,132,176,.2);
+  font-size:11px;color:var(--tx-secondary);
+}
+.ws-bar .ws-code{
+  font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--accent);
+  font-size:11.5px;letter-spacing:.04em;
+}
+.ws-bar select{
+  background:transparent;border:none;outline:none;
+  font-size:11px;font-weight:600;color:var(--tx-primary);
+  padding:2px 4px;cursor:pointer;
+}
+.ws-bar .icon-btn{
+  width:22px;height:22px;border-radius:50%;
+  border:none;background:transparent;color:var(--tx-secondary);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.ws-bar .icon-btn:hover{background:rgba(192,132,176,.15);color:var(--accent);}
+.ws-bar .sync-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--tx-success);
+  box-shadow:0 0 6px rgba(45,170,106,.5);
+}
+.ws-bar .sync-dot.syncing{background:var(--tx-warn);animation:pulse 1.2s infinite;}
+.ws-bar .sync-dot.error{background:var(--tx-error);}
+.ws-bar .sync-dot.offline{background:var(--tx-muted);}
+@keyframes pulse{50%{opacity:.4;}}
+
+/* ── MODAL ── */
+.vcb-modal-bg{
+  position:fixed;inset:0;background:rgba(40,20,50,.45);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  z-index:100;display:none;align-items:center;justify-content:center;
+  animation:fadeIn .2s ease-out;
+}
+.vcb-modal-bg.show{display:flex;}
+.vcb-modal{
+  background:#fff;border-radius:18px;padding:28px;
+  width:min(480px,92vw);max-height:88vh;overflow-y:auto;
+  box-shadow:0 24px 60px rgba(70,40,90,.25);
+  border:1px solid rgba(192,132,176,.2);
+}
+.vcb-modal h3{
+  font-size:18px;font-weight:800;color:var(--tx-primary);
+  margin-bottom:6px;display:flex;align-items:center;gap:8px;
+}
+.vcb-modal .modal-sub{font-size:12.5px;color:var(--tx-secondary);margin-bottom:18px;}
+.vcb-modal .modal-section{margin-bottom:14px;}
+.vcb-modal label{font-size:11px;font-weight:600;color:var(--tx-secondary);
+  text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:block;}
+.vcb-modal input[type=text]{font-family:'JetBrains Mono',monospace;letter-spacing:.04em;}
+.vcb-modal .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.vcb-modal .divider{height:1px;background:rgba(192,132,176,.15);margin:14px 0;}
+
+/* ── SESSION LIST ── */
+.session-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;
+  border:1px solid rgba(192,132,176,.15);border-radius:10px;padding:8px;background:rgba(250,244,255,.4);}
+.session-row{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  background:#fff;border:1px solid rgba(192,132,176,.15);border-radius:8px;
+  transition:all .15s;cursor:pointer;
+}
+.session-row:hover{border-color:var(--accent);background:rgba(192,132,176,.04);}
+.session-row.active{background:rgba(192,132,176,.1);border-color:var(--accent);}
+.session-row .s-name{flex:1;font-size:13px;font-weight:600;color:var(--tx-primary);}
+.session-row .s-meta{font-size:10px;color:var(--tx-muted);}
+.session-row .s-acts{display:flex;gap:4px;}
+.session-row .s-acts button{
+  width:22px;height:22px;border:none;background:transparent;
+  border-radius:5px;color:var(--tx-muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.session-row .s-acts button:hover{background:rgba(192,132,176,.15);color:var(--accent);}
+
+/* ── EXPORTED-BADGE on Step 1 ── */
+.exported-list{
+  margin-top:8px;padding:10px 12px;border-radius:10px;
+  background:rgba(220,170,80,.08);border:1px solid rgba(220,170,80,.25);
+  font-size:11.5px;color:var(--tx-warn);
+}
+.exported-list .ex-row{display:flex;align-items:center;gap:8px;padding:3px 0;}
+.exported-list .ex-row .mono{font-family:'JetBrains Mono',monospace;font-weight:700;}
+
+/* ── TOAST ── */
+#toast-container{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:380px;pointer-events:none;}
+.toast{
+  pointer-events:auto;display:flex;align-items:center;gap:10px;
+  padding:11px 14px;border-radius:12px;background:#fff;
+  box-shadow:0 8px 28px rgba(70,40,90,.18);border:1px solid rgba(192,132,176,.18);
+  font-size:13px;color:var(--tx-primary);
+  transform:translateX(110%);opacity:0;transition:all .28s cubic-bezier(.2,.9,.3,1.2);
+  position:relative;overflow:hidden;min-width:220px;
+}
+.toast.show{transform:translateX(0);opacity:1;}
+.toast.hide{transform:translateX(110%);opacity:0;}
+.toast-info{border-left:4px solid var(--teal);}
+.toast-success{border-left:4px solid var(--tx-success);}
+.toast-warn{border-left:4px solid var(--tx-warn);}
+.toast-error{border-left:4px solid var(--tx-error);}
+.toast-icon{font-size:16px;flex-shrink:0;}
+.toast-msg{flex:1;line-height:1.4;}
+.toast-action{
+  background:rgba(192,132,176,.12);color:var(--accent);border:1px solid rgba(192,132,176,.3);
+  padding:4px 10px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:all .15s;flex-shrink:0;
+}
+.toast-action:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.toast-close{
+  background:none;border:none;color:var(--tx-muted);cursor:pointer;
+  font-size:16px;line-height:1;padding:2px 6px;flex-shrink:0;
+}
+.toast-close:hover{color:var(--tx-error);}
+.toast-bar{
+  position:absolute;bottom:0;left:0;height:2px;background:rgba(192,132,176,.4);
+  width:100%;transform-origin:left;
+}
+@keyframes toast-bar{from{transform:scaleX(1);}to{transform:scaleX(0);}}
+
+/* ── SYNC STATUS DETAIL ── */
+.sync-meta{font-size:10px;color:var(--tx-muted);font-weight:500;margin-left:2px;}
+
+kbd{
+  display:inline-block;padding:1px 6px;
+  background:rgba(192,132,176,.15);border:1px solid rgba(192,132,176,.3);
+  border-bottom-width:2px;border-radius:4px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  color:var(--accent);min-width:18px;text-align:center;
+}
+
+/* ── MOBILE RESPONSIVE ── */
+.mobile-toggle{display:none;}
+@media (max-width:860px){
+  #sidebar{position:fixed;left:-260px;top:0;bottom:0;z-index:50;transition:left .25s;width:240px;}
+  #sidebar.open{left:0;box-shadow:6px 0 24px rgba(70,40,90,.25);}
+  header{left:0!important;padding:0 12px!important;}
+  main#main-content{margin-left:0!important;}
+  .mobile-toggle{
+    display:flex!important;align-items:center;justify-content:center;
+    width:36px;height:36px;border-radius:8px;border:none;
+    background:rgba(192,132,176,.12);color:var(--accent);
+    cursor:pointer;flex-shrink:0;
+  }
+  .ws-bar{font-size:10px;padding:3px 7px;}
+  .ws-bar select{max-width:80px;}
+  .ws-bar .sync-meta,.ws-bar > span:nth-child(2){display:none;}
+  #stepper{gap:0;}
+  #stepper .stab-label{font-size:8px;}
+  #stepper .stab-circle{width:24px;height:24px;font-size:10px;}
+  #stepper .step-connector{display:none;}
+  .panels{padding:10px!important;}
+  .vcb-modal{padding:18px;width:94vw;}
+  #toast-container{left:10px;right:10px;bottom:10px;max-width:none;}
+  .bulk-bar{font-size:11px;padding:8px;}
+  .shot-uploader{padding:10px;}
+  .glass-effect{padding:12px!important;}
+  .text-xs.font-bold.hidden{display:none!important;}
+  table{font-size:11px;}
+  .tbl-wrap{overflow-x:auto;}
+  .modal-body input,.vcb-modal input,textarea{font-size:13px;}
+}
+@media (max-width:480px){
+  .vcb-modal h3{font-size:16px;}
+  .ws-bar .ws-code{font-size:10px;}
+}
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:45;
+}
+.sidebar-overlay.show{display:block;}
+
+/* ── SCREENSHOT UPLOADER ── */
+.shot-uploader{
+  border:1.5px dashed rgba(192,132,176,.35);
+  border-radius:12px;padding:14px;
+  background:rgba(250,244,255,.45);
+  margin-bottom:12px;transition:all .2s;
+}
+.shot-uploader.dragging{
+  border-color:var(--accent);background:rgba(192,132,176,.12);
+  box-shadow:0 0 0 4px rgba(192,132,176,.12);
+}
+.shot-uploader-bar{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;
+}
+.shot-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 12px;border-radius:8px;
+  background:#fff;border:1px solid rgba(192,132,176,.25);
+  color:var(--tx-primary);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .15s;
+}
+.shot-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(192,132,176,.06);}
+.shot-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.shot-btn.primary:hover{background:#a86b9d;color:#fff;}
+.shot-btn:disabled{opacity:.5;cursor:not-allowed;}
+.shot-hint{font-size:11px;color:var(--tx-muted);}
+.shot-thumbs{display:flex;flex-wrap:wrap;gap:8px;}
+.shot-thumb{
+  position:relative;width:78px;height:78px;border-radius:8px;
+  overflow:hidden;border:1px solid rgba(192,132,176,.2);
+  background:#fff;flex-shrink:0;
+}
+.shot-thumb img{width:100%;height:100%;object-fit:cover;}
+.shot-thumb .x-btn{
+  position:absolute;top:2px;right:2px;
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(0,0,0,.55);color:#fff;border:none;cursor:pointer;
+  font-size:12px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.shot-thumb .x-btn:hover{background:var(--tx-error);}
+.shot-thumb .status{
+  position:absolute;bottom:0;left:0;right:0;
+  font-size:9px;text-align:center;padding:2px;
+  background:rgba(0,0,0,.55);color:#fff;
+}
+.shot-thumb .status.done{background:rgba(45,170,106,.85);}
+.shot-thumb .status.error{background:rgba(224,90,122,.85);}
+.shot-thumb .status.processing{background:rgba(220,170,80,.85);}
+.shot-progress{
+  margin-top:8px;height:4px;border-radius:2px;
+  background:rgba(192,132,176,.15);overflow:hidden;display:none;
+}
+.shot-progress-bar{
+  height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));
+  width:0%;transition:width .25s;
+}
+.shot-status-text{font-size:11px;color:var(--tx-secondary);margin-top:4px;}
+
 /* ── SECTION HEADERS ── */
 .result-title{
   font-size:var(--fs-title);font-weight:var(--fw-bold);
@@ -695,6 +1019,9 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
 <!-- ══ TOPBAR ══ -->
 <header style="position:fixed;top:0;left:240px;right:0;height:56px;z-index:30;display:flex;justify-content:space-between;align-items:center;padding:0 24px;background:rgba(253,248,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(192,132,176,.15);box-shadow:0 1px 12px rgba(192,132,176,.08);">
   <div id="step-progress-bar" style="width:12.5%;"></div>
+  <button class="mobile-toggle" onclick="toggleSidebar()" title="เมนู">
+    <span class="material-symbols-outlined" style="font-size:20px;">menu</span>
+  </button>
   <!-- stepper -->
   <div id="stepper" style="display:flex;align-items:center;gap:2px;overflow-x:auto;">
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-1" onclick="goto(1)">
@@ -737,13 +1064,109 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Peak</span>
     </button>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+  <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+    <button class="icon-btn" onclick="toggleDarkMode()" title="Dark mode (D)" style="width:28px;height:28px;border-radius:8px;background:transparent;border:1px solid rgba(192,132,176,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx-secondary);">
+      <span class="material-symbols-outlined" id="dark-icon" style="font-size:16px;">dark_mode</span>
+    </button>
+    <button class="icon-btn" onclick="openExportHistory()" title="ประวัติ Export" style="width:28px;height:28px;border-radius:8px;background:transparent;border:1px solid rgba(192,132,176,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx-secondary);">
+      <span class="material-symbols-outlined" style="font-size:16px;">history</span>
+    </button>
+    <button class="icon-btn" onclick="showShortcutHelp()" title="คีย์ลัด (?)" style="width:28px;height:28px;border-radius:8px;background:transparent;border:1px solid rgba(192,132,176,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx-secondary);">
+      <span class="material-symbols-outlined" style="font-size:16px;">help</span>
+    </button>
+    <div class="ws-bar" id="ws-bar" title="Workspace / Session">
+      <span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">cloud</span>
+      <span>WS</span>
+      <span class="ws-code" id="ws-code-label">—</span>
+      <span style="opacity:.4;">|</span>
+      <select id="ws-session-select" onchange="Cloud.switchSession(this.value)"></select>
+      <button class="icon-btn" onclick="openSessionManager()" title="จัดการ Session">
+        <span class="material-symbols-outlined" style="font-size:14px;">tune</span>
+      </button>
+      <span class="sync-dot" id="sync-dot" title="Synced"></span>
+      <span class="sync-meta" id="sync-meta" title="เวลาบันทึกล่าสุด"></span>
+    </div>
     <span class="text-xs font-bold text-[var(--tx-primary)]-variant hidden md:block">Lamsang Store</span>
     <div class="frost-gradient" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(192,132,176,.3);">
       <span class="material-symbols-outlined" style="font-size:16px;color:#fff;font-variation-settings:'FILL' 1;">store</span>
     </div>
   </div>
 </header>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+
+<!-- ══ WORKSPACE BOOTSTRAP MODAL ══ -->
+<div class="vcb-modal-bg" id="modal-bootstrap">
+  <div class="vcb-modal">
+    <h3>☁️ เลือก Workspace</h3>
+    <p class="modal-sub">Workspace คือพื้นที่เก็บข้อมูลของคุณบน Cloud — ใช้รหัสเดียวกัน = เห็นข้อมูลเดียวกันจากทุกเครื่อง</p>
+
+    <div class="modal-section">
+      <label>มี Workspace อยู่แล้ว — ใส่รหัส</label>
+      <input type="text" id="ws-input-code" placeholder="เช่น LAMSANG2026" maxlength="32" style="text-transform:uppercase;">
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="bootstrapJoin()">เข้าใช้งาน</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="modal-section">
+      <label>ยังไม่มี — สร้างใหม่</label>
+      <input type="text" id="ws-new-name" placeholder="ตั้งชื่อ workspace (เช่น Lamsang Store)" oninput="previewWsCode()">
+      <div id="ws-code-preview" style="font-size:11px;color:var(--tx-muted);margin-top:4px;font-family:'JetBrains Mono',monospace;"></div>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <button class="btn btn-outline" style="flex:1;" onclick="bootstrapCreate()">🆕 สร้าง Workspace</button>
+      </div>
+    </div>
+
+    <div id="bootstrap-msg" style="margin-top:10px;font-size:12px;"></div>
+  </div>
+</div>
+
+<!-- ══ SESSION MANAGER MODAL ══ -->
+<div class="vcb-modal-bg" id="modal-sessions">
+  <div class="vcb-modal">
+    <h3>📁 จัดการ Sessions</h3>
+    <p class="modal-sub">แต่ละ Session เก็บข้อมูล Order/ผลลัพธ์แยกกัน — SKU mapping ใช้ร่วมทั้ง workspace</p>
+
+    <div class="modal-section">
+      <label>สร้าง Session ใหม่</label>
+      <div style="display:flex;gap:6px;">
+        <input type="text" id="new-session-name" placeholder="ชื่อ session (เช่น งานเดือนพฤษภา)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="createNewSession()">+ สร้าง</button>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <label>Sessions ทั้งหมด</label>
+      <div class="session-list" id="session-list-container">
+        <div style="text-align:center;color:var(--tx-muted);padding:20px;font-size:12px;">กำลังโหลด...</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="modal-section">
+      <label>Workspace ปัจจุบัน</label>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(192,132,176,.06);border-radius:10px;border:1px solid rgba(192,132,176,.15);">
+        <span class="material-symbols-outlined" style="font-size:18px;color:var(--accent);">cloud_done</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:700;color:var(--tx-primary);" id="modal-ws-name">—</div>
+          <div class="mono" style="font-size:10.5px;color:var(--tx-muted);" id="modal-ws-code">—</div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="color:var(--tx-error);border-color:rgba(224,90,122,.25);font-size:11px;padding:5px 10px;"
+          onclick="logoutWorkspace()" title="กลับไปหน้าเลือก workspace — ข้อมูลใน cloud ยังอยู่ครบ">
+          🚪 ออกจาก Workspace
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeSessionManager()">ปิด</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ MAIN ══ -->
 <main id="main-content" style="background:var(--bg);margin-left:240px;padding-top:56px;min-height:100vh;">
@@ -753,9 +1176,36 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
 <div class="panel active py-2" id="p1">
   <div class="glass-effect rounded-xl p-5 mb-5">
     <div class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--tx-primary);">📋 วางข้อมูลคำสั่งสั่งซื้อจาก VCANBUY</div>
-    <div class="alert alert-info" style="margin-bottom:12px;"><span>💡</span><span>Copy ข้อมูลคำสั่งสั่งซื้อจาก VCANBUY แล้ว Paste ลงด้านล่าง — รองรับหลาย Order พร้อมกัน</span></div>
+    <div class="alert alert-info" style="margin-bottom:12px;"><span>💡</span><span>Copy ข้อความ <b>หรือ</b> อัพโหลด/วาง screenshot ก็ได้ — รองรับหลาย Order พร้อมกัน</span></div>
+
+    <div class="shot-uploader" id="shot-uploader">
+      <div class="shot-uploader-bar">
+        <button class="shot-btn primary" onclick="document.getElementById('shot-file-input').click()">
+          <span class="material-symbols-outlined" style="font-size:16px;">add_photo_alternate</span>
+          เลือก Screenshot
+        </button>
+        <input type="file" id="shot-file-input" accept="image/*" multiple style="display:none;" onchange="OCR.addFiles(this.files);this.value='';">
+        <button class="shot-btn" onclick="OCR.pasteFromClipboard()" title="หรือกด Ctrl+V บนหน้าเพจ">
+          <span class="material-symbols-outlined" style="font-size:16px;">content_paste</span>
+          วางจาก Clipboard
+        </button>
+        <button class="shot-btn" onclick="OCR.run()" id="shot-run-btn" disabled>
+          <span class="material-symbols-outlined" style="font-size:16px;">document_scanner</span>
+          อ่านรูปทั้งหมด
+        </button>
+        <button class="shot-btn" onclick="OCR.clear()" id="shot-clear-btn" disabled style="margin-left:auto;color:var(--tx-error);">
+          <span class="material-symbols-outlined" style="font-size:16px;">delete_sweep</span>
+        </button>
+      </div>
+      <div class="shot-thumbs" id="shot-thumbs"></div>
+      <div class="shot-hint" id="shot-hint">📌 ลากรูปมาวางตรงนี้ก็ได้ · กด Ctrl+V เพื่อวาง screenshot จาก clipboard · รองรับจีน/ไทย/อังกฤษ</div>
+      <div class="shot-progress" id="shot-progress"><div class="shot-progress-bar" id="shot-progress-bar"></div></div>
+      <div class="shot-status-text" id="shot-status-text"></div>
+    </div>
+
     <textarea id="inp-orders" rows="14" placeholder="วางข้อมูลคำสั่งสั่งซื้อที่นี่...&#10;&#10;เลขที่ออเดอร์: XLY260330100427&#10;韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发&#10;深咖Deep,&#10;深咖Deep,&#10;฿20.96  100  ฿7334.6&#10;..."></textarea>
     <div id="alert-1" style="margin-top:10px;"></div>
+    <div id="alert-1-exported"></div>
     <div class="action-row">
       <button class="btn btn-primary" onclick="doStep1()">▶ ประมวลผล →</button>
       <button class="btn btn-outline btn-sm" onclick="loadDemo()">📄 โหลดตัวอย่าง</button>
@@ -810,6 +1260,12 @@ tbody tr:nth-child(n+9){animation-delay:.17s;}
       <input id="nw-cn1" placeholder="ชื่อจีน 1">
       <input id="nw-cn2" placeholder="ชื่อจีน 2">
       <button class="btn btn-success btn-sm" onclick="addSkuRow()">+ เพิ่ม</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span class="material-symbols-outlined" style="font-size:16px;color:var(--tx-muted);">search</span>
+      <input type="text" id="sku-search" placeholder="ค้นหา SKU / รหัส / สี / ชื่อจีน..."
+        oninput="renderSkuTable()" style="flex:1;font-size:12px;padding:6px 10px;">
+      <span class="t-caption" id="sku-count" style="color:var(--tx-muted);"></span>
     </div>
     <div class="sku-tbl-wrap">
       <table>
@@ -1079,6 +1535,8 @@ function saveStorage(){
   // บันทึกแค่ skuVariants
   localStorage.setItem('vcb3_sv',JSON.stringify(skuVariants));
   // ไม่บันทึก cnToCode และ variantToSku — rebuild ทุกครั้ง
+  // Push to cloud (workspace-level shared mapping)
+  if(window.Cloud?.ws){clearTimeout(saveStorage._t);saveStorage._t=setTimeout(()=>Cloud.pushSkuMapping(),700);}
 }
 // saveStorage defined below
 
@@ -1184,6 +1642,15 @@ function parseOrders(raw){
       if(/^ค่าบริการ[:\s]/.test(ln)){
         const m=ln.match(/฿([\d,]+\.?\d*)/);
         if(m) order.serviceFee=parseFloat(m[1].replace(/,/g,''));
+        continue;
+      }
+
+      // ค่าขนส่งจีน-จีน เพิ่มเติม จากประวัติการชำระเงิน (UserPay ... CN PE: xxx)
+      // — บางออเดอร์เก็บค่าขนส่งจีน-จีน แยก ไม่อยู่ในแถวสินค้า (THB)
+      const mPayCN=ln.match(/UserPay\s+([\d,]+\.?\d*)\s+CN\s*PE/i);
+      if(mPayCN){
+        const extra=parseFloat(mPayCN[1].replace(/,/g,''));
+        if(extra>0) order.totalShpCNCN=r2((order.totalShpCNCN||0)+extra);
         continue;
       }
 
@@ -1427,7 +1894,7 @@ function findSkuByCodeAndVariant(code, variantLine){
   return null;
 }
 
-function itemKey(orderId,variantLine){return orderId+'::'+variantLine;}
+function itemKey(orderId,variantLine,idx){return orderId+'::'+variantLine+'::'+(idx==null?0:idx);}
 
 function autoMapOrders(){
   if(!parsedOrders.length){alert_('alert-3','warn','ยังไม่มีข้อมูล Order');return;}
@@ -1437,9 +1904,9 @@ function autoMapOrders(){
     const active=o.items.filter(i=>!i.cancelled);
     if(!active.length) continue;
 
-    // Pass 1: find uniquely-identifiable items
-    const perItem=active.map(item=>({
-      item,
+    // Pass 1: find uniquely-identifiable items (preserve active-array index)
+    const perItem=active.map((item,idx)=>({
+      item, idx,
       codes: candidateCodes(item.variantLine)
     }));
 
@@ -1449,8 +1916,8 @@ function autoMapOrders(){
     );
 
     // Pass 3: for ambiguous items, filter to only confirmed codes if any match
-    for(const {item,codes} of perItem){
-      const key=itemKey(o.orderId,item.variantLine);
+    for(const {item,idx,codes} of perItem){
+      const key=itemKey(o.orderId,item.variantLine,idx);
       let resolvedCode=null;
 
       if(codes.length===1){
@@ -1496,23 +1963,23 @@ function renderAutoMapUI(){
 
     // dominant code for order-level selector
     const codeCounts={};
-    active.forEach(item=>{
-      const m=itemMappings[itemKey(o.orderId,item.variantLine)];
+    active.forEach((item,idx)=>{
+      const m=itemMappings[itemKey(o.orderId,item.variantLine,idx)];
       if(m?.code) codeCounts[m.code]=(codeCounts[m.code]||0)+1;
     });
     const dominantCode=Object.entries(codeCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
-    const orderDone=active.every(item=>itemMappings[itemKey(o.orderId,item.variantLine)]?.confirmed);
-    const doneCount=active.filter(item=>itemMappings[itemKey(o.orderId,item.variantLine)]?.confirmed).length;
+    const orderDone=active.every((item,idx)=>itemMappings[itemKey(o.orderId,item.variantLine,idx)]?.confirmed);
+    const doneCount=active.filter((item,idx)=>itemMappings[itemKey(o.orderId,item.variantLine,idx)]?.confirmed).length;
 
     active.forEach((item,idx)=>{
-      const key=itemKey(o.orderId,item.variantLine);
+      const key=itemKey(o.orderId,item.variantLine,idx);
       const map=itemMappings[key]||{};
       const colorPart=item.variantLine.split(',')[0].trim();
       totalItems++;
       if(map.confirmed) mappedItems++;
       rows.push({
         orderId:o.orderId, boxId:o.boxId||'—',
-        colorPart, qty:item.qty,
+        colorPart, qty:item.qty, itemIdx:idx,
         variantLine:item.variantLine,
         map, dominantCode, orderDone, doneCount,
         orderTotal:active.length, isFirst:idx===0
@@ -1520,12 +1987,58 @@ function renderAutoMapUI(){
     });
   });
 
+  const CHIP_THRESHOLD=5;
+  const skuListForCode=(code)=>skuVariants.filter(v=>v.code===code&&v.sku);
+
+  const skuChipsForCode=(code,selectedSku='',orderId='',variantLine='',idx=0)=>{
+    const list=skuListForCode(code);
+    return list.map(sv=>{
+      const sel=sv.sku===selectedSku;
+      return `<button type="button" class="sku-chip${sel?' sku-chip-active':''}"
+        title="${esc(sv.sku)}"
+        onclick="onItemSkuChange('${esc(orderId)}','${esc(variantLine)}',${idx},'${esc(sv.sku)}')">
+        ${esc(sv.color||'(ไม่มีสี)')}
+      </button>`;
+    }).join('');
+  };
+
+  const skuOptsForCode=(code,selectedSku='')=>{
+    const list=skuListForCode(code);
+    if(!list.length) return '';
+    return '<option value="">— เลือกสี —</option>'+list.map(sv=>
+      `<option value="${esc(sv.sku)}"${sv.sku===selectedSku?'selected':''}>${esc(sv.color||'(ไม่มีสี)')} — ${esc(sv.sku)}</option>`
+    ).join('');
+  };
+
   const tbody=rows.map(r=>{
     const map=r.map;
-    const statusCell=map.confirmed
-      ? `<span class="tag tag-green" style="font-size:11px;">✅ ${esc(map.color)}</span>
-         <div class="mono" style="font-size:10.5px;color:var(--tx-secondary);margin-top:2px;">${esc(map.sku||'')}</div>`
-      : `<span class="tag tag-orange">⚠️ ยังไม่ได้เลือก</span>`;
+    const variantCount=map.code?skuListForCode(map.code).length:0;
+    const isAmbiguous=variantCount>1; // multiple SKUs to choose from
+    let statusCell;
+    if(map.code){
+      const headTag=map.confirmed
+        ? `<span class="tag tag-green" style="font-size:11px;">✅ ${esc(map.color||'')}</span>`
+        : `<span class="tag tag-orange" style="font-size:11px;">⚠️ เลือกสี</span>`;
+      const skuMono=map.confirmed?`<div class="mono" style="font-size:10px;color:var(--tx-secondary);margin-top:2px;">${esc(map.sku||'')}</div>`:'';
+      const autoBtn=isAmbiguous?`<button type="button" class="auto-chip" title="ให้ระบบเดาสีจาก variant"
+        onclick="onItemAutoMatch('${esc(r.orderId)}','${esc(r.variantLine)}',${r.itemIdx})">
+        <span class="material-symbols-outlined" style="font-size:13px;vertical-align:-2px;">auto_fix_high</span> auto
+      </button>`:'';
+      let picker='';
+      if(variantCount===0){
+        picker=`<div style="font-size:10.5px;color:var(--tx-error);margin-top:4px;">ยังไม่มี SKU ในรุ่นนี้</div>`;
+      } else if(variantCount<=CHIP_THRESHOLD){
+        picker=`<div class="sku-chips">${skuChipsForCode(map.code,map.sku||'',r.orderId,r.variantLine,r.itemIdx)}</div>`;
+      } else {
+        picker=`<select style="margin-top:4px;width:100%;background:#fff;border:1px solid rgba(192,132,176,.2);border-radius:var(--radius-sm);padding:4px 6px;font-size:11.5px;color:var(--tx-primary);"
+          onchange="onItemSkuChange('${esc(r.orderId)}','${esc(r.variantLine)}',${r.itemIdx},this.value)">
+          ${skuOptsForCode(map.code,map.sku||'')}
+        </select>`;
+      }
+      statusCell=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${headTag}${autoBtn}</div>${skuMono}${picker}`;
+    } else {
+      statusCell=`<span class="tag tag-orange">⚠️ ยังไม่ได้เลือก</span>`;
+    }
 
     const orderHeader=r.isFirst
       ? `<td rowspan="${r.orderTotal}" style="border-right:1px solid rgba(192,132,176,.2);vertical-align:top;padding-top:10px;background:rgba(250,244,255,.6);">
@@ -1543,21 +2056,49 @@ function renderAutoMapUI(){
          </td>`
       : '';
 
-    return`<tr class="${rowColor(r.orderId)}" style="${map.confirmed?'':'outline:1px solid rgba(224,90,122,.15);'}">
+    const rowOutline = !map.confirmed
+      ? 'outline:1px solid rgba(224,90,122,.18);'
+      : (isAmbiguous?'outline:1px solid rgba(220,170,80,.35);background:rgba(255,250,235,.4);':'');
+
+    return`<tr class="${rowColor(r.orderId)}" style="${rowOutline}">
       ${orderHeader}
       <td style="font-size:12px;">${esc(r.colorPart)}</td>
       <td class="ncell">${r.qty.toLocaleString()}</td>
       <td>
         <select style="width:100%;background:#fff;border:1px solid rgba(192,132,176,.2);border-radius:var(--radius-sm);padding:5px 8px;font-size:12px;color:var(--tx-primary);"
-          onchange="onItemCodeChange('${esc(r.orderId)}','${esc(r.variantLine)}',this.value)">
+          onchange="onItemCodeChange('${esc(r.orderId)}','${esc(r.variantLine)}',${r.itemIdx},this.value)">
           ${codeOpts(map.code||'')}
         </select>
       </td>
-      <td style="min-width:180px;background:var(--bg-card2);">${statusCell}</td>
+      <td style="min-width:200px;background:var(--bg-card2);">${statusCell}</td>
     </tr>`;
   }).join('');
 
-  container.innerHTML=`
+  // Bulk action toolbar — สำหรับตั้งค่ารวดเร็ว
+  const unmappedCount=totalItems-mappedItems;
+  const allCodesOpts='<option value="">— เลือกรุ่น —</option>'+allCodes.map(c=>{
+    const sv=skuVariants.find(v=>v.code===c);
+    return`<option value="${esc(c)}">${esc(c)} — ${esc(sv?.name||'')}</option>`;
+  }).join('');
+  const bulkBar=`<div class="bulk-bar">
+    <span style="font-weight:600;color:var(--tx-secondary);">⚡ Bulk:</span>
+    <select id="bulk-code-sel" style="font-size:11.5px;padding:5px 8px;border-radius:8px;border:1px solid rgba(192,132,176,.25);">${allCodesOpts}</select>
+    <button class="shot-btn" onclick="bulkAssignCode('unmapped')" title="ตั้งรุ่นที่เลือกให้แถวที่ยังว่าง"
+      ${unmappedCount===0?'disabled':''}>
+      <span class="material-symbols-outlined" style="font-size:14px;">checklist</span>
+      ตั้งรุ่นนี้ให้แถวว่าง (${unmappedCount})
+    </button>
+    <button class="shot-btn" onclick="bulkAssignCode('all')" title="ตั้งรุ่นที่เลือกให้ทุกแถว (รวมที่ตั้งแล้ว)">
+      <span class="material-symbols-outlined" style="font-size:14px;">select_all</span>
+      ตั้งทุกแถว
+    </button>
+    <button class="shot-btn" onclick="bulkAutoMatchAll()" title="ให้ระบบเดาสีอัตโนมัติทุกแถวที่ยังเลือกผิด">
+      <span class="material-symbols-outlined" style="font-size:14px;">auto_fix_high</span>
+      Auto-match สีทั้งหมด
+    </button>
+  </div>`;
+
+  container.innerHTML=`${bulkBar}
     <div class="tbl-wrap">
       <table>
         <thead><tr>
@@ -1565,7 +2106,7 @@ function renderAutoMapUI(){
           <th>สี / Variant</th>
           <th>จำนวน</th>
           <th style="min-width:200px;background:var(--bg-card2);">รุ่นสินค้า</th>
-          <th style="min-width:180px;background:var(--bg-card2);">ผลการจับคู่ (SKU)</th>
+          <th style="min-width:200px;background:var(--bg-card2);">สี / SKU</th>
         </tr></thead>
         <tbody>${tbody}</tbody>
       </table>
@@ -1584,18 +2125,85 @@ function onOrderCodeChange(orderId, code){
   // Set ALL items in this order to the selected code
   for(const o of parsedOrders){
     if(o.orderId!==orderId) continue;
-    for(const item of o.items.filter(i=>!i.cancelled)){
+    const active=o.items.filter(i=>!i.cancelled);
+    active.forEach((item,idx)=>{
       const r=findSkuByCodeAndVariant(code,item.variantLine);
-      itemMappings[itemKey(orderId,item.variantLine)]={
+      itemMappings[itemKey(orderId,item.variantLine,idx)]={
         code,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:true
       };
+    });
+  }
+  renderAutoMapUI();
+}
+
+function bulkAssignCode(scope){
+  const sel=document.getElementById('bulk-code-sel');
+  const code=sel?.value;
+  if(!code){Toast.warn('เลือกรุ่นก่อน');return;}
+  let count=0;
+  for(const o of parsedOrders){
+    const active=o.items.filter(i=>!i.cancelled);
+    active.forEach((item,idx)=>{
+      const k=itemKey(o.orderId,item.variantLine,idx);
+      const cur=itemMappings[k]||{};
+      if(scope==='unmapped'&&cur.confirmed) return;
+      const r=findSkuByCodeAndVariant(code,item.variantLine);
+      itemMappings[k]={code,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:true};
+      count++;
+    });
+  }
+  renderAutoMapUI();saveState();
+  Toast.success(`✅ ตั้งรุ่นให้ ${count} แถวแล้ว`);
+}
+
+function bulkAutoMatchAll(){
+  let count=0;
+  for(const o of parsedOrders){
+    const active=o.items.filter(i=>!i.cancelled);
+    active.forEach((item,idx)=>{
+      const k=itemKey(o.orderId,item.variantLine,idx);
+      const cur=itemMappings[k]||{};
+      if(!cur.code) return;
+      const r=findSkuByCodeAndVariant(cur.code,item.variantLine);
+      if(r&&r.sku){
+        itemMappings[k]={code:cur.code,sku:r.sku,name:r.name||'',color:r.color||'',confirmed:true};
+        count++;
+      }
+    });
+  }
+  renderAutoMapUI();saveState();
+  Toast.success(`🪄 Auto-match สำเร็จ ${count} แถว`);
+}
+
+function onItemAutoMatch(orderId, variantLine, idx){
+  const key=itemKey(orderId,variantLine,idx);
+  const cur=itemMappings[key]||{};
+  if(!cur.code){return;}
+  const r=findSkuByCodeAndVariant(cur.code,variantLine);
+  if(r&&r.sku){
+    itemMappings[key]={code:cur.code,sku:r.sku,name:r.name||'',color:r.color||'',confirmed:true};
+  } else {
+    itemMappings[key]={code:cur.code,sku:'',name:'',color:'',confirmed:false};
+  }
+  renderAutoMapUI();
+}
+
+function onItemSkuChange(orderId, variantLine, idx, sku){
+  const key=itemKey(orderId,variantLine,idx);
+  const cur=itemMappings[key]||{};
+  if(!sku){
+    itemMappings[key]={code:cur.code||null,sku:'',name:cur.name||'',color:'',confirmed:false};
+  } else {
+    const sv=skuVariants.find(v=>v.sku===sku);
+    if(sv){
+      itemMappings[key]={code:sv.code,sku:sv.sku,name:sv.name||'',color:sv.color||'',confirmed:true};
     }
   }
   renderAutoMapUI();
 }
 
-function onItemCodeChange(orderId, variantLine, code){
-  const key=itemKey(orderId,variantLine);
+function onItemCodeChange(orderId, variantLine, idx, code){
+  const key=itemKey(orderId,variantLine,idx);
   if(!code){
     itemMappings[key]={code:null,sku:'',name:'',color:'',confirmed:false};
   } else {
@@ -1604,15 +2212,16 @@ function onItemCodeChange(orderId, variantLine, code){
     // Propagate: if other items in SAME order are still ambiguous and this code fits → resolve them
     for(const o of parsedOrders){
       if(o.orderId!==orderId) continue;
-      for(const item of o.items.filter(i=>!i.cancelled)){
-        const k2=itemKey(orderId,item.variantLine);
-        if(itemMappings[k2]?.confirmed) continue; // already mapped
+      const active=o.items.filter(i=>!i.cancelled);
+      active.forEach((item,i2)=>{
+        const k2=itemKey(orderId,item.variantLine,i2);
+        if(itemMappings[k2]?.confirmed) return; // already mapped
         const cands=candidateCodes(item.variantLine);
         if(cands.includes(code)){
           const r2=findSkuByCodeAndVariant(code,item.variantLine);
           itemMappings[k2]={code,sku:r2?.sku||'',name:r2?.name||'',color:r2?.color||'',confirmed:true};
         }
-      }
+      });
     }
   }
   renderAutoMapUI();
@@ -1620,10 +2229,11 @@ function onItemCodeChange(orderId, variantLine, code){
 
 function applyAllMappings(){
   for(const o of parsedOrders){
-    for(const item of o.items.filter(i=>!i.cancelled)){
-      const key=itemKey(o.orderId,item.variantLine);
+    const active=o.items.filter(i=>!i.cancelled);
+    active.forEach((item,idx)=>{
+      const key=itemKey(o.orderId,item.variantLine,idx);
       const map=itemMappings[key];
-      if(!map?.confirmed) continue;
+      if(!map?.confirmed) return;
       // Set item data
       item.resolvedCode=map.code;
       item.resolvedSku=map.sku;
@@ -1643,7 +2253,7 @@ function applyAllMappings(){
           if(pfx&&pfx!==cp) variantToSku[`variant:${item.chineseName}::${pfx}`]=map.sku;
         }
       }
-    }
+    });
   }
 }
 
@@ -1953,6 +2563,12 @@ function dlXLSX(step){
   if(typeof XLSX==='undefined'){alert('SheetJS ยังโหลดไม่เสร็จ กรุณารอสักครู่');return;}
   const r=_buildStepWb(step); if(!r) return;
   XLSX.writeFile(r.wb,r.file);
+  // Mark orders as exported in cloud
+  try{
+    const src=step===4?rows4:step===6?rows6:[];
+    const ids=[...new Set(src.map(x=>x.orderId).filter(Boolean))];
+    if(ids.length&&window.Cloud?.ws) Cloud.markExported(ids,step);
+  }catch(e){console.warn('markExported call failed',e);}
 }
 function dlTSV(step){dlXLSX(step);}
 
@@ -1961,10 +2577,19 @@ function dlTSV(step){dlXLSX(step);}
 // ═══════════════════════════════════════════════════════════
 function renderSkuTable(){
   const tbody=document.getElementById('sku-tbody');
+  const q=(document.getElementById('sku-search')?.value||'').trim().toLowerCase();
   const codes=[...new Set(skuVariants.map(v=>v.code))];
   const colors={};let ci=0;
   codes.forEach(c=>{colors[c]=ci++%2;});
-  tbody.innerHTML=skuVariants.map((v,i)=>`<tr style="${colors[v.code]===1?'background:var(--bg-card2);':''}">
+  // index original positions ก่อน filter — onclick handlers ต้องอ้างถึง index จริง
+  const indexed=skuVariants.map((v,i)=>({v,i}));
+  const filtered=q?indexed.filter(({v})=>{
+    const hay=`${v.code} ${v.sku} ${v.name} ${v.color} ${v.cn1} ${v.cn2}`.toLowerCase();
+    return hay.includes(q);
+  }):indexed;
+  const cnt=document.getElementById('sku-count');
+  if(cnt) cnt.textContent=q?`${filtered.length} / ${skuVariants.length}`:`${skuVariants.length} รายการ`;
+  tbody.innerHTML=filtered.map(({v,i})=>`<tr style="${colors[v.code]===1?'background:var(--bg-card2);':''}">
     <td><span class="tag tag-purple">${esc(v.code)}</span></td>
     <td class="mono" style="font-size:11px;">${esc(v.sku||'—')}</td>
     <td><input class="sku-edit" value="${esc(v.name)}" onchange="updateSv(${i},'name',this.value)"></td>
@@ -1975,7 +2600,19 @@ function renderSkuTable(){
   </tr>`).join('');
 }
 function updateSv(i,f,v){skuVariants[i][f]=v.trim();saveStorage();}
-function delSv(i){if(!confirm('ลบ?'))return;skuVariants.splice(i,1);saveStorage();renderSkuTable();}
+function delSv(i){
+  const removed=skuVariants[i];
+  if(!removed) return;
+  skuVariants.splice(i,1);
+  saveStorage();renderSkuTable();
+  Toast.show({
+    msg:`ลบ SKU <b>${esc(removed.sku||'?')}</b> แล้ว`, type:'success', duration:6000,
+    action:{label:'↶ เลิก', onClick:()=>{
+      skuVariants.splice(i,0,removed);saveStorage();renderSkuTable();
+      Toast.success('กู้คืน SKU แล้ว');
+    }}
+  });
+}
 function addSkuRow(){
   const code=document.getElementById('nw-code').value.trim();
   const sku=document.getElementById('nw-sku').value.trim();
@@ -2290,7 +2927,7 @@ function buildStep8(){
   // Render preview
   const tbody=document.getElementById('tbody-8');
   tbody.innerHTML=rows8.map((r,i)=>`<tr class="${rowColor(r.code)}">
-    <td class="ncell">${i+1}</td>
+    <td class="ncell">1</td>
     <td class="mono" style="font-size:11px;">${esc(r.sku||'—')}</td>
     <td class="ncell">114102</td>
     <td style="font-size:11px;">${esc(r.desc)}</td>
@@ -2336,7 +2973,7 @@ function exportPeakExcel(){
       else ws[addr].w=String(val);
     };
 
-    setCell('A', i+1,        'n');          // ลำดับที่* 1,2,3,…
+    setCell('A', 1,          'n');          // ลำดับที่* = 1 ทุกแถว → Peak treats as เอกสารเดียว
     setCell('B', dateNum,    'n');          // วันที่เอกสาร YYYYMMDD
     // C อ้างอิงถึง — ว่าง
     setCell('D', 'C00253',   's');          // ผู้รับเงิน/คู่ค้า
@@ -2376,6 +3013,10 @@ function saveState(){
     };
     localStorage.setItem('vcb_state', JSON.stringify(state));
   }catch(e){console.warn('saveState failed',e);}
+  // Push current session to Firestore (debounced)
+  if(window.Cloud?.ws&&window.Cloud?.sid) Cloud.scheduleSave();
+  // Refresh exported-warning UI when orders change
+  try{ renderExportedWarning(); }catch{}
 }
 
 function loadState(){
@@ -2415,20 +3056,57 @@ function loadState(){
 }
 
 function clearAll(){
-  if(!confirm('ล้างข้อมูลทั้งหมด? (คำสั่งสั่งซื้อ, ผลลัพธ์ทุกขั้นตอน)')) return;
+  const sName=Cloud.sessions.find(s=>s.id===Cloud.sid)?.name||'นี้';
+  // Snapshot ทุกอย่างไว้ก่อน — ใช้ undo
+  const backup={
+    inpOrders:document.getElementById('inp-orders')?.value||'',
+    inpBoxes:document.getElementById('inp-boxes')?.value||'',
+    inpProducts:document.getElementById('inp-products')?.value||'',
+    parsedOrders:JSON.parse(JSON.stringify(parsedOrders)),
+    parsedBoxes:JSON.parse(JSON.stringify(parsedBoxes)),
+    rows4:JSON.parse(JSON.stringify(rows4)),
+    rows6:JSON.parse(JSON.stringify(rows6)),
+    rows7:typeof rows7!=='undefined'?JSON.parse(JSON.stringify(rows7)):[],
+    itemMappings:JSON.parse(JSON.stringify(itemMappings)),
+    step:currentStep
+  };
+  // ล้างทันที (ไม่ confirm)
   localStorage.removeItem('vcb_state');
-  parsedOrders=[];parsedBoxes={};rows4=[];rows6=[];rows7=[];
+  parsedOrders=[];parsedBoxes={};rows4=[];rows6=[];rows7=[];itemMappings={};
   document.getElementById('inp-orders').value='';
   document.getElementById('inp-products').value='';
   document.getElementById('inp-boxes').value='';
   document.getElementById('alert-1').innerHTML='';
+  const exEl=document.getElementById('alert-1-exported');if(exEl) exEl.innerHTML='';
   document.getElementById('orders-display').innerHTML='';
   document.getElementById('tbody-4').innerHTML='';
   document.getElementById('tbody-6').innerHTML='';
   document.getElementById('unmapped-warn').innerHTML='';
   document.getElementById('unmap-section').style.display='none';
   goto(1);
-  alert_('alert-1','success','ล้างข้อมูลทั้งหมดแล้ว');
+  if(window.Cloud?.ws&&window.Cloud?.sid) Cloud.scheduleSave();
+
+  Toast.show({
+    msg:`🗑 ล้างข้อมูลใน session "<b>${esc(sName)}</b>" แล้ว`,
+    type:'success', duration:7000,
+    action:{label:'↶ เลิกทำ', onClick:()=>{
+      document.getElementById('inp-orders').value=backup.inpOrders;
+      document.getElementById('inp-boxes').value=backup.inpBoxes;
+      const ip=document.getElementById('inp-products');if(ip) ip.value=backup.inpProducts;
+      parsedOrders=backup.parsedOrders;parsedBoxes=backup.parsedBoxes;
+      rows4=backup.rows4;rows6=backup.rows6;
+      if(typeof rows7!=='undefined') rows7=backup.rows7;
+      itemMappings=backup.itemMappings;
+      try{
+        if(parsedOrders.length) renderStep2();
+        if(rows4.length) renderStep4();
+        if(rows6.length) renderStep6();
+      }catch(e){console.warn(e);}
+      goto(backup.step||1);
+      saveState();
+      Toast.success('กู้คืนข้อมูลแล้ว');
+    }}
+  });
 }
 
 // ── RIPPLE EFFECT ──────────────────────────────────────────
@@ -2446,19 +3124,887 @@ document.addEventListener('click',e=>{
   setTimeout(()=>r.remove(),600);
 });
 
+// ═══════════════════════════════════════════════════════════
+// TOAST — non-blocking in-app notifications
+// ═══════════════════════════════════════════════════════════
+const Toast = {
+  _container: null,
+  _ensure(){
+    if(this._container) return;
+    this._container=document.createElement('div');
+    this._container.id='toast-container';
+    document.body.appendChild(this._container);
+  },
+  show({msg, type='info', duration=4000, action=null}={}){
+    this._ensure();
+    const id='t_'+Date.now()+Math.random().toString(36).slice(2,5);
+    const el=document.createElement('div');
+    el.className=`toast toast-${type}`;
+    el.dataset.id=id;
+    const icon={info:'💡',success:'✅',warn:'⚠️',error:'❌'}[type]||'';
+    const actionHtml=action?`<button class="toast-action">${esc(action.label||'เลิกทำ')}</button>`:'';
+    el.innerHTML=`<div class="toast-icon">${icon}</div>
+      <div class="toast-msg">${msg}</div>
+      ${actionHtml}
+      <button class="toast-close">×</button>
+      ${duration?`<div class="toast-bar" style="animation:toast-bar ${duration}ms linear forwards;"></div>`:''}`;
+    this._container.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add('show'));
+
+    let timer=null;
+    const close=()=>{
+      if(!el.parentNode) return;
+      el.classList.remove('show');el.classList.add('hide');
+      setTimeout(()=>el.remove(),300);
+      if(timer) clearTimeout(timer);
+    };
+    if(duration) timer=setTimeout(close,duration);
+    el.querySelector('.toast-close').onclick=close;
+    if(action){
+      el.querySelector('.toast-action').onclick=()=>{
+        try{action.onClick();}catch(e){console.warn(e);}
+        close();
+      };
+    }
+    return {id,close};
+  },
+  info(msg,opts={}){return this.show({...opts,msg,type:'info'});},
+  success(msg,opts={}){return this.show({...opts,msg,type:'success'});},
+  warn(msg,opts={}){return this.show({...opts,msg,type:'warn'});},
+  error(msg,opts={}){return this.show({...opts,msg,type:'error'});},
+};
+
+// Override window.alert/confirm สำหรับเคสเรียบ ๆ — ตัวที่ destructive ยังคง confirm() ปกติ
+// เก็บของเดิมไว้
+const _nativeAlert=window.alert.bind(window);
+const _nativeConfirm=window.confirm.bind(window);
+window.alert=(msg)=>{
+  // เคสยาว/มี \n หลายบรรทัด ใช้ native alert (ผู้ใช้ต้องอ่านครบ) — สั้น ๆ ใช้ toast
+  if(typeof msg==='string'&&msg.length<140&&!msg.includes('\n\n')) Toast.info(msg);
+  else _nativeAlert(msg);
+};
+window.confirm=_nativeConfirm; // คงเดิม — destructive จะแทนด้วย Toast+Undo เฉพาะจุด
+
+// ═══════════════════════════════════════════════════════════
+// OCR — Screenshot → Text (Tesseract.js)
+// ═══════════════════════════════════════════════════════════
+const OCR = {
+  images: [],          // [{id, dataUrl, file, status:'pending|processing|done|error', text}]
+  worker: null,
+  workerLoading: false,
+  langs: 'chi_sim+tha+eng',
+
+  async _ensureWorker(){
+    if(this.worker) return this.worker;
+    if(this.workerLoading){
+      await new Promise(r=>{const t=setInterval(()=>{if(!this.workerLoading){clearInterval(t);r();}},200);});
+      return this.worker;
+    }
+    if(typeof Tesseract==='undefined') throw new Error('Tesseract.js ยังโหลดไม่เสร็จ');
+    this.workerLoading=true;
+    this._setStatus('กำลังโหลดโมเดล OCR (จีน+ไทย+อังกฤษ) ครั้งแรก ~30MB...');
+    try{
+      this.worker=await Tesseract.createWorker(this.langs,1,{
+        logger: m=>{
+          if(m.status&&m.progress!==undefined){
+            this._setProgress(Math.round(m.progress*100), `${m.status}`);
+          }
+        }
+      });
+      this._setStatus('โมเดลพร้อมใช้งาน');
+    } finally { this.workerLoading=false; }
+    return this.worker;
+  },
+
+  _setStatus(msg){const el=document.getElementById('shot-status-text');if(el) el.textContent=msg||'';},
+  _setProgress(pct, label){
+    const wrap=document.getElementById('shot-progress');
+    const bar=document.getElementById('shot-progress-bar');
+    if(!wrap||!bar) return;
+    if(pct==null){wrap.style.display='none';return;}
+    wrap.style.display='block';
+    bar.style.width=pct+'%';
+    if(label) this._setStatus(`${label} — ${pct}%`);
+  },
+
+  _refreshUI(){
+    const c=document.getElementById('shot-thumbs');
+    const runBtn=document.getElementById('shot-run-btn');
+    const clrBtn=document.getElementById('shot-clear-btn');
+    if(!c) return;
+    c.innerHTML=this.images.map((img,i)=>{
+      const cls=img.status==='done'?'done':img.status==='error'?'error':img.status==='processing'?'processing':'';
+      const label=img.status==='done'?'✓ อ่านแล้ว':img.status==='error'?'✗ ผิดพลาด':img.status==='processing'?'กำลังอ่าน...':'รอ';
+      return `<div class="shot-thumb">
+        <img src="${img.dataUrl}" alt="">
+        <button class="x-btn" onclick="OCR.remove(${i})" title="ลบ">×</button>
+        <div class="status ${cls}">${label}</div>
+      </div>`;
+    }).join('');
+    const has=this.images.length>0;
+    const pending=this.images.some(x=>x.status!=='done');
+    if(runBtn) runBtn.disabled=!has||!pending;
+    if(clrBtn) clrBtn.disabled=!has;
+  },
+
+  async addFiles(fileList){
+    if(!fileList?.length) return;
+    const arr=[...fileList].filter(f=>f.type.startsWith('image/'));
+    if(!arr.length){alert('กรุณาเลือกไฟล์รูปภาพ');return;}
+    for(const f of arr){
+      const dataUrl=await this._fileToDataUrl(f);
+      this.images.push({
+        id:'i_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+        dataUrl, file:f, status:'pending', text:''
+      });
+    }
+    this._refreshUI();
+  },
+
+  remove(idx){this.images.splice(idx,1);this._refreshUI();},
+  clear(){
+    if(this.images.length&&!confirm('ลบรูปทั้งหมด?')) return;
+    this.images=[];this._refreshUI();this._setStatus('');this._setProgress(null);
+  },
+
+  _fileToDataUrl(file){
+    return new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res(r.result);
+      r.onerror=()=>rej(r.error);
+      r.readAsDataURL(file);
+    });
+  },
+
+  async pasteFromClipboard(){
+    if(!navigator.clipboard?.read){
+      alert('Browser ไม่รองรับการอ่าน clipboard\nลองกด Ctrl+V บนหน้าเพจแทน');
+      return;
+    }
+    try{
+      const items=await navigator.clipboard.read();
+      const files=[];
+      for(const item of items){
+        for(const type of item.types){
+          if(type.startsWith('image/')){
+            const blob=await item.getType(type);
+            files.push(new File([blob],`paste_${Date.now()}.png`,{type:blob.type}));
+          }
+        }
+      }
+      if(!files.length){alert('ไม่พบรูปภาพใน clipboard\nกรุณา copy รูปก่อนแล้วลองอีกครั้ง');return;}
+      await this.addFiles(files);
+    }catch(e){
+      alert('ไม่สามารถอ่าน clipboard ได้: '+e.message+'\nลองกด Ctrl+V บนหน้าเพจแทน');
+    }
+  },
+
+  async run(){
+    const todo=this.images.filter(x=>x.status!=='done');
+    if(!todo.length) return;
+    try{
+      const worker=await this._ensureWorker();
+      let combinedNew='';
+      for(let i=0;i<todo.length;i++){
+        const img=todo[i];
+        img.status='processing';this._refreshUI();
+        this._setStatus(`อ่านรูปที่ ${i+1}/${todo.length}...`);
+        try{
+          const {data}=await worker.recognize(img.dataUrl);
+          img.text=(data?.text||'').trim();
+          img.status='done';
+          combinedNew += (combinedNew?'\n\n':'') + img.text;
+        }catch(e){
+          console.warn('OCR err',e);
+          img.status='error';
+        }
+        this._refreshUI();
+      }
+      // Append to textarea ด้วย marker บอกว่ามาจาก OCR
+      const ta=document.getElementById('inp-orders');
+      if(ta&&combinedNew){
+        const marker=`# ── 📷 OCR ${new Date().toLocaleTimeString('th-TH')} (${todo.length} รูป) ──`;
+        ta.value=(ta.value.trim()?ta.value.trim()+'\n\n':'')+marker+'\n'+combinedNew;
+        ta.dispatchEvent(new Event('input',{bubbles:true}));
+        // เลื่อน cursor ไปท้าย แล้ว highlight สั้น ๆ
+        ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);
+        ta.style.transition='box-shadow .3s';
+        ta.style.boxShadow='0 0 0 3px rgba(125,181,212,.4)';
+        setTimeout(()=>ta.style.boxShadow='',1200);
+      }
+      this._setStatus(`✅ อ่านครบ ${todo.length} รูป — ตรวจสอบข้อความใน textarea ด้านล่าง`);
+      Toast.success(`📷 OCR สำเร็จ ${todo.length} รูป — ตรวจสอบข้อความก่อนกดประมวลผล`);
+      this._setProgress(null);
+    }catch(e){
+      this._setStatus('❌ '+e.message);
+      this._setProgress(null);
+    }
+  }
+};
+
+// Auto-save textarea changes (debounced) so refresh ไม่ทำข้อมูลหาย
+let _inputSaveTimer=null;
+function _autoSaveOnInput(){
+  clearTimeout(_inputSaveTimer);
+  _inputSaveTimer=setTimeout(()=>{ try{ saveState(); }catch{} },350);
+}
+
+// Drag-drop + global paste handlers (Step 1 only)
+window.addEventListener('DOMContentLoaded',()=>{
+  ['inp-orders','inp-boxes','inp-products'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('input',_autoSaveOnInput);
+  });
+  const zone=document.getElementById('shot-uploader');
+  if(zone){
+    ['dragenter','dragover'].forEach(ev=>zone.addEventListener(ev,e=>{
+      e.preventDefault();e.stopPropagation();zone.classList.add('dragging');
+    }));
+    ['dragleave','drop'].forEach(ev=>zone.addEventListener(ev,e=>{
+      e.preventDefault();e.stopPropagation();
+      if(ev==='dragleave'&&zone.contains(e.relatedTarget)) return;
+      zone.classList.remove('dragging');
+    }));
+    zone.addEventListener('drop',e=>{
+      const files=e.dataTransfer?.files;
+      if(files?.length) OCR.addFiles(files);
+    });
+  }
+  // Global paste (only when Step 1 is active and not in textarea)
+  window.addEventListener('paste',e=>{
+    const p1=document.getElementById('p1');
+    if(!p1?.classList.contains('active')) return;
+    const items=e.clipboardData?.items||[];
+    const files=[];
+    for(const it of items){
+      if(it.type.startsWith('image/')){
+        const f=it.getAsFile();
+        if(f) files.push(f);
+      }
+    }
+    if(files.length){
+      e.preventDefault();
+      OCR.addFiles(files);
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+// CLOUD (Firebase) — workspace + session sync
+// ═══════════════════════════════════════════════════════════
+const Cloud = {
+  ws: null,            // workspace code (string, uppercase)
+  wsName: '',
+  sid: null,           // current session id
+  sessions: [],        // [{id, name, updatedAt, archived}]
+  exports: {},         // {orderId: {exportedAt, sessionName, step}}
+  _saveTimer: null,
+  _setStatus(state){
+    const dot=document.getElementById('sync-dot');
+    const meta=document.getElementById('sync-meta');
+    if(!dot) return;
+    dot.classList.remove('syncing','error','offline');
+    if(state==='syncing'){dot.classList.add('syncing');dot.title='กำลังบันทึก...';if(meta) meta.textContent='กำลังบันทึก...';}
+    else if(state==='error'){dot.classList.add('error');dot.title='บันทึกผิดพลาด — เช็คเน็ต';if(meta) meta.textContent='ผิดพลาด';}
+    else if(state==='offline'){dot.classList.add('offline');dot.title='ออฟไลน์';if(meta) meta.textContent='ออฟไลน์';}
+    else{
+      dot.title='บันทึกเรียบร้อย';
+      const now=new Date();
+      const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      if(meta) meta.textContent='✓ '+t;
+    }
+  },
+  _waitFB(){
+    return new Promise(res=>{
+      if(window.FB?.ready) return res();
+      window.addEventListener('fb-ready',()=>res(),{once:true});
+    });
+  },
+  _wsRef(){ return window.FB.doc(window.FB.db,'workspaces',this.ws); },
+  _sessionsCol(){ return window.FB.collection(window.FB.db,'workspaces',this.ws,'sessions'); },
+  _sessionRef(sid){ return window.FB.doc(window.FB.db,'workspaces',this.ws,'sessions',sid); },
+  _exportsCol(){ return window.FB.collection(window.FB.db,'workspaces',this.ws,'exports'); },
+  _skuRef(){ return window.FB.doc(window.FB.db,'workspaces',this.ws,'data','skuMapping'); },
+
+  randCode(){
+    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from({length:8},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  },
+  // Sanitize a name → safe Firestore doc id (uppercase A-Z 0-9 _, max 60)
+  nameToCode(name){
+    if(!name) return '';
+    return name.trim().toUpperCase()
+      .replace(/\s+/g,'_')
+      .replace(/[^A-Z0-9_\-]/g,'')   // Firestore-safe; also drops Thai/Chinese (use _ in their place via space handling)
+      .replace(/_+/g,'_')
+      .replace(/^[._]+|[._]+$/g,'')
+      .slice(0,60);
+  },
+  randId(){
+    return 's_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  },
+
+  async init(){
+    await this._waitFB();
+    const savedWs=localStorage.getItem('vcb_ws');
+    const savedSid=localStorage.getItem('vcb_sid');
+    if(savedWs){
+      try{
+        await this.openWorkspace(savedWs, savedSid);
+        return true;
+      }catch(e){
+        console.warn('Auto-open ws failed:',e);
+        localStorage.removeItem('vcb_ws');
+        localStorage.removeItem('vcb_sid');
+      }
+    }
+    openBootstrapModal();
+    return false;
+  },
+
+  async createWorkspace(name){
+    const safeName=(name||'').trim();
+    let code=this.nameToCode(safeName);
+    if(!code) code=this.randCode();   // fallback ถ้าชื่อไม่มีตัวอักษรที่ใช้ได้ (เช่น ภาษาไทย/จีนล้วน)
+    const ref=this._wsRefByCode(code);
+    const exist=await window.FB.getDoc(ref);
+    if(exist.exists()){
+      throw new Error(`Workspace "${code}" มีอยู่แล้ว — ลองใส่รหัสนี้ในช่อง "เข้าใช้งาน"`);
+    }
+    await window.FB.setDoc(ref, {
+      name: safeName||code, createdAt: window.FB.serverTimestamp(), updatedAt: window.FB.serverTimestamp()
+    });
+    return code;
+  },
+  _wsRefByCode(code){ return window.FB.doc(window.FB.db,'workspaces',code); },
+
+  async openWorkspace(code, preferSid){
+    code=(code||'').trim().toUpperCase();
+    if(!code) throw new Error('empty code');
+    this._setStatus('syncing');
+    const ref=this._wsRefByCode(code);
+    let snap=await window.FB.getDoc(ref);
+    if(!snap.exists()){
+      // auto-create if user typed a code that doesn't exist (treat as create)
+      await window.FB.setDoc(ref,{name:code,createdAt:window.FB.serverTimestamp(),updatedAt:window.FB.serverTimestamp()});
+      snap=await window.FB.getDoc(ref);
+    }
+    this.ws=code;
+    this.wsName=snap.data()?.name||code;
+    localStorage.setItem('vcb_ws',code);
+
+    // Pull SKU mapping
+    await this.pullSkuMapping();
+    // Pull sessions list
+    await this.refreshSessions();
+    // Pull exports
+    await this.pullExports();
+
+    // Pick session: prefer saved, then first non-archived, then create
+    let sid=preferSid && this.sessions.find(s=>s.id===preferSid)?preferSid:null;
+    if(!sid){
+      const first=this.sessions.find(s=>!s.archived);
+      sid=first?first.id:await this.createSession('Default Session');
+    }
+    // preserveLocal=true → ถ้า cloud session ยังว่าง อย่าทับข้อมูลที่ผู้ใช้เพิ่ง paste ใน textarea
+    await this.openSession(sid,{preserveLocal:true});
+
+    // UI refresh
+    document.getElementById('ws-code-label').textContent=code;
+    refreshSessionDropdown();
+    this._setStatus('ok');
+  },
+
+  async pullSkuMapping(){
+    const snap=await window.FB.getDoc(this._skuRef());
+    if(snap.exists()){
+      const d=snap.data();
+      if(d.skuVariants) skuVariants=d.skuVariants;
+      if(d.cnToCode) cnToCode=d.cnToCode;
+      if(d.variantToSku) variantToSku=d.variantToSku;
+      try{ renderSkuTable(); }catch{}
+    }
+  },
+  async pushSkuMapping(){
+    if(!this.ws) return;
+    this._setStatus('syncing');
+    try{
+      await window.FB.setDoc(this._skuRef(),{
+        skuVariants, cnToCode, variantToSku,
+        updatedAt: window.FB.serverTimestamp()
+      });
+      this._setStatus('ok');
+    }catch(e){console.warn('pushSku failed',e);this._setStatus('error');}
+  },
+
+  async refreshSessions(){
+    const snap=await window.FB.getDocs(this._sessionsCol());
+    this.sessions=[];
+    snap.forEach(d=>{
+      const x=d.data();
+      this.sessions.push({id:d.id,name:x.name||'(unnamed)',archived:!!x.archived,
+        updatedAt:x.updatedAt?.toMillis?.()||0});
+    });
+    this.sessions.sort((a,b)=>b.updatedAt-a.updatedAt);
+  },
+  async createSession(name){
+    const sid=this.randId();
+    await window.FB.setDoc(this._sessionRef(sid),{
+      name:name||'New Session',archived:false,
+      createdAt:window.FB.serverTimestamp(),updatedAt:window.FB.serverTimestamp(),
+      inputs:{orders:'',boxes:''},
+      state:{}
+    });
+    await this.refreshSessions();
+    return sid;
+  },
+  async renameSession(sid,name){
+    await window.FB.updateDoc(this._sessionRef(sid),{name,updatedAt:window.FB.serverTimestamp()});
+    await this.refreshSessions();
+    refreshSessionDropdown();
+  },
+  async archiveSession(sid){
+    await window.FB.updateDoc(this._sessionRef(sid),{archived:true,updatedAt:window.FB.serverTimestamp()});
+    await this.refreshSessions();
+    Toast.show({
+      msg:'📦 Archive session แล้ว', type:'success', duration:6000,
+      action:{label:'↶ เลิก', onClick:async()=>{
+        await window.FB.updateDoc(this._sessionRef(sid),{archived:false,updatedAt:window.FB.serverTimestamp()});
+        await this.refreshSessions();renderSessionList();refreshSessionDropdown();
+      }}
+    });
+  },
+  async cloneSession(sid){
+    const snap=await window.FB.getDoc(this._sessionRef(sid));
+    if(!snap.exists()){Toast.error('ไม่พบ session');return null;}
+    const src=snap.data();
+    const newSid=this.randId();
+    await window.FB.setDoc(this._sessionRef(newSid),{
+      name:(src.name||'Session')+' (สำเนา)',
+      archived:false,
+      createdAt:window.FB.serverTimestamp(),updatedAt:window.FB.serverTimestamp(),
+      inputs:src.inputs||{orders:'',boxes:''},
+      state:src.state||{}
+    });
+    await this.refreshSessions();
+    Toast.success(`📑 Clone session แล้ว`);
+    return newSid;
+  },
+  async deleteSession(sid){
+    // backup ทั้ง doc ก่อนลบ
+    const snap=await window.FB.getDoc(this._sessionRef(sid));
+    const backup=snap.exists()?snap.data():null;
+    await window.FB.deleteDoc(this._sessionRef(sid));
+    await this.refreshSessions();
+    if(backup){
+      Toast.show({
+        msg:`🗑 ลบ session "<b>${esc(backup.name||'?')}</b>" แล้ว`, type:'success', duration:8000,
+        action:{label:'↶ กู้คืน', onClick:async()=>{
+          await window.FB.setDoc(this._sessionRef(sid),backup);
+          await this.refreshSessions();renderSessionList();refreshSessionDropdown();
+          Toast.success('กู้คืน session แล้ว');
+        }}
+      });
+    }
+  },
+  logout(){
+    localStorage.removeItem('vcb_ws');
+    localStorage.removeItem('vcb_sid');
+    localStorage.removeItem('vcb_state');
+    this.ws=null;this.sid=null;this.sessions=[];this.exports={};this.wsName='';
+    // reset in-memory state
+    parsedOrders=[];parsedBoxes={};rows4=[];rows6=[];itemMappings={};
+    if(typeof rows7!=='undefined') rows7=[];
+    ['inp-orders','inp-boxes','inp-products'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    ['orders-display','tbody-4','tbody-6','alert-1','alert-1-exported','unmapped-warn'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+    const lbl=document.getElementById('ws-code-label');if(lbl)lbl.textContent='—';
+    const sel=document.getElementById('ws-session-select');if(sel)sel.innerHTML='';
+    this._setStatus('offline');
+    goto(1);
+    closeSessionManager();
+    openBootstrapModal();
+  },
+
+  async openSession(sid, opts={}){
+    if(!sid) return;
+    this._setStatus('syncing');
+    const snap=await window.FB.getDoc(this._sessionRef(sid));
+    if(!snap.exists()){this._setStatus('error');return;}
+    this.sid=sid;
+    localStorage.setItem('vcb_sid',sid);
+    this._lastWriteAt=Date.now(); // เริ่ม watch จากตอนนี้
+    this._watchSession(sid);
+    const d=snap.data();
+    const cloudOrders=(d.inputs?.orders||'').trim();
+    const cloudBoxes=(d.inputs?.boxes||'').trim();
+    const cloudState=d.state||{};
+    const cloudHasState=!!(cloudState.parsedOrders?.length||cloudState.rows4?.length||cloudState.rows6?.length);
+    const cloudIsEmpty=!cloudOrders&&!cloudBoxes&&!cloudHasState;
+
+    // If first-time session-pick AND cloud is empty AND we have local data → keep local + push it up
+    const localOrders=(document.getElementById('inp-orders')?.value||'').trim();
+    const localBoxes=(document.getElementById('inp-boxes')?.value||'').trim();
+    const localHasData=localOrders||localBoxes||parsedOrders.length;
+    if(opts.preserveLocal&&cloudIsEmpty&&localHasData){
+      refreshSessionDropdown();
+      this._setStatus('ok');
+      this.scheduleSave();   // upload current local data to this fresh cloud session
+      return;
+    }
+
+    // Normal: load from cloud (overwrite local)
+    parsedOrders=[];parsedBoxes={};rows4=[];rows6=[];itemMappings={};
+    if(typeof rows7!=='undefined') rows7=[];
+    document.getElementById('inp-orders').value=d.inputs?.orders||'';
+    document.getElementById('inp-boxes').value=d.inputs?.boxes||'';
+    if(cloudState.parsedOrders) parsedOrders=cloudState.parsedOrders;
+    if(cloudState.parsedBoxes) parsedBoxes=cloudState.parsedBoxes;
+    if(cloudState.rows4) rows4=cloudState.rows4;
+    if(cloudState.rows6) rows6=cloudState.rows6;
+    if(cloudState.itemMappings) itemMappings=cloudState.itemMappings;
+    try{
+      if(parsedOrders.length) renderStep2();
+      if(rows4.length) renderStep4();
+      if(rows6.length) renderStep6();
+    }catch(e){console.warn('render after open',e);}
+    refreshSessionDropdown();
+    this._setStatus('ok');
+  },
+  async switchSession(sid){
+    if(sid===this.sid) return;
+    if(sid==='__new__'){const n=prompt('ชื่อ session ใหม่:');if(!n)return refreshSessionDropdown();const newSid=await this.createSession(n.trim());await this.openSession(newSid);return;}
+    if(sid==='__manage__'){openSessionManager();refreshSessionDropdown();return;}
+    await this.openSession(sid);
+  },
+
+  _lastWriteAt: 0,        // timestamp ของ push ล่าสุด (ms)
+  _conflictUnsub: null,   // unsubscribe จาก onSnapshot
+  _conflictShown: false,
+
+  scheduleSave(){
+    if(!this.ws||!this.sid) return;
+    clearTimeout(this._saveTimer);
+    this._saveTimer=setTimeout(()=>this.pushSession(),900);
+  },
+  async pushSession(){
+    if(!this.ws||!this.sid) return;
+    this._setStatus('syncing');
+    try{
+      await window.FB.updateDoc(this._sessionRef(this.sid),{
+        inputs:{
+          orders:document.getElementById('inp-orders')?.value||'',
+          boxes:document.getElementById('inp-boxes')?.value||''
+        },
+        state:{
+          parsedOrders, parsedBoxes, rows4, rows6, itemMappings,
+          lastStep: currentStep
+        },
+        updatedAt: window.FB.serverTimestamp()
+      });
+      this._lastWriteAt=Date.now();
+      this._setStatus('ok');
+    }catch(e){console.warn('pushSession',e);this._setStatus('error');}
+  },
+
+  // เปิด listener ตรวจจับการแก้ไขจากอุปกรณ์อื่น
+  _watchSession(sid){
+    if(this._conflictUnsub){try{this._conflictUnsub();}catch{} this._conflictUnsub=null;}
+    this._conflictShown=false;
+    if(!sid) return;
+    this._conflictUnsub=window.FB.onSnapshot(this._sessionRef(sid),snap=>{
+      if(!snap.exists()) return;
+      const meta=snap.metadata;
+      if(meta.hasPendingWrites) return;          // เป็นของเราเอง
+      const remoteAt=snap.data().updatedAt?.toMillis?.()||0;
+      // ถ้า remote ใหม่กว่าเวลา write ล่าสุดของเรา + 2วิ buffer → แสดงว่ามีคนอื่นเขียน
+      if(remoteAt>this._lastWriteAt+2000&&!this._conflictShown){
+        this._conflictShown=true;
+        Toast.show({
+          msg:`📡 มีการแก้ไข session นี้จากอุปกรณ์อื่น — ของคุณอาจถูกทับเมื่อบันทึกครั้งต่อไป`,
+          type:'warn', duration:0,
+          action:{label:'โหลดใหม่', onClick:()=>{location.reload();}}
+        });
+      }
+    });
+  },
+
+  async pullExports(){
+    const snap=await window.FB.getDocs(this._exportsCol());
+    this.exports={};
+    snap.forEach(d=>{this.exports[d.id]=d.data();});
+  },
+  async markExported(orderIds, step){
+    if(!this.ws||!orderIds?.length) return;
+    this._setStatus('syncing');
+    try{
+      const batch=window.FB.writeBatch(window.FB.db);
+      const ts=new Date().toISOString();
+      const sessName=this.sessions.find(s=>s.id===this.sid)?.name||'';
+      orderIds.forEach(oid=>{
+        if(!oid) return;
+        batch.set(this._exportsCol().firestore?
+          window.FB.doc(window.FB.db,'workspaces',this.ws,'exports',oid):
+          window.FB.doc(window.FB.db,'workspaces',this.ws,'exports',oid),
+          {orderId:oid,exportedAt:ts,sessionId:this.sid,sessionName:sessName,step});
+        this.exports[oid]={orderId:oid,exportedAt:ts,sessionId:this.sid,sessionName:sessName,step};
+      });
+      await batch.commit();
+      this._setStatus('ok');
+      renderExportedWarning();
+    }catch(e){console.warn('markExported',e);this._setStatus('error');}
+  }
+};
+
+// ── Workspace / Session UI helpers
+function openBootstrapModal(){document.getElementById('modal-bootstrap').classList.add('show');}
+function closeBootstrapModal(){document.getElementById('modal-bootstrap').classList.remove('show');}
+async function bootstrapJoin(){
+  const code=document.getElementById('ws-input-code').value.trim().toUpperCase();
+  if(!code){document.getElementById('bootstrap-msg').innerHTML='<span style="color:var(--tx-error);">กรุณาใส่รหัส</span>';return;}
+  document.getElementById('bootstrap-msg').innerHTML='<span style="color:var(--tx-secondary);">กำลังเชื่อมต่อ...</span>';
+  try{
+    await Cloud.openWorkspace(code);
+    closeBootstrapModal();
+  }catch(e){document.getElementById('bootstrap-msg').innerHTML=`<span style="color:var(--tx-error);">เกิดข้อผิดพลาด: ${e.message}</span>`;}
+}
+async function bootstrapCreate(){
+  const name=document.getElementById('ws-new-name').value.trim();
+  if(!name){document.getElementById('bootstrap-msg').innerHTML='<span style="color:var(--tx-error);">กรุณาใส่ชื่อ workspace</span>';return;}
+  document.getElementById('bootstrap-msg').innerHTML='<span style="color:var(--tx-secondary);">กำลังสร้าง...</span>';
+  try{
+    const code=await Cloud.createWorkspace(name);
+    await Cloud.openWorkspace(code);
+    closeBootstrapModal();
+    setTimeout(()=>alert('✅ สร้าง Workspace สำเร็จ\n\nชื่อ: '+name+'\nรหัส Workspace: '+code+'\n\n📌 ใช้รหัสนี้เพื่อเข้าใช้จากเครื่องอื่น'),200);
+  }catch(e){document.getElementById('bootstrap-msg').innerHTML=`<span style="color:var(--tx-error);">${e.message}</span>`;}
+}
+
+function previewWsCode(){
+  const name=document.getElementById('ws-new-name').value;
+  const code=Cloud.nameToCode(name);
+  const el=document.getElementById('ws-code-preview');
+  if(!el) return;
+  if(!name.trim()){el.textContent='';return;}
+  if(!code){el.innerHTML='<span style="color:var(--tx-warn);">⚠️ ชื่อนี้ใช้เป็นรหัสไม่ได้ (ต้องมี A-Z หรือ 0-9 อย่างน้อย 1 ตัว) — จะ generate รหัสสุ่มแทน</span>';return;}
+  el.innerHTML=`รหัสที่จะใช้: <b style="color:var(--accent);">${code}</b>`;
+}
+
+function refreshSessionDropdown(){
+  const sel=document.getElementById('ws-session-select');
+  if(!sel) return;
+  const active=Cloud.sessions.filter(s=>!s.archived);
+  sel.innerHTML=active.map(s=>`<option value="${s.id}"${s.id===Cloud.sid?' selected':''}>${s.name}</option>`).join('')
+    +`<option value="__new__">+ สร้างใหม่...</option><option value="__manage__">⚙ จัดการ...</option>`;
+}
+
+function openSessionManager(){
+  document.getElementById('modal-sessions').classList.add('show');
+  const nm=document.getElementById('modal-ws-name');if(nm) nm.textContent=Cloud.wsName||'—';
+  const cd=document.getElementById('modal-ws-code');if(cd) cd.textContent=Cloud.ws||'—';
+  renderSessionList();
+}
+
+function logoutWorkspace(){
+  if(!confirm('ออกจาก Workspace นี้?\n\nข้อมูลทั้งหมดยังอยู่ใน Cloud — ใส่รหัสเดิมเพื่อกลับมาใช้งานได้')) return;
+  Cloud.logout();
+}
+function closeSessionManager(){document.getElementById('modal-sessions').classList.remove('show');}
+
+function renderSessionList(){
+  const c=document.getElementById('session-list-container');
+  if(!Cloud.sessions.length){c.innerHTML='<div style="text-align:center;color:var(--tx-muted);padding:20px;font-size:12px;">ไม่มี session</div>';return;}
+  c.innerHTML=Cloud.sessions.map(s=>`
+    <div class="session-row${s.id===Cloud.sid?' active':''}">
+      <span class="material-symbols-outlined" style="font-size:16px;color:${s.archived?'var(--tx-muted)':'var(--accent)'};">${s.archived?'inventory_2':'folder_open'}</span>
+      <div style="flex:1;min-width:0;">
+        <div class="s-name">${esc(s.name)}${s.archived?' <span class="tag" style="font-size:9px;background:rgba(0,0,0,.05);">archived</span>':''}</div>
+        <div class="s-meta mono">${s.id} ${s.updatedAt?'· '+new Date(s.updatedAt).toLocaleString('th-TH'):''}</div>
+      </div>
+      <div class="s-acts">
+        ${s.id===Cloud.sid?'<span class="tag tag-green" style="font-size:10px;">active</span>':
+          `<button title="เปิด" onclick="(async()=>{await Cloud.openSession('${s.id}');renderSessionList();refreshSessionDropdown();})()">↪</button>`}
+        <button title="เปลี่ยนชื่อ" onclick="(async()=>{const n=prompt('ชื่อใหม่:','${esc(s.name)}');if(n){await Cloud.renameSession('${s.id}',n.trim());renderSessionList();}})()">✎</button>
+        <button title="Clone (ทำสำเนา)" onclick="(async()=>{await Cloud.cloneSession('${s.id}');renderSessionList();refreshSessionDropdown();})()">📑</button>
+        ${s.archived?`<button title="ลบถาวร" onclick="(async()=>{await Cloud.deleteSession('${s.id}');renderSessionList();})()">🗑</button>`:
+          `<button title="archive" onclick="(async()=>{await Cloud.archiveSession('${s.id}');renderSessionList();refreshSessionDropdown();})()">📦</button>`}
+      </div>
+    </div>`).join('');
+}
+
+async function createNewSession(){
+  const name=document.getElementById('new-session-name').value.trim();
+  if(!name){alert('กรุณาใส่ชื่อ session');return;}
+  const sid=await Cloud.createSession(name);
+  document.getElementById('new-session-name').value='';
+  await Cloud.openSession(sid);
+  renderSessionList();
+  refreshSessionDropdown();
+}
+
+function renderExportedWarning(){
+  const el=document.getElementById('alert-1-exported');
+  if(!el) return;
+  if(!parsedOrders?.length||!Object.keys(Cloud.exports).length){el.innerHTML='';return;}
+  const dup=parsedOrders.filter(o=>Cloud.exports[o.orderId]);
+  if(!dup.length){el.innerHTML='';return;}
+  el.innerHTML=`<div class="exported-list">
+    <div style="font-weight:700;margin-bottom:4px;">⚠️ พบ Order ที่เคย Export ไปแล้ว ${dup.length} รายการ:</div>
+    ${dup.slice(0,8).map(o=>{
+      const ex=Cloud.exports[o.orderId];
+      return `<div class="ex-row">
+        <span class="mono">${esc(o.orderId)}</span>
+        <span style="opacity:.7;">→ ${esc(ex.sessionName||'?')} · ${ex.exportedAt?new Date(ex.exportedAt).toLocaleString('th-TH'):'?'} · step ${ex.step||'?'}</span>
+      </div>`;
+    }).join('')}
+    ${dup.length>8?`<div style="opacity:.7;">...และอีก ${dup.length-8} รายการ</div>`:''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  const cmd=e.metaKey||e.ctrlKey;
+  const tag=(e.target.tagName||'').toLowerCase();
+  const isInput=tag==='input'||tag==='textarea'||tag==='select';
+
+  // Esc → ปิด modal ที่เปิดอยู่
+  if(e.key==='Escape'){
+    const open=document.querySelector('.vcb-modal-bg.show');
+    if(open){e.preventDefault();open.classList.remove('show');return;}
+  }
+
+  // Cmd/Ctrl + K → จัดการ Session
+  if(cmd&&!e.shiftKey&&e.key.toLowerCase()==='k'){
+    e.preventDefault();openSessionManager();return;
+  }
+
+  // Cmd/Ctrl + S → บันทึกทันที (ข้าม debounce)
+  if(cmd&&!e.shiftKey&&e.key.toLowerCase()==='s'){
+    e.preventDefault();
+    try{saveState();if(window.Cloud?.ws&&window.Cloud?.sid){clearTimeout(Cloud._saveTimer);Cloud.pushSession();}}catch{}
+    Toast.success('💾 บันทึกแล้ว',{duration:2000});
+    return;
+  }
+
+  // Cmd/Ctrl + Enter → ประมวลผล step ปัจจุบัน
+  if(cmd&&e.key==='Enter'){
+    const active=document.querySelector('.panel.active');
+    if(!active) return;
+    e.preventDefault();
+    if(active.id==='p1'&&typeof doStep1==='function') doStep1();
+    else if(active.id==='p3'&&typeof autoMapOrders==='function') autoMapOrders();
+    else if(active.id==='p5'&&typeof doStep5==='function') doStep5();
+    return;
+  }
+
+  // Cmd/Ctrl + 1-8 → กระโดดไป step นั้น
+  if(cmd&&!isInput&&/^[1-8]$/.test(e.key)){
+    e.preventDefault();goto(parseInt(e.key));return;
+  }
+
+  // ? → แสดง shortcut help (เฉพาะตอนไม่ได้พิมพ์ใน input)
+  if(!isInput&&!cmd&&e.key==='?'){
+    e.preventDefault();showShortcutHelp();
+  }
+});
+
+function toggleDarkMode(){
+  const isDark=document.body.classList.toggle('dark');
+  localStorage.setItem('vcb_dark',isDark?'1':'0');
+  const ic=document.getElementById('dark-icon');
+  if(ic) ic.textContent=isDark?'light_mode':'dark_mode';
+}
+
+async function openExportHistory(){
+  if(!Cloud.ws){Toast.warn('ยังไม่ได้เปิด workspace');return;}
+  // ensure latest data
+  await Cloud.pullExports();
+  const list=Object.values(Cloud.exports).sort((a,b)=>(b.exportedAt||'').localeCompare(a.exportedAt||''));
+  let body='';
+  if(!list.length) body=`<div style="text-align:center;color:var(--tx-muted);padding:20px;font-size:12px;">ยังไม่มีประวัติการ Export</div>`;
+  else body=`<div style="display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto;">
+    ${list.map(e=>`<div class="session-row" style="cursor:default;">
+      <span class="material-symbols-outlined" style="font-size:16px;color:var(--tx-success);">task_alt</span>
+      <div style="flex:1;min-width:0;">
+        <div class="s-name mono">${esc(e.orderId)}</div>
+        <div class="s-meta">${e.exportedAt?new Date(e.exportedAt).toLocaleString('th-TH'):'?'} · ${esc(e.sessionName||'?')} · step ${e.step||'?'}</div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+  // build inline modal (simple)
+  let m=document.getElementById('modal-history');
+  if(!m){
+    m=document.createElement('div');m.id='modal-history';m.className='vcb-modal-bg';
+    m.innerHTML=`<div class="vcb-modal">
+      <h3>📜 ประวัติการ Export</h3>
+      <p class="modal-sub">รายการ Order ที่เคย Export ใน workspace นี้ทั้งหมด</p>
+      <div id="history-body"></div>
+      <div class="modal-actions"><button class="btn btn-outline btn-sm" onclick="document.getElementById('modal-history').classList.remove('show')">ปิด</button></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  m.querySelector('#history-body').innerHTML=`<div style="font-size:11px;color:var(--tx-muted);margin-bottom:8px;">ทั้งหมด ${list.length} รายการ</div>${body}`;
+  m.classList.add('show');
+}
+
+function toggleSidebar(force){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  if(!sb) return;
+  const open=force===undefined?!sb.classList.contains('open'):force;
+  sb.classList.toggle('open',open);
+  if(ov) ov.classList.toggle('show',open);
+}
+
+function showShortcutHelp(){
+  Toast.show({msg:`<b>⌨️ Keyboard Shortcuts</b><br>
+    <span style="font-size:11px;line-height:1.7;display:block;margin-top:4px;">
+    <kbd>Esc</kbd> — ปิด modal<br>
+    <kbd>⌘K</kbd> — จัดการ Session<br>
+    <kbd>⌘S</kbd> — บันทึกทันที<br>
+    <kbd>⌘↵</kbd> — ประมวลผล step ปัจจุบัน<br>
+    <kbd>⌘1</kbd>–<kbd>⌘8</kbd> — กระโดดไป step<br>
+    <kbd>?</kbd> — แสดง help นี้
+    </span>`, type:'info', duration:7000});
+}
+
 // ── INIT
 // ล้าง localStorage เก่าที่อาจ corrupt หรือใช้ logic เก่า
 localStorage.removeItem('vcb3_cn');
 localStorage.removeItem('vcb3_vt');
-// version bump: ล้าง state เก่าที่ยังใช้ parser เก่า (ก่อนแก้ cancelled logic)
 const _ver='v4';
 if(localStorage.getItem('vcb_ver')!==_ver){
   localStorage.removeItem('vcb_state');
   localStorage.setItem('vcb_ver',_ver);
 }
+// Restore dark mode preference
+if(localStorage.getItem('vcb_dark')==='1'){
+  document.body.classList.add('dark');
+  const ic=document.getElementById('dark-icon');if(ic) ic.textContent='light_mode';
+}
+
 loadStorage();
 renderSkuTable();
-loadState(); // restore ข้อมูลเดิม
+loadState(); // restore localStorage state ก่อน (เผื่อ Cloud โหลดช้า)
+Cloud.init().catch(e=>{console.warn('Cloud init failed',e);Cloud._setStatus('offline');});
+
+// Onboarding — แสดงครั้งแรกที่ใช้
+if(!localStorage.getItem('vcb_onboarded')){
+  setTimeout(()=>{
+    Toast.show({
+      msg:`<b>👋 ยินดีต้อนรับ!</b><br>
+        <span style="font-size:11.5px;line-height:1.6;display:block;margin-top:4px;">
+        • Step 1: paste / อัพรูป / ลาก screenshot ก็ได้<br>
+        • <kbd>⌘K</kbd> สลับ session, <kbd>⌘S</kbd> บันทึก, <kbd>?</kbd> ดูคีย์ลัด<br>
+        • ข้อมูล sync ไป Firebase อัตโนมัติทุก 1 วินาที<br>
+        • คลิก 🌙/❓/📜 มุมขวาบน — Dark mode / Help / ประวัติ
+        </span>`,
+      type:'info', duration:0,
+      action:{label:'เข้าใจแล้ว', onClick:()=>localStorage.setItem('vcb_onboarded','1')}
+    });
+  },1200);
+}
 </script>
 </body>
 </html>
