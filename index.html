@@ -2897,7 +2897,7 @@ let rows8=[];
 function buildStep8(){
   if(!rows6.length){alert('ไม่มีข้อมูล กรุณาทำขั้นตอน 5-6 ก่อน');return;}
 
-  // Group rows6 by SKU → รวม qty และ weighted avg unitAfter
+  // Group rows6 by SKU → รวม qty + cost (full precision)
   // 1 แถว = 1 SKU (สี) เหมือน template
   const bysku={};
   for(const r of rows6){
@@ -2908,21 +2908,40 @@ function buildStep8(){
     bysku[sku].totalCost+=r.total;
   }
 
-  rows8=Object.values(bysku)
-    .sort((a,b)=>{
-      const da=`${a.code} - ${a.name} - (${a.color})`;
-      const db=`${b.code} - ${b.name} - (${b.color})`;
-      return da.localeCompare(db,'th');
-    })
-    .map(g=>({
-      sku:   g.sku,
-      code:  g.code,
-      name:  g.name,
-      color: g.color,
-      desc:  `${g.code} - ${g.name} - (${g.color})`,
-      qty:   g.totalQty,
-      unitPrice: g.totalQty>0 ? r2(g.totalCost/g.totalQty) : 0
-    }));
+  const list=Object.values(bysku).map(g=>({
+    sku:   g.sku,
+    code:  g.code,
+    name:  g.name,
+    color: g.color,
+    desc:  `${g.code} - ${g.name} - (${g.color})`,
+    qty:   g.totalQty,
+    totalCost: g.totalCost,
+    unitPrice: g.totalQty>0 ? g.totalCost/g.totalQty : 0  // full precision
+  }));
+
+  // Residual adjustment ต่อกลุ่ม code → ทำให้ ∑(qty×unitPrice) ต่อ code = r2(∑totalCost) ตรงกับ Vcanbuy เป๊ะ
+  const byCode={};
+  for(const it of list){
+    if(!byCode[it.code]) byCode[it.code]=[];
+    byCode[it.code].push(it);
+  }
+  for(const code in byCode){
+    const grp=byCode[code];
+    const target=r2(grp.reduce((s,x)=>s+x.totalCost,0));  // = ยอด Vcanbuy ต่อ code
+    const curSum=grp.reduce((s,x)=>s+x.qty*x.unitPrice,0);
+    const residual=target-curSum;
+    if(Math.abs(residual)>1e-9){
+      // ใส่เศษเข้าแถวที่ qty มากที่สุด → กระทบราคาน้อยที่สุด
+      const big=grp.reduce((a,b)=>a.qty>=b.qty?a:b);
+      big.unitPrice += residual/big.qty;
+    }
+  }
+
+  rows8=list.sort((a,b)=>{
+    const da=`${a.code} - ${a.name} - (${a.color})`;
+    const db=`${b.code} - ${b.name} - (${b.color})`;
+    return da.localeCompare(db,'th');
+  });
 
   // Render preview
   const tbody=document.getElementById('tbody-8');
@@ -2937,7 +2956,8 @@ function buildStep8(){
   </tr>`).join('');
 
   const totalQty=rows8.reduce((s,r)=>s+r.qty,0);
-  document.getElementById('sum-8').textContent=`${rows8.length} รายการ (SKU) | รวม ${totalQty.toLocaleString()} ชิ้น`;
+  const totalAmt=rows8.reduce((s,r)=>s+r.qty*r.unitPrice,0);
+  document.getElementById('sum-8').innerHTML=`${rows8.length} รายการ (SKU) | รวม ${totalQty.toLocaleString()} ชิ้น | <b>ยอดรวม ฿${fmt(r2(totalAmt))}</b>`;
 }
 
 function exportPeakExcel(){
@@ -2963,7 +2983,7 @@ function exportPeakExcel(){
   // Inject data rows — 22 cols A-V ตรงตาม PEAK Import_PurchaseInventory
   rows8.forEach((r,i)=>{
     const row=i+2; // เริ่มที่ row 2
-    const up=Math.round(r.unitPrice*10000)/10000;
+    const up=r.unitPrice; // full precision — เก็บ residual ไว้ครบ ให้ qty×price ตรงกับ Vcanbuy เป๊ะ
 
     const setCell=(col,val,type,fmt)=>{
       const addr=col+row;
@@ -2984,8 +3004,8 @@ function exportPeakExcel(){
     setCell('K', r.sku||'',  's','@');     // สินค้า/บริการ ← SKU (text)
     setCell('L', 114102,     'n');          // บัญชี
     setCell('M', r.desc,     's');          // คำอธิบาย "B20 - Glowing Belt - (ดำ)"
-    setCell('N', r.qty,      'n','#,##0'); // จำนวน
-    setCell('O', up,         'n','#,##0.0000'); // ราคาต่อหน่วย
+    setCell('N', r.qty,      'n','0');      // จำนวน — ไม่ใส่ , ตามที่ Peak ต้องการ
+    setCell('O', up,         'n','0.0000'); // ราคาต่อหน่วย — ไม่ใส่ ,
     setCell('P', 0.07,       'n','0%');    // อัตราภาษี 7%
     // Q หัก ณ ที่จ่าย — ว่าง
     setCell('R', 'ADV001',   's');          // ชำระโดย
