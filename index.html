@@ -3085,20 +3085,53 @@ function exportPeakExcel(){
 // ═══════════════════════════════════════════════════════════
 // STATE PERSISTENCE — จดจำข้อมูลทั้งหมดใน localStorage
 // ═══════════════════════════════════════════════════════════
+function _readLocalState(){
+  try{ return JSON.parse(localStorage.getItem('vcb_state')||'null'); }catch{ return null; }
+}
+function _stampLocalState(patch){
+  try{
+    const st=_readLocalState(); if(!st) return;
+    localStorage.setItem('vcb_state', JSON.stringify({...st,...patch}));
+  }catch{}
+}
+function _buildState(){
+  return {
+    sid: window.Cloud?.sid||null,          // ผูก state ในเครื่องกับ session ที่เปิดอยู่
+    savedAt: Date.now(),
+    rawOrders: document.getElementById('inp-orders')?.value||'',
+    rawBoxes: document.getElementById('inp-boxes')?.value||'',
+    rawProducts: document.getElementById('inp-products')?.value||'',
+    parsedOrders, parsedBoxes, rows4, rows6,
+    lastStep: currentStep
+  };
+}
 function saveState(){
   try{
-    const state={
-      rawOrders: document.getElementById('inp-orders')?.value||'',
-      rawBoxes: document.getElementById('inp-boxes')?.value||'',
-      parsedOrders, parsedBoxes, rows4, rows6,
-      lastStep: currentStep
-    };
-    localStorage.setItem('vcb_state', JSON.stringify(state));
+    const st=_buildState();
+    const prev=_readLocalState();
+    st.pushedAt=(prev&&prev.sid===st.sid)?(prev.pushedAt||0):0;   // savedAt > pushedAt = ยังไม่ได้ sync
+    localStorage.setItem('vcb_state', JSON.stringify(st));
   }catch(e){console.warn('saveState failed',e);}
   // Push current session to Firestore (debounced)
   if(window.Cloud?.ws&&window.Cloud?.sid) Cloud.scheduleSave();
   // Refresh exported-warning UI when orders change
   try{ renderExportedWarning(); }catch{}
+}
+// บันทึก state ที่เพิ่งโหลดมาจาก cloud — ถือว่า sync แล้ว (ไม่ต้อง push ซ้ำ)
+function saveStateSynced(){
+  try{
+    const st=_buildState(); st.pushedAt=st.savedAt;
+    localStorage.setItem('vcb_state', JSON.stringify(st));
+  }catch(e){console.warn('saveStateSynced failed',e);}
+}
+// ล้างผลลัพธ์ที่แสดงอยู่ทุก step (ทนต่อ element ที่ไม่มีจริง)
+function resetDataUI(){
+  ['orders-display','tbody-4','tbody-6','tbody-7','tbody-8','tbody-order-summary',
+   'alert-1','alert-1-exported','sum-4','sum-6','sum-7','sum-8'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.innerHTML='';
+  });
+  if(typeof rows7!=='undefined') rows7=[];
+  if(typeof rows8!=='undefined') rows8=[];
 }
 
 function loadState(){
@@ -3107,9 +3140,15 @@ function loadState(){
     if(!raw) return;
     const state=JSON.parse(raw);
 
+    // state นี้เป็นของ session ไหน — ถ้าไม่ใช่ session ที่กำลังจะเปิด อย่าเอามาใช้
+    // (กันข้อมูล session เก่าโผล่ใน session ใหม่ แล้วถูก push ทับขึ้น cloud)
+    const wantSid=localStorage.getItem('vcb_sid');
+    if(state.sid&&wantSid&&state.sid!==wantSid){ localStorage.removeItem('vcb_state'); return; }
+
     // Restore textarea values
     if(state.rawOrders) document.getElementById('inp-orders').value=state.rawOrders;
     if(state.rawBoxes) document.getElementById('inp-boxes').value=state.rawBoxes;
+    if(state.rawProducts){const ip=document.getElementById('inp-products');if(ip) ip.value=state.rawProducts;}
 
     // Restore parsed data
     if(state.parsedOrders?.length){
@@ -3154,19 +3193,12 @@ function clearAll(){
   };
   // ล้างทันที (ไม่ confirm)
   localStorage.removeItem('vcb_state');
-  parsedOrders=[];parsedBoxes={};rows4=[];rows6=[];rows7=[];itemMappings={};
-  document.getElementById('inp-orders').value='';
-  document.getElementById('inp-products').value='';
-  document.getElementById('inp-boxes').value='';
-  document.getElementById('alert-1').innerHTML='';
-  const exEl=document.getElementById('alert-1-exported');if(exEl) exEl.innerHTML='';
-  document.getElementById('orders-display').innerHTML='';
-  document.getElementById('tbody-4').innerHTML='';
-  document.getElementById('tbody-6').innerHTML='';
-  document.getElementById('unmapped-warn').innerHTML='';
-  document.getElementById('unmap-section').style.display='none';
+  parsedOrders=[];parsedBoxes={};rows4=[];rows6=[];itemMappings={};
+  ['inp-orders','inp-products','inp-boxes'].forEach(id=>{const el=document.getElementById(id);if(el) el.value='';});
+  resetDataUI();
   goto(1);
-  if(window.Cloud?.ws&&window.Cloud?.sid) Cloud.scheduleSave();
+  saveState();
+  if(window.Cloud?.ws&&window.Cloud?.sid){clearTimeout(Cloud._saveTimer);Cloud.pushSession();}
 
   Toast.show({
     msg:`🗑 ล้างข้อมูลใน session "<b>${esc(sName)}</b>" แล้ว`,
@@ -3638,6 +3670,8 @@ const Cloud = {
       state:{}
     });
     await this.refreshSessions();
+    // session ใหม่ = เริ่มจากศูนย์ อย่าให้ state ของ session เก่าค้างในเครื่อง
+    try{ localStorage.removeItem('vcb_state'); }catch{}
     return sid;
   },
   async renameSession(sid,name){
@@ -3698,7 +3732,7 @@ const Cloud = {
     parsedOrders=[];parsedBoxes={};rows4=[];rows6=[];itemMappings={};
     if(typeof rows7!=='undefined') rows7=[];
     ['inp-orders','inp-boxes','inp-products'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    ['orders-display','tbody-4','tbody-6','alert-1','alert-1-exported','unmapped-warn'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+    resetDataUI();
     const lbl=document.getElementById('ws-code-label');if(lbl)lbl.textContent='—';
     const sel=document.getElementById('ws-session-select');if(sel)sel.innerHTML='';
     this._setStatus('offline');
@@ -3710,6 +3744,11 @@ const Cloud = {
   async openSession(sid, opts={}){
     if(!sid) return;
     this._setStatus('syncing');
+    // ก่อนออกจาก session เดิม — flush งานที่ยัง debounce ค้างอยู่ กันข้อมูลหาย
+    if(this.sid&&this.sid!==sid&&this._saveTimer){
+      clearTimeout(this._saveTimer); this._saveTimer=null;
+      try{ await this.pushSession(); }catch{}
+    }
     const snap=await window.FB.getDoc(this._sessionRef(sid));
     if(!snap.exists()){this._setStatus('error');return;}
     this.sid=sid;
@@ -3723,20 +3762,26 @@ const Cloud = {
     const cloudHasState=!!(cloudState.parsedOrders?.length||cloudState.rows4?.length||cloudState.rows6?.length);
     const cloudIsEmpty=!cloudOrders&&!cloudBoxes&&!cloudHasState;
 
-    // If first-time session-pick AND cloud is empty AND we have local data → keep local + push it up
+    // ข้อมูลในเครื่องที่เป็นของ session นี้ และยังไม่ได้ push (savedAt > pushedAt) → อย่าให้ cloud ทับ
+    const ls=_readLocalState();
+    const localUnsynced=!!(ls&&ls.sid===sid&&(ls.savedAt||0)>(ls.pushedAt||0));
+
+    // First-time session-pick: cloud ยังว่าง + มีข้อมูลที่เพิ่งกรอกในเครื่อง → เก็บของในเครื่องแล้ว push ขึ้นไป
     const localOrders=(document.getElementById('inp-orders')?.value||'').trim();
     const localBoxes=(document.getElementById('inp-boxes')?.value||'').trim();
     const localHasData=localOrders||localBoxes||parsedOrders.length;
-    if(opts.preserveLocal&&cloudIsEmpty&&localHasData){
+    const localIsThisSession=!ls||!ls.sid||ls.sid===sid;   // กันข้อมูล session เก่าถูก push เข้า session ใหม่
+    // เฉพาะตอนบูต (preserveLocal) เท่านั้น — ตอนสลับ session หน้าจอไม่ได้ถือข้อมูลของ session ปลายทางอยู่
+    if(opts.preserveLocal&&(localUnsynced||(cloudIsEmpty&&localHasData&&localIsThisSession))){
       refreshSessionDropdown();
       this._setStatus('ok');
-      this.scheduleSave();   // upload current local data to this fresh cloud session
+      this.scheduleSave();   // upload current local data to this cloud session
       return;
     }
 
     // Normal: load from cloud (overwrite local)
     parsedOrders=[];parsedBoxes={};rows4=[];rows6=[];itemMappings={};
-    if(typeof rows7!=='undefined') rows7=[];
+    resetDataUI();                                   // ล้างตาราง/ผลลัพธ์ของ session เก่าออกจากหน้าจอ
     document.getElementById('inp-orders').value=d.inputs?.orders||'';
     document.getElementById('inp-boxes').value=d.inputs?.boxes||'';
     if(cloudState.parsedOrders) parsedOrders=cloudState.parsedOrders;
@@ -3749,6 +3794,8 @@ const Cloud = {
       if(rows4.length) renderStep4();
       if(rows6.length) renderStep6();
     }catch(e){console.warn('render after open',e);}
+    goto(cloudState.lastStep&&parsedOrders.length?cloudState.lastStep:1);
+    saveStateSynced();          // local state = ของ session นี้ และถือว่า sync แล้ว
     refreshSessionDropdown();
     this._setStatus('ok');
   },
@@ -3784,6 +3831,8 @@ const Cloud = {
         updatedAt: window.FB.serverTimestamp()
       });
       this._lastWriteAt=Date.now();
+      const ls=_readLocalState();
+      if(ls&&ls.sid===this.sid) _stampLocalState({pushedAt:Date.now()});
       this._setStatus('ok');
     }catch(e){console.warn('pushSession',e);this._setStatus('error');}
   },
@@ -3836,6 +3885,9 @@ const Cloud = {
     }catch(e){console.warn('markExported',e);this._setStatus('error');}
   }
 };
+// `const Cloud` ไม่ผูกกับ window เอง — ต้อง assign เอง ไม่งั้น window.Cloud?.ws เป็น undefined
+// ทำให้ auto-sync (saveState → scheduleSave), ⌘S, markExported, pushSkuMapping ไม่ทำงานเลย
+window.Cloud=Cloud;
 
 // ── Workspace / Session UI helpers
 function openBootstrapModal(){document.getElementById('modal-bootstrap').classList.add('show');}
