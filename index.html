@@ -2839,6 +2839,50 @@ function exportOrderSummaryExcel(){
   XLSX.writeFile(wb,'vcanbuy_order_summary_'+_dateStr()+'.xlsx');
 }
 
+// แทรกแถวว่าง `count` แถวไว้ก่อนแถว `beforeRow` (1-indexed) — เลื่อนเซลล์/merge/ความสูงแถวลงทั้งหมด
+// แถวที่แทรกโคลน style จากแถวก่อนหน้า (แถวสินค้าว่างใน template)
+function xlInsertRows(ws,beforeRow,count){
+  if(count<=0) return;
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  const COLS=range.e.c;
+  for(let r=range.e.r;r>=beforeRow-1;r--){
+    for(let c=0;c<=COLS;c++){
+      const from=XLSX.utils.encode_cell({r:r,c:c}), to=XLSX.utils.encode_cell({r:r+count,c:c});
+      if(ws[from]){ ws[to]=ws[from]; delete ws[from]; }
+      else if(ws[to]) delete ws[to];
+    }
+  }
+  // โคลน style แถวต้นแบบ (beforeRow-1) ลงแถวที่แทรก
+  for(let i=0;i<count;i++){
+    const r=beforeRow-1+i;  // 0-indexed ของแถวใหม่
+    for(let c=0;c<=COLS;c++){
+      const proto=ws[XLSX.utils.encode_cell({r:beforeRow-2,c:c})];
+      const addr=XLSX.utils.encode_cell({r:r,c:c});
+      if(!proto){ if(ws[addr]) delete ws[addr]; continue; }
+      const cell={...proto,t:'z',v:'',w:''};
+      delete cell.f; delete cell.F; delete cell.r; delete cell.h; delete cell.D;
+      ws[addr]=cell;
+    }
+  }
+  // เลื่อน merge + โคลน merge ของแถวต้นแบบให้แถวใหม่
+  if(Array.isArray(ws['!merges'])){
+    const protoMerges=ws['!merges'].filter(m=>m.s.r===beforeRow-2&&m.e.r===beforeRow-2);
+    ws['!merges'].forEach(m=>{ if(m.s.r>=beforeRow-1){ m.s.r+=count; m.e.r+=count; } });
+    for(let i=0;i<count;i++){
+      const r=beforeRow-1+i;
+      protoMerges.forEach(m=>ws['!merges'].push({s:{c:m.s.c,r:r},e:{c:m.e.c,r:r}}));
+    }
+  }
+  // เลื่อนความสูงแถว
+  if(Array.isArray(ws['!rows'])){
+    const proto=ws['!rows'][beforeRow-2];
+    const ins=Array.from({length:count},()=>proto?{...proto}:undefined);
+    ws['!rows'].splice(beforeRow-1,0,...ins);
+  }
+  range.e.r+=count;
+  ws['!ref']=XLSX.utils.encode_range(range);
+}
+
 function exportVcanbuyExcel(){
   if(!rows7.length){buildStep7();if(!rows7.length){alert('ไม่มีข้อมูล');return;}}
   if(typeof XLSX==='undefined'){alert('กำลังโหลด SheetJS กรุณารอสักครู่แล้วลองใหม่');return;}
@@ -2855,34 +2899,48 @@ function exportVcanbuyExcel(){
   ws['G9']={...(ws['G9']||{}),v:monthStr,w:monthStr,t:'s'};
   ws['H9']={...(ws['H9']||{}),v:now.getFullYear()+543,w:String(now.getFullYear()+543),t:'n'};
 
-  // Clear data rows 12-22 ก่อน inject
-  for(let r=12;r<=22;r++){
-    ['B','C','I','J','K'].forEach(col=>{
+  // template มีช่องสินค้า 11 แถว (12–22) — ถ้ารายการเกินให้แทรกแถวเพิ่ม ไม่ตัดทิ้ง
+  const FIRST=12, TPL_LAST=22;
+  const extra=Math.max(0,rows7.length-(TPL_LAST-FIRST+1));
+  if(extra>0) xlInsertRows(ws,TPL_LAST,extra);   // แทรกก่อนแถวสุดท้าย → เก็บ format แถวปิดท้ายไว้
+  const LAST=TPL_LAST+extra;                     // แถวสินค้าสุดท้าย
+  const SUM_ROW=LAST+1, VAT_ROW=LAST+2, TOT_ROW=LAST+3;
+
+  // Clear + inject data rows
+  for(let r=FIRST;r<=LAST;r++){
+    const item=rows7[r-FIRST];
+    const put=(col,val,t)=>{
       const addr=col+r;
-      if(ws[addr]) ws[addr]={...ws[addr],v:'',w:'',t:'z'};
-    });
-  }
-
-  // Inject rows7 data (max 11 rows ที่ template รองรับ)
-  const maxRows=Math.min(rows7.length,11);
-  for(let i=0;i<maxRows;i++){
-    const r=12+i, item=rows7[i];
-    ws['B'+r]={...(ws['B'+r]||{}),v:i+1,w:String(i+1),t:'n'};
-    ws['C'+r]={...(ws['C'+r]||{}),v:item.name,w:item.name,t:'s'};
-    ws['I'+r]={...(ws['I'+r]||{}),v:item.qty,w:String(item.qty),t:'n'};
-    ws['J'+r]={...(ws['J'+r]||{}),v:'ชิ้น',w:'ชิ้น',t:'s'};
+      ws[addr]={...(ws[addr]||{}),v:val,w:val===''?'':String(val),t:t};
+    };
+    if(!item){
+      ['B','C','I','J','K'].forEach(col=>put(col,'','z'));
+      const lc=ws['L'+r]; if(lc){ ws['L'+r]={...lc,t:'z',v:'',w:''}; delete ws['L'+r].f; delete ws['L'+r].F; }
+      continue;
+    }
     const up=Math.round(item.unitPrice*100)/100;
-    ws['K'+r]={...(ws['K'+r]||{}),v:up,w:up.toFixed(2),t:'n'};
+    put('B',r-FIRST+1,'n');
+    put('C',item.name,'s');
+    put('I',item.qty,'n');
+    put('J','ชิ้น','s');
+    put('K',up,'n');
+    ws['K'+r].w=up.toFixed(2);
+    // L = ยอดรวมต่อรายการ (สูตรเดิมของ template)
+    ws['L'+r]={...(ws['L'+r]||{}),t:'n',f:`ROUND(K${r}*I${r},2)`,v:r2(item.qty*up)};
+    delete ws['L'+r].F; delete ws['L'+r].w;
   }
 
-  // Clear ลำดับที่ว่าง (ไม่ให้มีเลข 9,10,11 จาก template เดิม)
-  for(let r=12+maxRows;r<=22;r++){
-    if(ws['B'+r]) ws['B'+r]={...ws['B'+r],v:'',w:'',t:'z'};
-  }
-
-  if(rows7.length>11){
-    alert(`⚠️ มี ${rows7.length} รายการ เกิน 11 ช่องที่ template รองรับ จะ export เฉพาะ 11 รายการแรก`);
-  }
+  // สูตรสรุปท้ายตาราง — ชี้ช่วงใหม่ + อัปเดตค่า cache
+  const sumVal=rows7.reduce((s,it)=>s+r2(it.qty*(Math.round(it.unitPrice*100)/100)),0);
+  const vatVal=r2(sumVal*0.07);
+  const setFormula=(addr,f,v)=>{
+    if(!ws[addr]) return;
+    ws[addr]={...ws[addr],t:'n',f:f,v:v};
+    delete ws[addr].F; delete ws[addr].w;
+  };
+  setFormula('L'+SUM_ROW,`SUM(L${FIRST}:L${LAST})`,r2(sumVal));
+  setFormula('L'+VAT_ROW,`ROUND(L${SUM_ROW}*0.07,2)`,vatVal);
+  setFormula('L'+TOT_ROW,`L${VAT_ROW}+L${SUM_ROW}`,r2(sumVal+vatVal));
 
   const fname=`vcanbuy_form_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.xlsx`;
   XLSX.writeFile(wb,fname,{bookSST:false,compression:true});
