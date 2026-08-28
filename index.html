@@ -2749,14 +2749,19 @@ function buildStep7(){
   }
   rows7=Object.values(grouped)
     .sort((a,b)=>a.name.localeCompare(b.name,'th'))
-    .map((g,i)=>({
-      seq:i+1,
-      name:g.name,
-      qty:g.totalQty,
-      unit:'ชิ้น',
-      unitPrice:g.totalQty>0?r2(g.totalCost/g.totalQty):0,
-      total:r2(g.totalCost)
-    }));
+    .map((g,i)=>{
+      // ราคา/หน่วย 2 ตำแหน่ง แล้วคิดยอดรายการจากราคานั้น → เว็บกับไฟล์ตรงกัน และคูณมือแล้วตรง
+      const up=g.totalQty>0?r2(g.totalCost/g.totalQty):0;
+      return {
+        seq:i+1,
+        name:g.name,
+        qty:g.totalQty,
+        unit:'ชิ้น',
+        unitPrice:up,
+        total:r2(g.totalQty*up),
+        costTotal:r2(g.totalCost)   // ยอดจริงจาก Vcanbuy (อ้างอิง)
+      };
+    });
 
   // Render preview
   const tbody=document.getElementById('tbody-7');
@@ -2918,23 +2923,22 @@ function exportVcanbuyExcel(){
       const lc=ws['L'+r]; if(lc){ ws['L'+r]={...lc,t:'z',v:'',w:''}; delete ws['L'+r].f; delete ws['L'+r].F; }
       continue;
     }
-    // ราคา/หน่วย เก็บ full precision = ยอดรายการ ÷ จำนวน (แสดงผล 2 ตำแหน่งตาม format เดิม)
-    // → ROUND(K*I,2) = ยอดรายการของ Vcanbuy เป๊ะ ยอดรวมในไฟล์จึงตรงกับหน้าเว็บ
-    const lineTotal=r2(item.total);
-    const up=item.qty>0?lineTotal/item.qty:0;
+    // ราคา/หน่วย 2 ตำแหน่ง (เท่าที่แสดงบนเว็บ) → ROUND(K*I,2) ตรงกับยอดบนเว็บเป๊ะ
+    const up=r2(item.unitPrice);
+    const lineTotal=r2(item.qty*up);
     put('B',r-FIRST+1,'n');
     put('C',item.name,'s');
     put('I',item.qty,'n');
     put('J','ชิ้น','s');
     put('K',up,'n');
-    ws['K'+r].w=r2(up).toFixed(2);
+    ws['K'+r].w=up.toFixed(2);
     // L = ยอดรวมต่อรายการ (สูตรเดิมของ template)
     ws['L'+r]={...(ws['L'+r]||{}),t:'n',f:`ROUND(K${r}*I${r},2)`,v:lineTotal};
     delete ws['L'+r].F; delete ws['L'+r].w;
   }
 
   // สูตรสรุปท้ายตาราง — ชี้ช่วงใหม่ + อัปเดตค่า cache
-  const sumVal=rows7.reduce((s,it)=>s+r2(it.total),0);
+  const sumVal=rows7.reduce((s,it)=>s+r2(it.qty*r2(it.unitPrice)),0);
   const vatVal=r2(sumVal*0.07);
   const setFormula=(addr,f,v)=>{
     if(!ws[addr]) return;
