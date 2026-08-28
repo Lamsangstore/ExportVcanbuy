@@ -2916,10 +2916,12 @@ function buildStep8(){
     desc:  `${g.code} - ${g.name} - (${g.color})`,
     qty:   g.totalQty,
     totalCost: g.totalCost,
-    unitPrice: g.totalQty>0 ? g.totalCost/g.totalQty : 0  // full precision
+    unitPrice: 0  // กำหนดทีหลังแบบ code-level ให้ทุกสีเท่ากัน
   }));
 
-  // Residual adjustment ต่อกลุ่ม code → ทำให้ ∑(qty×unitPrice) ต่อ code = r2(∑totalCost) ตรงกับ Vcanbuy เป๊ะ
+  // ราคาต่อชิ้นเท่ากันทุกสีในสินค้าเดียวกัน (code เดียวกัน)
+  // → unitPrice = r2(∑totalCost ของ code) / ∑qty ของ code
+  //   ทำให้ ∑(qty×unitPrice) ต่อ code = ยอด Vcanbuy ต่อ code เป๊ะ โดยไม่ต้องใส่เศษที่แถวใดแถวหนึ่ง
   const byCode={};
   for(const it of list){
     if(!byCode[it.code]) byCode[it.code]=[];
@@ -2928,13 +2930,9 @@ function buildStep8(){
   for(const code in byCode){
     const grp=byCode[code];
     const target=r2(grp.reduce((s,x)=>s+x.totalCost,0));  // = ยอด Vcanbuy ต่อ code
-    const curSum=grp.reduce((s,x)=>s+x.qty*x.unitPrice,0);
-    const residual=target-curSum;
-    if(Math.abs(residual)>1e-9){
-      // ใส่เศษเข้าแถวที่ qty มากที่สุด → กระทบราคาน้อยที่สุด
-      const big=grp.reduce((a,b)=>a.qty>=b.qty?a:b);
-      big.unitPrice += residual/big.qty;
-    }
+    const qtySum=grp.reduce((s,x)=>s+x.qty,0);
+    const up=qtySum>0 ? target/qtySum : 0;                // full precision — เท่ากันทุกสี
+    grp.forEach(x=>{ x.unitPrice=up; });
   }
 
   rows8=list.sort((a,b)=>{
