@@ -1239,6 +1239,8 @@ kbd{
     <div class="action-row" style="margin-top:14px;">
       <button class="btn btn-primary" onclick="buildAndGoStep4()">▶ ยืนยัน &amp; ไปขั้นตอน 4 →</button>
       <button class="btn btn-outline btn-sm" onclick="goto(2)">← กลับ</button>
+      <button class="btn btn-outline btn-sm" onclick="forgetLearnedMappings()"
+        title="ลืมการจับคู่ที่ระบบจำไว้ แล้วจับคู่ใหม่ทั้งหมด">🧠 ล้างความจำการจับคู่</button>
     </div>
   </div>
 
@@ -1480,6 +1482,9 @@ const DFLT_DATA={"skuVariants":[{"code":"B01","sku":"B1731987624811923275","name
 let skuVariants=[...DFLT_DATA.skuVariants];
 let cnToCode={...DFLT_DATA.cnToCode};
 let variantToSku={...DFLT_DATA.variantToSku};
+// การจับคู่ที่ "จำไว้" — key = ชื่อจีนสินค้า::บรรทัดตัวเลือก(สี) → {code,sku}
+// อยู่ระดับ workspace: ใช้ข้ามออเดอร์ ข้าม session และข้ามการรีเฟรช
+let learnedMap={};
 
 let parsedOrders=[]; // [{orderId,boxId,serviceFee,shpCNCN,items:[{variantLine,qty,priceThb,cancelled}]}]
 let rows4=[];        // step 4 result rows
@@ -1510,9 +1515,52 @@ function loadStorage(){
     skuVariants=JSON.parse(JSON.stringify(DFLT_DATA.skuVariants));
   }
 
+  // การจับคู่ที่จำไว้
+  try{ learnedMap=JSON.parse(localStorage.getItem('vcb3_learn')||'{}')||{}; }catch{ learnedMap={}; }
+
   // cnToCode + variantToSku: สร้างใหม่จาก DFLT_DATA + skuVariants เสมอ
   // ไม่ใช้ localStorage เพราะอาจ corrupt
   rebuildLookups();
+}
+
+function learnKeyOf(item){
+  return `${item?.chineseName||''}::${item?.variantLine||''}`;
+}
+// จำการจับคู่ไว้ใช้ครั้งหน้า (ออเดอร์ใหม่ / session ใหม่ ไม่ต้องจับคู่ซ้ำ)
+function learnMapping(item,map){
+  if(!item||!map?.confirmed||!map.code) return false;
+  const k=learnKeyOf(item);
+  const cur=learnedMap[k];
+  if(cur&&cur.code===map.code&&cur.sku===(map.sku||'')) return false;
+  learnedMap[k]={code:map.code,sku:map.sku||''};
+  return true;
+}
+// ลืมการจับคู่ที่จำไว้ทั้งหมด (เผื่อจำผิด) — undo ได้
+function forgetLearnedMappings(){
+  const n=Object.keys(learnedMap).length;
+  if(!n){ Toast.show({msg:'ยังไม่มีการจับคู่ที่จำไว้',type:'info',duration:3000}); return; }
+  const backup=JSON.parse(JSON.stringify(learnedMap));
+  learnedMap={}; saveLearned();
+  itemMappings={};
+  try{ autoMapOrders(); }catch{}
+  Toast.show({
+    msg:`🧠 ล้างความจำการจับคู่แล้ว (${n} รายการ)`, type:'success', duration:8000,
+    action:{label:'↶ เลิกทำ', onClick:()=>{
+      learnedMap=backup; saveLearned();
+      try{ autoMapOrders(); }catch{}
+      Toast.success('คืนความจำการจับคู่แล้ว');
+    }}
+  });
+}
+function saveLearned(){
+  try{ localStorage.setItem('vcb3_learn',JSON.stringify(learnedMap)); }catch{}
+  if(window.Cloud?.ws){clearTimeout(saveLearned._t);saveLearned._t=setTimeout(()=>Cloud.pushSkuMapping(),700);}
+}
+// หา item จาก key ที่ UI ส่งมา
+function findItemByKey(orderId,idx){
+  const o=parsedOrders.find(x=>x.orderId===orderId);
+  if(!o) return null;
+  return o.items.filter(i=>!i.cancelled)[idx]||null;
 }
 
 function rebuildLookups(){
@@ -1898,7 +1946,9 @@ function itemKey(orderId,variantLine,idx){return orderId+'::'+variantLine+'::'+(
 
 function autoMapOrders(){
   if(!parsedOrders.length){alert_('alert-3','warn','ยังไม่มีข้อมูล Order');return;}
+  const prev=itemMappings;      // เก็บงานที่จับคู่ไว้แล้ว — ไม่ต้องจับใหม่
   itemMappings={};
+  let keptCount=0, recallCount=0;
 
   for(const o of parsedOrders){
     const active=o.items.filter(i=>!i.cancelled);
@@ -1918,6 +1968,20 @@ function autoMapOrders(){
     // Pass 3: for ambiguous items, filter to only confirmed codes if any match
     for(const {item,idx,codes} of perItem){
       const key=itemKey(o.orderId,item.variantLine,idx);
+
+      // 1) รายการนี้จับคู่ไว้แล้วในรอบก่อน → ใช้ของเดิม
+      if(prev[key]?.confirmed){ itemMappings[key]=prev[key]; keptCount++; continue; }
+
+      // 2) สินค้า+สีนี้เคยจับคู่ไว้ (จำข้ามออเดอร์/ข้าม session)
+      const L=learnedMap[learnKeyOf(item)];
+      if(L?.code){
+        const r=(L.sku&&skuVariants.find(v=>v.sku===L.sku))||findSkuByCodeAndVariant(L.code,item.variantLine);
+        if(r?.sku){
+          itemMappings[key]={code:L.code,sku:r.sku,name:r.name||'',color:r.color||'',confirmed:true};
+          recallCount++; continue;
+        }
+      }
+
       let resolvedCode=null;
 
       if(codes.length===1){
@@ -1943,6 +2007,11 @@ function autoMapOrders(){
   }
 
   renderAutoMapUI();
+  const reused=keptCount+recallCount;
+  if(reused>0) alert_('alert-3','info',
+    `♻️ ใช้การจับคู่เดิม <b>${reused}</b> รายการ` +
+    (recallCount?` (จำจากที่เคยจับคู่ไว้ ${recallCount})`:'') +
+    ` — จับคู่เฉพาะรายการที่เหลือได้เลย`);
 }
 
 function renderAutoMapUI(){
@@ -2197,6 +2266,7 @@ function onItemSkuChange(orderId, variantLine, idx, sku){
     const sv=skuVariants.find(v=>v.sku===sku);
     if(sv){
       itemMappings[key]={code:sv.code,sku:sv.sku,name:sv.name||'',color:sv.color||'',confirmed:true};
+      if(learnMapping(findItemByKey(orderId,idx),itemMappings[key])) saveLearned();
     }
   }
   renderAutoMapUI();
@@ -2209,6 +2279,7 @@ function onItemCodeChange(orderId, variantLine, idx, code){
   } else {
     const r=findSkuByCodeAndVariant(code,variantLine);
     itemMappings[key]={code,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:true};
+    if(learnMapping(findItemByKey(orderId,idx),itemMappings[key])) saveLearned();
     // Propagate: if other items in SAME order are still ambiguous and this code fits → resolve them
     for(const o of parsedOrders){
       if(o.orderId!==orderId) continue;
@@ -2227,7 +2298,9 @@ function onItemCodeChange(orderId, variantLine, idx, code){
   renderAutoMapUI();
 }
 
+let _learnDirty=false;
 function applyAllMappings(){
+  _learnDirty=false;
   for(const o of parsedOrders){
     const active=o.items.filter(i=>!i.cancelled);
     active.forEach((item,idx)=>{
@@ -2239,6 +2312,7 @@ function applyAllMappings(){
       item.resolvedSku=map.sku;
       item.resolvedName=map.name;
       item.resolvedColor=map.color;
+      if(learnMapping(item,map)) _learnDirty=true;
       // Set chineseName + cnToCode for lookupSku
       const sv=skuVariants.find(v=>v.code===map.code);
       if(sv){
@@ -2255,6 +2329,7 @@ function applyAllMappings(){
       }
     });
   }
+  if(_learnDirty) saveLearned();
 }
 
 function buildAndGoStep4(){
@@ -3636,6 +3711,10 @@ const Cloud = {
       if(d.skuVariants) skuVariants=d.skuVariants;
       if(d.cnToCode) cnToCode=d.cnToCode;
       if(d.variantToSku) variantToSku=d.variantToSku;
+      if(d.learnedMap){   // รวมกับของในเครื่อง — ไม่ให้ของที่เพิ่งจับคู่หาย
+        learnedMap={...d.learnedMap,...learnedMap};
+        try{ localStorage.setItem('vcb3_learn',JSON.stringify(learnedMap)); }catch{}
+      }
       try{ renderSkuTable(); }catch{}
     }
   },
@@ -3644,20 +3723,27 @@ const Cloud = {
     this._setStatus('syncing');
     try{
       await window.FB.setDoc(this._skuRef(),{
-        skuVariants, cnToCode, variantToSku,
+        skuVariants, cnToCode, variantToSku, learnedMap,
         updatedAt: window.FB.serverTimestamp()
       });
       this._setStatus('ok');
     }catch(e){console.warn('pushSku failed',e);this._setStatus('error');}
   },
 
+  orderIndex: {},      // {orderId: {sid, name, at}} — order นี้อยู่ใน session ไหนบ้าง
   async refreshSessions(){
     const snap=await window.FB.getDocs(this._sessionsCol());
     this.sessions=[];
+    this.orderIndex={};
     snap.forEach(d=>{
       const x=d.data();
-      this.sessions.push({id:d.id,name:x.name||'(unnamed)',archived:!!x.archived,
-        updatedAt:x.updatedAt?.toMillis?.()||0});
+      const at=x.updatedAt?.toMillis?.()||0;
+      this.sessions.push({id:d.id,name:x.name||'(unnamed)',archived:!!x.archived,updatedAt:at});
+      (x.state?.parsedOrders||[]).forEach(o=>{
+        const oid=o?.orderId; if(!oid) return;
+        const cur=this.orderIndex[oid];
+        if(!cur||at>cur.at) this.orderIndex[oid]={sid:d.id,name:x.name||'(unnamed)',at};
+      });
     });
     this.sessions.sort((a,b)=>b.updatedAt-a.updatedAt);
   },
@@ -3975,23 +4061,74 @@ async function createNewSession(){
   refreshSessionDropdown();
 }
 
+// หาออเดอร์ที่ซ้ำกับ session ก่อนหน้า (เคย export แล้ว หรือมีอยู่ใน session อื่น)
+function findDuplicateOrders(){
+  if(!parsedOrders?.length) return [];
+  const idx=(window.Cloud&&Cloud.orderIndex)||{};
+  const exp=(window.Cloud&&Cloud.exports)||{};
+  const out=[];
+  for(const o of parsedOrders){
+    const oid=o.orderId; if(!oid) continue;
+    const ex=exp[oid]||null;
+    const other=(idx[oid]&&idx[oid].sid!==Cloud.sid)?idx[oid]:null;
+    if(ex||other) out.push({orderId:oid,ex,other});
+  }
+  return out;
+}
+
 function renderExportedWarning(){
   const el=document.getElementById('alert-1-exported');
   if(!el) return;
-  if(!parsedOrders?.length||!Object.keys(Cloud.exports).length){el.innerHTML='';return;}
-  const dup=parsedOrders.filter(o=>Cloud.exports[o.orderId]);
+  const dup=findDuplicateOrders();
   if(!dup.length){el.innerHTML='';return;}
+  const line=d=>{
+    if(d.ex) return `เคย export แล้ว → session "${esc(d.ex.sessionName||'?')}"`+
+      (d.ex.exportedAt?` · ${new Date(d.ex.exportedAt).toLocaleString('th-TH')}`:'')+
+      (d.ex.step?` · step ${d.ex.step}`:'');
+    return `มีอยู่แล้วใน session "${esc(d.other.name||'?')}"`;
+  };
   el.innerHTML=`<div class="exported-list">
-    <div style="font-weight:700;margin-bottom:4px;">⚠️ พบ Order ที่เคย Export ไปแล้ว ${dup.length} รายการ:</div>
-    ${dup.slice(0,8).map(o=>{
-      const ex=Cloud.exports[o.orderId];
-      return `<div class="ex-row">
-        <span class="mono">${esc(o.orderId)}</span>
-        <span style="opacity:.7;">→ ${esc(ex.sessionName||'?')} · ${ex.exportedAt?new Date(ex.exportedAt).toLocaleString('th-TH'):'?'} · step ${ex.step||'?'}</span>
-      </div>`;
-    }).join('')}
-    ${dup.length>8?`<div style="opacity:.7;">...และอีก ${dup.length-8} รายการ</div>`:''}
+    <div style="font-weight:700;margin-bottom:6px;">⚠️ พบ ${dup.length} Order ที่ซ้ำกับ session ก่อนหน้า:</div>
+    ${dup.slice(0,10).map(d=>`<div class="ex-row">
+        <span class="mono">${esc(d.orderId)}</span>
+        <span style="opacity:.75;flex:1;">→ ${line(d)}</span>
+        <button class="shot-btn" style="padding:1px 8px;font-size:11px;"
+          onclick="removeOrdersFromCalc(['${esc(d.orderId)}'])">เอาออก</button>
+      </div>`).join('')}
+    ${dup.length>10?`<div style="opacity:.7;">...และอีก ${dup.length-10} รายการ</div>`:''}
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="shot-btn" onclick="removeOrdersFromCalc(findDuplicateOrders().map(d=>d.orderId))">
+        🚫 เอาออกจากการคำนวณทั้งหมด (${dup.length})</button>
+      <span style="opacity:.6;font-size:11px;align-self:center;">หรือปล่อยไว้ถ้าตั้งใจคำนวณซ้ำ</span>
+    </div>
   </div>`;
+}
+
+// เอาออเดอร์ออกจากการคำนวณ (ไม่แตะข้อมูลใน session อื่น)
+function removeOrdersFromCalc(ids){
+  const set=new Set((ids||[]).filter(Boolean));
+  if(!set.size) return;
+  const backupOrders=JSON.parse(JSON.stringify(parsedOrders));
+  const backupMaps=JSON.parse(JSON.stringify(itemMappings));
+  const backupStep=currentStep;
+  parsedOrders=parsedOrders.filter(o=>!set.has(o.orderId));
+  Object.keys(itemMappings).forEach(k=>{ if(set.has(k.split('::')[0])) delete itemMappings[k]; });
+  // ผลลัพธ์ที่คำนวณไว้ไม่ตรงกับข้อมูลใหม่แล้ว
+  rows4=[];rows6=[];
+  resetDataUI();
+  try{ renderStep2(); }catch{}
+  goto(2);
+  saveState();
+  Toast.show({
+    msg:`🚫 เอา <b>${set.size}</b> ออเดอร์ออกจากการคำนวณแล้ว — กรุณาทำ step 3–6 ใหม่`,
+    type:'success', duration:9000,
+    action:{label:'↶ เลิกทำ', onClick:()=>{
+      parsedOrders=backupOrders; itemMappings=backupMaps;
+      try{ renderStep2(); }catch{}
+      goto(backupStep||2); saveState();
+      Toast.success('คืนออเดอร์กลับแล้ว');
+    }}
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
