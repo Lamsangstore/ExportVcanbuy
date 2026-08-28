@@ -2918,20 +2918,23 @@ function exportVcanbuyExcel(){
       const lc=ws['L'+r]; if(lc){ ws['L'+r]={...lc,t:'z',v:'',w:''}; delete ws['L'+r].f; delete ws['L'+r].F; }
       continue;
     }
-    const up=Math.round(item.unitPrice*100)/100;
+    // ราคา/หน่วย เก็บ full precision = ยอดรายการ ÷ จำนวน (แสดงผล 2 ตำแหน่งตาม format เดิม)
+    // → ROUND(K*I,2) = ยอดรายการของ Vcanbuy เป๊ะ ยอดรวมในไฟล์จึงตรงกับหน้าเว็บ
+    const lineTotal=r2(item.total);
+    const up=item.qty>0?lineTotal/item.qty:0;
     put('B',r-FIRST+1,'n');
     put('C',item.name,'s');
     put('I',item.qty,'n');
     put('J','ชิ้น','s');
     put('K',up,'n');
-    ws['K'+r].w=up.toFixed(2);
+    ws['K'+r].w=r2(up).toFixed(2);
     // L = ยอดรวมต่อรายการ (สูตรเดิมของ template)
-    ws['L'+r]={...(ws['L'+r]||{}),t:'n',f:`ROUND(K${r}*I${r},2)`,v:r2(item.qty*up)};
+    ws['L'+r]={...(ws['L'+r]||{}),t:'n',f:`ROUND(K${r}*I${r},2)`,v:lineTotal};
     delete ws['L'+r].F; delete ws['L'+r].w;
   }
 
   // สูตรสรุปท้ายตาราง — ชี้ช่วงใหม่ + อัปเดตค่า cache
-  const sumVal=rows7.reduce((s,it)=>s+r2(it.qty*(Math.round(it.unitPrice*100)/100)),0);
+  const sumVal=rows7.reduce((s,it)=>s+r2(it.total),0);
   const vatVal=r2(sumVal*0.07);
   const setFormula=(addr,f,v)=>{
     if(!ws[addr]) return;
