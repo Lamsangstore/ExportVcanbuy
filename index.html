@@ -2984,9 +2984,8 @@ function buildStep8(){
     unitPrice: 0  // กำหนดทีหลังแบบ code-level ให้ทุกสีเท่ากัน
   }));
 
-  // ราคาต่อชิ้นเท่ากันทุกสีในสินค้าเดียวกัน (code เดียวกัน)
-  // → unitPrice = r2(∑totalCost ของ code) / ∑qty ของ code
-  //   ทำให้ ∑(qty×unitPrice) ต่อ code = ยอด Vcanbuy ต่อ code เป๊ะ โดยไม่ต้องใส่เศษที่แถวใดแถวหนึ่ง
+  // ราคาต่อชิ้น 2 ตำแหน่ง และเท่ากันทุกสีในสินค้าเดียวกัน (code เดียวกัน)
+  // → unitPrice = r2(∑totalCost ของ code ÷ ∑qty ของ code) — ตรงกับราคาในฟอร์ม Vcanbuy (step 7)
   const byCode={};
   for(const it of list){
     if(!byCode[it.code]) byCode[it.code]=[];
@@ -2994,9 +2993,9 @@ function buildStep8(){
   }
   for(const code in byCode){
     const grp=byCode[code];
-    const target=r2(grp.reduce((s,x)=>s+x.totalCost,0));  // = ยอด Vcanbuy ต่อ code
+    const costSum=grp.reduce((s,x)=>s+x.totalCost,0);
     const qtySum=grp.reduce((s,x)=>s+x.qty,0);
-    const up=qtySum>0 ? target/qtySum : 0;                // full precision — เท่ากันทุกสี
+    const up=qtySum>0 ? r2(costSum/qtySum) : 0;   // 2 ตำแหน่ง — เท่ากันทุกสี
     grp.forEach(x=>{ x.unitPrice=up; });
   }
 
@@ -3046,7 +3045,7 @@ function exportPeakExcel(){
   // Inject data rows — 22 cols A-V ตรงตาม PEAK Import_PurchaseInventory
   rows8.forEach((r,i)=>{
     const row=i+2; // เริ่มที่ row 2
-    const up=r.unitPrice; // full precision — เก็บ residual ไว้ครบ ให้ qty×price ตรงกับ Vcanbuy เป๊ะ
+    const up=r2(r.unitPrice); // 2 ตำแหน่ง — ตรงกับที่แสดงบนเว็บและฟอร์ม Vcanbuy
 
     const setCell=(col,val,type,fmt)=>{
       const addr=col+row;
@@ -3068,7 +3067,7 @@ function exportPeakExcel(){
     setCell('L', 114102,     'n');          // บัญชี
     setCell('M', r.desc,     's');          // คำอธิบาย "B20 - Glowing Belt - (ดำ)"
     setCell('N', r.qty,      'n','0');      // จำนวน — ไม่ใส่ , ตามที่ Peak ต้องการ
-    setCell('O', up,         'n','0.0000'); // ราคาต่อหน่วย — ไม่ใส่ ,
+    setCell('O', up,         'n','0.00');   // ราคาต่อหน่วย 2 ตำแหน่ง — ไม่ใส่ ,
     setCell('P', 0.07,       'n','0%');    // อัตราภาษี 7%
     // Q หัก ณ ที่จ่าย — ว่าง
     setCell('R', 'ADV001',   's');          // ชำระโดย
