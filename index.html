@@ -4573,16 +4573,27 @@ let _vcbReady=false, _vcbBusy=false;
   if(a) a.href=`javascript:(()=>{const s=document.createElement('script');s.src='${location.origin}/vcb-pull.js?'+Date.now();document.body.appendChild(s);})()`;
 })();
 // ต่อข้อความใหม่ท้ายของเดิม — ข้ามก้อนที่มีอยู่แล้ว (ออเดอร์ / บิลซ้ำ)
-function _appendBlocks(oldText,newText,splitRe,keyRe){
-  const have=new Set([...oldText.matchAll(new RegExp(keyRe,'g'))].map(m=>m[1]));
+// upgrade(oldBlock,newBlock) = true → แทนที่ก้อนเดิมตรงตำแหน่งเดิม (เช่น ของเดิม copy มือ ของใหม่มีรูป/รหัส 1688)
+function _appendBlocks(oldText,newText,splitRe,keyRe,upgrade){
+  const oldBlocks=oldText.split(splitRe).map(b=>b.trim()).filter(Boolean);
+  const idx=new Map();
+  oldBlocks.forEach((b,i)=>{ const k=(b.match(keyRe)||[])[1]; if(k&&!idx.has(k)) idx.set(k,i); });
   const blocks=newText.split(splitRe).map(b=>b.trim()).filter(Boolean);
-  const add=blocks.filter(b=>{ const k=(b.match(keyRe)||[])[1]; return !k||!have.has(k); });
-  return {text:[oldText.trim(),...add].filter(Boolean).join('\n\n'),added:add.length,skipped:blocks.length-add.length};
+  const add=[]; let replaced=0, skipped=0;
+  for(const b of blocks){
+    const k=(b.match(keyRe)||[])[1];
+    if(!k||!idx.has(k)){ add.push(b); continue; }
+    if(upgrade&&upgrade(oldBlocks[idx.get(k)],b)){ oldBlocks[idx.get(k)]=b; replaced++; }
+    else skipped++;
+  }
+  return {text:[...oldBlocks,...add].join('\n\n'),added:add.length,replaced,skipped};
 }
 async function importFromVcanbuy(d){
   if(typeof d.orders!=='string'||typeof d.boxes!=='string'||!d.orders.trim()) throw new Error('ข้อมูลไม่ครบ');
   const elO=document.getElementById('inp-orders'), elB=document.getElementById('inp-boxes');
-  const o=_appendBlocks(elO.value,d.orders,/(?=เลขที่ออเดอร์:)/,/เลขที่ออเดอร์:\s*([A-Z0-9]+)/);
+  // ออเดอร์เดิมที่ copy มือ (ไม่มีรูป/รหัส 1688) → ใช้ข้อมูลที่ดึงใหม่แทน · ตัวเลขเหมือนเดิม ได้รูปเพิ่ม
+  const o=_appendBlocks(elO.value,d.orders,/(?=เลขที่ออเดอร์:)/,/เลขที่ออเดอร์:\s*([A-Z0-9]+)/,
+    (oldB,newB)=>/^@vcb /m.test(newB)&&!/^@vcb /m.test(oldB));
   const b=_appendBlocks(elB.value,d.boxes,/(?=เลขบิลขนส่ง[:\s]*TOUT)/,/เลขบิลขนส่ง[:\s]*(TOUT[A-Z0-9]+)/);
   elO.value=o.text;
   elB.value=b.text;
@@ -4595,6 +4606,7 @@ async function importFromVcanbuy(d){
   const bills=(d.bills||[]).map(x=>x.bill).filter(Boolean);
   Toast.show({
     msg:`📥 นำเข้าจาก Vcanbuy: ${bills.length} บิล (${bills.join(', ')}) · เพิ่ม ${o.added} ออเดอร์`+
+        (o.replaced?` · เติมรูป/รหัส 1688 ให้ออเดอร์เดิม ${o.replaced}`:'')+
         (o.skipped?` · ข้ามที่มีอยู่แล้ว ${o.skipped}`:'')+' — ข้อมูลกล่องพัสดุใส่ใน Step 5 แล้ว',
     type:'success',duration:9000
   });
