@@ -535,12 +535,16 @@ input[type=file]{display:none;}
 .map-tbl{width:100%;}
 .map-tbl td,.map-tbl th{padding:6px 12px;font-size:12px;vertical-align:middle;}
 .map-spec{font-size:12.5px;}
+.map-spec-cell{display:flex;align-items:center;gap:10px;}
+.map-spec-img{width:52px;height:52px;border-radius:8px;object-fit:cover;flex:none;background:var(--bg-hover);border:1px solid var(--border-sub);
+  transition:transform .15s;position:relative;z-index:1;}
+a:hover>.map-spec-img{transform:scale(3);z-index:20;box-shadow:0 8px 30px rgba(0,0,0,.25);}
 .map-row-todo{background:rgba(224,90,122,.04);}
 
 .hub-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--tx-secondary);margin-bottom:10px;}
 .hub-status:empty{display:none;}
 .sku-chip:has(img){display:inline-flex;align-items:center;gap:5px;white-space:nowrap;padding-left:3px;}
-.sku-chip img{display:inline-block;width:20px;height:20px;border-radius:50%;object-fit:cover;flex:none;}
+.sku-chip img{display:inline-block;width:30px;height:30px;border-radius:6px;object-fit:cover;flex:none;}
 .sku-chip.sku-inactive{opacity:.55;}
 
 /* ── BILL (TOUT) SELECTOR ── */
@@ -2189,7 +2193,12 @@ function renderAutoMapUI(){
         :list.map(sv=>`<button type="button" class="sku-chip${sv.sku===m.sku?' sku-chip-active':''}${sv.active===false?' sku-inactive':''}" title="${esc(sv.sku)}${sv.active===false?' (ปิดขาย)':''}"
             onclick="mapPickSku(${pi},${si},'${esc(sv.sku)}')">${sv.img?`<img src="${esc(sv.img)}" alt="" loading="lazy">`:''}${esc(sv.color||'(ไม่มีสี)')}</button>`).join('');
       return `<tr class="${done?'':'map-row-todo'}">
-        <td class="map-spec">${esc(S.label)}${S.entries.length>1?`<div class="map-muted">${S.entries.length} ออเดอร์</div>`:''}</td>
+        <td class="map-spec"><div class="map-spec-cell">
+          ${(()=>{ const img=S.entries.find(e=>e.item.img)?.item.img;
+            return img?`<a href="${esc(img)}" target="_blank" rel="noopener" title="รูปสีนี้จาก Vcanbuy — กดดูรูปใหญ่"><img class="map-spec-img" src="${esc(img)}" referrerpolicy="no-referrer" loading="lazy" alt=""></a>`
+              :'<div class="map-spec-img map-img-empty" title="ไม่มีรูป — ใช้ปุ่มดึงข้อมูล Vcanbuy จะได้รูป">📷</div>'; })()}
+          <div>${esc(S.label)}${S.entries.length>1?`<div class="map-muted">${S.entries.length} ออเดอร์</div>`:''}</div>
+        </div></td>
         <td class="ncell">${S.qty.toLocaleString()}</td>
         <td>${status}</td>
         <td><div class="sku-chips">${chips}</div></td>
