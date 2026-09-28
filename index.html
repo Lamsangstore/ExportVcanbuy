@@ -548,6 +548,9 @@ a:hover>.map-spec-img{transform:scale(3);z-index:20;box-shadow:0 8px 30px rgba(0
 .sku-chip img{display:inline-block;width:30px;height:30px;border-radius:6px;object-fit:cover;flex:none;}
 .sku-chip.sku-inactive{opacity:.55;}
 
+#stepper [hidden],#start-continue[hidden]{display:none!important;}
+.start-steps{margin:0 0 14px 20px;padding:0;list-style:decimal;font-size:13px;line-height:1.9;color:var(--tx-primary);}
+
 /* ── BILL (TOUT) SELECTOR ── */
 .bill-bar{margin-bottom:14px;}
 .bill-bar-title{font-size:12px;font-weight:600;color:var(--tx-secondary);margin-bottom:8px;}
@@ -1030,19 +1033,13 @@ kbd{
 
   <nav style="flex:1;display:flex;flex-direction:column;gap:2px;">
     <div onclick="goto(1)" class="sidebar-item" data-step="1" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
-      <span class="material-symbols-outlined" style="font-size:18px;">receipt_long</span><span>คำสั่งสั่งซื้อ</span>
-    </div>
-    <div onclick="goto(2)" class="sidebar-item" data-step="2" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
-      <span class="material-symbols-outlined" style="font-size:18px;">list_alt</span><span>ข้อมูล Order</span>
+      <span class="material-symbols-outlined" style="font-size:18px;">download</span><span>ดึงข้อมูล Vcanbuy</span>
     </div>
     <div onclick="goto(3)" class="sidebar-item" data-step="3" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
       <span class="material-symbols-outlined" style="font-size:18px;">manage_search</span><span>จับคู่ SKU</span>
     </div>
     <div onclick="goto(4)" class="sidebar-item" data-step="4" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
       <span class="material-symbols-outlined" style="font-size:18px;">analytics</span><span>ผลลัพธ์เบื้องต้น</span>
-    </div>
-    <div onclick="goto(5)" class="sidebar-item" data-step="5" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
-      <span class="material-symbols-outlined" style="font-size:18px;">inventory_2</span><span>กล่องพัสดุ</span>
     </div>
     <div onclick="goto(6)" class="sidebar-item" data-step="6" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
       <span class="material-symbols-outlined" style="font-size:18px;">task_alt</span><span>ผลลัพธ์สุดท้าย</span>
@@ -1071,43 +1068,43 @@ kbd{
   </button>
   <!-- stepper -->
   <div id="stepper" style="display:flex;align-items:center;gap:2px;overflow-x:auto;">
-    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-1" onclick="goto(1)">
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-1" onclick="goto(1)" hidden>
       <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">1</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">คำสั่งซื้อ</span>
     </button>
-    <div class="step-connector" id="sc-1"></div>
-    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-2" onclick="goto(2)">
+    <div class="step-connector" id="sc-1" hidden></div>
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-2" onclick="goto(2)" hidden>
       <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">2</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Orders</span>
     </button>
-    <div class="step-connector" id="sc-2"></div>
+    <div class="step-connector" id="sc-2" hidden></div>
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-3" onclick="goto(3)">
-      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">3</span></div>
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">1</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Map SKU</span>
     </button>
     <div class="step-connector" id="sc-3"></div>
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-4" onclick="goto(4)">
-      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">4</span></div>
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">2</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">เบื้องต้น</span>
     </button>
     <div class="step-connector" id="sc-4"></div>
-    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-5" onclick="goto(5)">
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-5" onclick="goto(5)" hidden>
       <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">5</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">กล่องพัสดุ</span>
     </button>
-    <div class="step-connector" id="sc-5"></div>
+    <div class="step-connector" id="sc-5" hidden></div>
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-6" onclick="goto(6)">
-      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">6</span></div>
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">3</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">สุดท้าย</span>
     </button>
     <div class="step-connector" id="sc-6"></div>
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-7" onclick="goto(7)">
-      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">7</span></div>
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">4</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">VCANBUY</span>
     </button>
     <div class="step-connector" id="sc-7"></div>
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-8" onclick="goto(8)">
-      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">8</span></div>
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">5</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Peak</span>
     </button>
   </div>
@@ -1222,14 +1219,20 @@ kbd{
 <!-- ══════════ STEP 1: คำสั่งสั่งซื้อ ══════════ -->
 <div class="panel active py-2" id="p1">
   <div class="glass-effect rounded-xl p-5 mb-5">
-    <div class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--tx-primary);">📋 วางข้อมูลคำสั่งสั่งซื้อจาก VCANBUY</div>
-    <div class="alert alert-info" style="margin-bottom:12px;"><span>💡</span><span>Copy ข้อความ <b>หรือ</b> อัพโหลด/วาง screenshot ก็ได้ — รองรับหลาย Order พร้อมกัน</span></div>
+    <div class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--tx-primary);">📦 ดึงข้อมูลจาก VCANBUY</div>
+    <ol class="start-steps">
+      <li>ลากปุ่ม <b>📦 ดึงข้อมูล Vcanbuy</b> ด้านล่างไปวางที่แถบ Bookmark ของ Chrome (ทำครั้งเดียว · กด ⌘⇧B ถ้าไม่เห็นแถบ)</li>
+      <li>เปิดเว็บ www.vcanbuy.com (ล็อกอิน) แล้วกดปุ่มนั้น → เลือกบิลขนส่ง (TOUT…) → <b>ดึงข้อมูล → เปิดแอป</b></li>
+      <li>แอปพาไปหน้า <b>Map SKU</b> ให้เอง พร้อมข้อมูลกล่องพัสดุ</li>
+    </ol>
     <div class="alert alert-success" style="margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
       <span>⚡</span>
       <span style="flex:1;min-width:220px;"><b>ดึงอัตโนมัติจาก Vcanbuy</b> — ลากปุ่มนี้ไปวางที่แถบ Bookmark ครั้งเดียว แล้วกดปุ่มนั้นตอนเปิดเว็บ Vcanbuy → เลือกบิลขนส่ง (TOUT…) → ข้อมูลออเดอร์ + กล่องพัสดุเข้ามาเอง</span>
       <a id="vcb-pull-link" class="vcb-pull-link" href="#" onclick="event.preventDefault();alert('ลากปุ่มนี้ไปวางที่แถบ Bookmark ของ Chrome (กด ⌘⇧B ถ้าไม่เห็นแถบ) แล้วกดปุ่มนั้นตอนอยู่บนเว็บ www.vcanbuy.com');">📦 ดึงข้อมูล Vcanbuy</a>
     </div>
 
+    <!-- วางข้อความ/รูปเอง — เลิกใช้แล้ว (ใช้ปุ่มดึงข้อมูล Vcanbuy) · เก็บ element ไว้เพราะ state ยังอ่าน/เขียนช่องนี้ -->
+    <div hidden>
     <div class="shot-uploader" id="shot-uploader">
       <div class="shot-uploader-bar">
         <button class="shot-btn primary" onclick="document.getElementById('shot-file-input').click()">
@@ -1256,11 +1259,10 @@ kbd{
     </div>
 
     <textarea id="inp-orders" rows="14" placeholder="วางข้อมูลคำสั่งสั่งซื้อที่นี่...&#10;&#10;เลขที่ออเดอร์: XLY260330100427&#10;韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发&#10;深咖Deep,&#10;深咖Deep,&#10;฿20.96  100  ฿7334.6&#10;..."></textarea>
+    </div>
     <div id="alert-1" style="margin-top:10px;"></div>
-    <div id="alert-1-exported"></div>
     <div class="action-row">
-      <button class="btn btn-primary" onclick="doStep1()">▶ ประมวลผล →</button>
-      <button class="btn btn-outline btn-sm" onclick="loadDemo()">📄 โหลดตัวอย่าง</button>
+      <button class="btn btn-primary" onclick="goto(3)" id="start-continue" hidden>▶ ไปจับคู่ SKU →</button>
       <button class="btn btn-outline btn-sm" onclick="clearAll()" style="color:var(--tx-error);border-color:rgba(224,90,122,.2);">🗑 ล้างข้อมูลทั้งหมด</button>
     </div>
   </div>
@@ -1285,13 +1287,14 @@ kbd{
       <span>💡</span>
       <span>จับคู่ตาม <b>สินค้า (รหัส 1688 · ร้าน · ชื่อสินค้า)</b> + <b>สเปกสี/ไซส์</b> จาก Vcanbuy — เลือกรุ่นของเราครั้งเดียวต่อสินค้า แล้วยืนยันสี · ยืนยันแล้วระบบจำไว้ ครั้งหน้าจับคู่ให้เอง (🧠) · 💡 = เดาจากข้อมูลเก่า ต้องกดยืนยัน</span>
     </div>
+    <div id="alert-1-exported"></div>
     <div id="hub-status" class="hub-status"></div>
     <div id="alert-3" style="margin-top:0;margin-bottom:10px;"></div>
     <!-- Auto-map result cards -->
     <div id="automap-list"></div>
     <div class="action-row" style="margin-top:14px;">
       <button class="btn btn-primary" onclick="buildAndGoStep4()">▶ ยืนยัน &amp; ไปขั้นตอน 4 →</button>
-      <button class="btn btn-outline btn-sm" onclick="goto(2)">← กลับ</button>
+      <button class="btn btn-outline btn-sm" onclick="goto(1)">← ดึงข้อมูล</button>
       <button class="btn btn-outline btn-sm" onclick="forgetLearnedMappings()"
         title="ลืมการจับคู่ที่ระบบจำไว้ แล้วจับคู่ใหม่ทั้งหมด">🧠 ล้างความจำการจับคู่</button>
     </div>
@@ -1363,7 +1366,7 @@ kbd{
     </div>
   </div>
   <div class="action-row">
-    <button class="btn btn-primary" onclick="goto(5)">▶ ถัดไป: ใส่ข้อมูลกล่องพัสดุ →</button>
+    <button class="btn btn-primary" onclick="doStep5()">▶ ถัดไป: ผลลัพธ์สุดท้าย →</button>
     <button class="btn btn-outline btn-sm" onclick="goto(3)">← กลับ</button>
   </div>
 </div>
@@ -1409,7 +1412,7 @@ kbd{
     <button class="btn btn-success" onclick="exportAll()" style="font-size:13px;font-weight:600;">📋 ดูผลลัพธ์ทั้ง 2 Export</button>
     <button class="btn btn-primary" onclick="buildStep7();goto(7)">▶ Export to VCANBUY →</button>
     <button class="btn btn-primary" style="background:linear-gradient(135deg,var(--teal),var(--teal2));" onclick="buildStep8();goto(8)">▶ Export to Peak →</button>
-    <button class="btn btn-outline btn-sm" onclick="goto(5)">← กลับ</button>
+    <button class="btn btn-outline btn-sm" onclick="goto(4)">← กลับ</button>
     <button class="btn btn-outline" onclick="goto(1)">🔄 เริ่มใหม่</button>
   </div>
 </div>
@@ -1698,7 +1701,13 @@ function saveStorage(){
 // saveStorage defined below
 
 // ── Navigation
+// ขั้น 2 (ดูออเดอร์) และ 5 (วางกล่องพัสดุ) ไม่มีแล้ว — ข้อมูลมาจากปุ่มดึงข้อมูล Vcanbuy
+const VISIBLE_STEPS=[3,4,6,7,8];
 function goto(n){
+  if(n===2) n=3;
+  if(n===5) return doStep5();                    // อ่านข้อมูลกล่องพัสดุแล้วไปผลลัพธ์สุดท้ายเลย
+  if(n>=3&&!parsedOrders.length) n=1;            // ยังไม่มีข้อมูล → หน้าดึงข้อมูล
+  const sc=document.getElementById('start-continue'); if(sc) sc.hidden=!parsedOrders.length;
   for(let i=1;i<=8;i++){
     const p=document.getElementById('p'+i);
     if(p) p.classList.toggle('active',i===n);
@@ -1716,9 +1725,9 @@ function goto(n){
   }
   currentStep=n;
 
-  // Progress bar in topbar (8 steps → each is 12.5%)
+  // Progress bar in topbar — นับเฉพาะขั้นที่เห็น
   const bar=document.getElementById('step-progress-bar');
-  if(bar) bar.style.width=((n/8)*100)+'%';
+  if(bar) bar.style.width=(n===1?0:((VISIBLE_STEPS.indexOf(n)+1)/VISIBLE_STEPS.length)*100)+'%';
 
   // Flash overlay
   const ov=document.getElementById('page-overlay');
@@ -4410,15 +4419,15 @@ function removeOrdersFromCalc(ids){
   rows4=[];rows6=[];
   resetDataUI();
   try{ renderStep2(); }catch{}
-  goto(2);
+  goto(3);
   saveState();
   Toast.show({
-    msg:`🚫 เอา <b>${set.size}</b> ออเดอร์ออกจากการคำนวณแล้ว — กรุณาทำ step 3–6 ใหม่`,
+    msg:`🚫 เอา <b>${set.size}</b> ออเดอร์ออกจากการคำนวณแล้ว — จับคู่ SKU แล้วคำนวณใหม่`,
     type:'success', duration:9000,
     action:{label:'↶ เลิกทำ', onClick:()=>{
       parsedOrders=backupOrders; itemMappings=backupMaps;
       try{ renderStep2(); }catch{}
-      goto(backupStep||2); saveState();
+      goto(backupStep||3); saveState();
       Toast.success('คืนออเดอร์กลับแล้ว');
     }}
   });
