@@ -1310,7 +1310,7 @@ kbd{
     <button class="btn btn-primary bill-all-btn" onclick="exportPeakAllBills()" style="display:none;">
       ⬇️ ทุกบิล (ไฟล์เดียว · แยกเอกสารตามบิล)
     </button>
-    <button class="btn btn-outline" onclick="sendCostsToHub()" title="ส่งต้นทุนต่อชิ้นของบิลนี้เข้า Salepage (lamsangstore.com) — ทับค่าเดิม">
+    <button class="btn btn-outline" onclick="sendCostsToHub()" title="ส่งต้นทุนต่อชิ้นแบบรวม VAT 7% ของบิลนี้เข้า Salepage (lamsangstore.com) — ทับค่าเดิม">
       📤 ส่งต้นทุนเข้า Salepage <span class="bill-btn-label"></span>
     </button>
     <button class="btn btn-outline bill-all-btn" onclick="sendCostsToHub(getBillGroups().map(g=>g.key))" style="display:none;" title="SKU ที่อยู่หลายบิลใช้ต้นทุนของบิลล่าสุด">
@@ -3891,6 +3891,9 @@ function hubWriteKey(forcePrompt){
   }
   return k;
 }
+// ต้นทุนที่ส่งเข้า Salepage = ราคาต่อชิ้นแบบรวม VAT 7% (ราคาใน Peak/ฟอร์ม VCANBUY เป็นก่อน VAT)
+const COST_VAT_RATE=0.07;
+const costInclVat=unit=>r2(r2(unit)*(1+COST_VAT_RATE));
 // keys = บิลที่จะส่ง · SKU ซ้ำหลายบิลใช้ต้นทุนของบิลที่เปิดล่าสุด (ต้นทุนล่าสุดทับค่าเดิม)
 async function sendCostsToHub(keys){
   if(!keys){ _ensureCurBill(); keys=[curBill]; }
@@ -3898,13 +3901,13 @@ async function sendCostsToHub(keys){
   const dateOf=k=>k==='*'?'':(groups.find(g=>g.key===k)?.date||'');
   const latest={};
   for(const k of [...keys].sort((a,b)=>dateOf(a).localeCompare(dateOf(b)))){
-    for(const r of computeRows8(rowsOfBill(k))) if(r.sku&&r.unitPrice>0) latest[r.sku]={sku:r.sku,cost:r2(r.unitPrice),desc:r.desc};
+    for(const r of computeRows8(rowsOfBill(k))) if(r.sku&&r.unitPrice>0) latest[r.sku]={sku:r.sku,cost:costInclVat(r.unitPrice),exVat:r2(r.unitPrice),desc:r.desc};
   }
   const items=Object.values(latest);
   if(!items.length){ alert('ไม่มีรายการที่มี SKU'); return; }
   const ref=keys.filter(k=>k&&k!=='*').join(', ');
-  if(!confirm(`ส่งต้นทุนต่อชิ้นล่าสุด ${items.length} SKU เข้า Salepage?\n${ref?'บิล: '+ref+'\n':''}\n`+
-    items.slice(0,12).map(i=>`${i.desc} = ฿${fmt(i.cost)}`).join('\n')+(items.length>12?`\n… และอีก ${items.length-12} SKU`:'')+
+  if(!confirm(`ส่งต้นทุนต่อชิ้นล่าสุด (รวม VAT 7%) ${items.length} SKU เข้า Salepage?\n${ref?'บิล: '+ref+'\n':''}\n`+
+    items.slice(0,12).map(i=>`${i.desc} = ฿${fmt(i.cost)} (ก่อน VAT ฿${fmt(i.exVat)})`).join('\n')+(items.length>12?`\n… และอีก ${items.length-12} SKU`:'')+
     '\n\n(ต้นทุนล่าสุดจะทับค่าเดิมใน Salepage)')) return;
   const key=hubWriteKey(false); if(!key) return;
   try{
