@@ -16,7 +16,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
@@ -148,7 +147,6 @@ body.dark .session-row{background:#2a2236;}
 body.dark .session-row.active{background:rgba(192,132,176,.2);}
 body.dark table{color:var(--tx-primary);}
 body.dark thead th{background:#251c30!important;color:var(--tx-secondary);}
-body.dark .shot-uploader{background:rgba(42,34,54,.5);}
 body.dark .shot-btn{background:#322840;color:var(--tx-primary);}
 body.dark .sku-chip{background:#251c30;color:var(--tx-secondary);}
 :root{
@@ -873,7 +871,6 @@ kbd{
   .vcb-modal{padding:18px;width:94vw;}
   #toast-container{left:10px;right:10px;bottom:10px;max-width:none;}
   .bulk-bar{font-size:11px;padding:8px;}
-  .shot-uploader{padding:10px;}
   .glass-effect{padding:12px!important;}
   .text-xs.font-bold.hidden{display:none!important;}
   table{font-size:11px;}
@@ -890,19 +887,6 @@ kbd{
 .sidebar-overlay.show{display:block;}
 
 /* ── SCREENSHOT UPLOADER ── */
-.shot-uploader{
-  border:1.5px dashed rgba(192,132,176,.35);
-  border-radius:12px;padding:14px;
-  background:rgba(250,244,255,.45);
-  margin-bottom:12px;transition:all .2s;
-}
-.shot-uploader.dragging{
-  border-color:var(--accent);background:rgba(192,132,176,.12);
-  box-shadow:0 0 0 4px rgba(192,132,176,.12);
-}
-.shot-uploader-bar{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;
-}
 .shot-btn{
   display:inline-flex;align-items:center;gap:5px;
   padding:6px 12px;border-radius:8px;
@@ -914,39 +898,6 @@ kbd{
 .shot-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
 .shot-btn.primary:hover{background:#a86b9d;color:#fff;}
 .shot-btn:disabled{opacity:.5;cursor:not-allowed;}
-.shot-hint{font-size:11px;color:var(--tx-muted);}
-.shot-thumbs{display:flex;flex-wrap:wrap;gap:8px;}
-.shot-thumb{
-  position:relative;width:78px;height:78px;border-radius:8px;
-  overflow:hidden;border:1px solid rgba(192,132,176,.2);
-  background:#fff;flex-shrink:0;
-}
-.shot-thumb img{width:100%;height:100%;object-fit:cover;}
-.shot-thumb .x-btn{
-  position:absolute;top:2px;right:2px;
-  width:20px;height:20px;border-radius:50%;
-  background:rgba(0,0,0,.55);color:#fff;border:none;cursor:pointer;
-  font-size:12px;display:flex;align-items:center;justify-content:center;
-  transition:all .15s;
-}
-.shot-thumb .x-btn:hover{background:var(--tx-error);}
-.shot-thumb .status{
-  position:absolute;bottom:0;left:0;right:0;
-  font-size:9px;text-align:center;padding:2px;
-  background:rgba(0,0,0,.55);color:#fff;
-}
-.shot-thumb .status.done{background:rgba(45,170,106,.85);}
-.shot-thumb .status.error{background:rgba(224,90,122,.85);}
-.shot-thumb .status.processing{background:rgba(220,170,80,.85);}
-.shot-progress{
-  margin-top:8px;height:4px;border-radius:2px;
-  background:rgba(192,132,176,.15);overflow:hidden;display:none;
-}
-.shot-progress-bar{
-  height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));
-  width:0%;transition:width .25s;
-}
-.shot-status-text{font-size:11px;color:var(--tx-secondary);margin-top:4px;}
 
 /* ── SECTION HEADERS ── */
 .result-title{
@@ -1038,9 +989,6 @@ kbd{
     <div onclick="goto(3)" class="sidebar-item" data-step="3" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
       <span class="material-symbols-outlined" style="font-size:18px;">manage_search</span><span>จับคู่ SKU</span>
     </div>
-    <div onclick="goto(4)" class="sidebar-item" data-step="4" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
-      <span class="material-symbols-outlined" style="font-size:18px;">analytics</span><span>ผลลัพธ์เบื้องต้น</span>
-    </div>
     <div onclick="goto(6)" class="sidebar-item" data-step="6" style="display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;">
       <span class="material-symbols-outlined" style="font-size:18px;">task_alt</span><span>ผลลัพธ์สุดท้าย</span>
     </div>
@@ -1083,28 +1031,28 @@ kbd{
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Map SKU</span>
     </button>
     <div class="step-connector" id="sc-3"></div>
-    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-4" onclick="goto(4)">
+    <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-4" onclick="goto(4)" hidden>
       <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">2</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">เบื้องต้น</span>
     </button>
-    <div class="step-connector" id="sc-4"></div>
+    <div class="step-connector" id="sc-4" hidden></div>
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-5" onclick="goto(5)" hidden>
       <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">5</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">กล่องพัสดุ</span>
     </button>
     <div class="step-connector" id="sc-5" hidden></div>
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-6" onclick="goto(6)">
-      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">3</span></div>
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">2</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">สุดท้าย</span>
     </button>
     <div class="step-connector" id="sc-6"></div>
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-7" onclick="goto(7)">
-      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">4</span></div>
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">3</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">VCANBUY</span>
     </button>
     <div class="step-connector" id="sc-7"></div>
     <button class="step-btn" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;cursor:pointer;border:none;background:transparent;" id="stab-8" onclick="goto(8)">
-      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">5</span></div>
+      <div class="stab-circle" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"><span class="step-num">4</span></div>
       <span class="stab-label" style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">Peak</span>
     </button>
   </div>
@@ -1231,51 +1179,16 @@ kbd{
       <a id="vcb-pull-link" class="vcb-pull-link" href="#" onclick="event.preventDefault();alert('ลากปุ่มนี้ไปวางที่แถบ Bookmark ของ Chrome (กด ⌘⇧B ถ้าไม่เห็นแถบ) แล้วกดปุ่มนั้นตอนอยู่บนเว็บ www.vcanbuy.com');">📦 ดึงข้อมูล Vcanbuy</a>
     </div>
 
-    <!-- วางข้อความ/รูปเอง — เลิกใช้แล้ว (ใช้ปุ่มดึงข้อมูล Vcanbuy) · เก็บ element ไว้เพราะ state ยังอ่าน/เขียนช่องนี้ -->
+    <!-- ข้อความดิบจากปุ่มดึงข้อมูล Vcanbuy — ไม่แสดงบนจอ แต่ state/cloud เก็บข้อมูลผ่านช่องนี้ -->
     <div hidden>
-    <div class="shot-uploader" id="shot-uploader">
-      <div class="shot-uploader-bar">
-        <button class="shot-btn primary" onclick="document.getElementById('shot-file-input').click()">
-          <span class="material-symbols-outlined" style="font-size:16px;">add_photo_alternate</span>
-          เลือก Screenshot
-        </button>
-        <input type="file" id="shot-file-input" accept="image/*" multiple style="display:none;" onchange="OCR.addFiles(this.files);this.value='';">
-        <button class="shot-btn" onclick="OCR.pasteFromClipboard()" title="หรือกด Ctrl+V บนหน้าเพจ">
-          <span class="material-symbols-outlined" style="font-size:16px;">content_paste</span>
-          วางจาก Clipboard
-        </button>
-        <button class="shot-btn" onclick="OCR.run()" id="shot-run-btn" disabled>
-          <span class="material-symbols-outlined" style="font-size:16px;">document_scanner</span>
-          อ่านรูปทั้งหมด
-        </button>
-        <button class="shot-btn" onclick="OCR.clear()" id="shot-clear-btn" disabled style="margin-left:auto;color:var(--tx-error);">
-          <span class="material-symbols-outlined" style="font-size:16px;">delete_sweep</span>
-        </button>
-      </div>
-      <div class="shot-thumbs" id="shot-thumbs"></div>
-      <div class="shot-hint" id="shot-hint">📌 ลากรูปมาวางตรงนี้ก็ได้ · กด Ctrl+V เพื่อวาง screenshot จาก clipboard · รองรับจีน/ไทย/อังกฤษ</div>
-      <div class="shot-progress" id="shot-progress"><div class="shot-progress-bar" id="shot-progress-bar"></div></div>
-      <div class="shot-status-text" id="shot-status-text"></div>
-    </div>
-
-    <textarea id="inp-orders" rows="14" placeholder="วางข้อมูลคำสั่งสั่งซื้อที่นี่...&#10;&#10;เลขที่ออเดอร์: XLY260330100427&#10;韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发&#10;深咖Deep,&#10;深咖Deep,&#10;฿20.96  100  ฿7334.6&#10;..."></textarea>
+<textarea id="inp-orders" rows="14" placeholder="วางข้อมูลคำสั่งสั่งซื้อที่นี่...&#10;&#10;เลขที่ออเดอร์: XLY260330100427&#10;韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发&#10;深咖Deep,&#10;深咖Deep,&#10;฿20.96  100  ฿7334.6&#10;..."></textarea>
+    <textarea id="inp-boxes" rows="12" placeholder="วางข้อมูลกล่องพัสดุที่นี่...&#10;&#10;ตัวอย่าง:&#10;ออเดอร์ XLY260222100104&#10;เลขซื้อออเดอร์/กล่องพัสดุ: นำมูลค่าตามบิลสินค้าจีน-ไทย...&#10;กล่อง CX26031900..."></textarea>
     </div>
     <div id="alert-1" style="margin-top:10px;"></div>
     <div class="action-row">
       <button class="btn btn-primary" onclick="goto(3)" id="start-continue" hidden>▶ ไปจับคู่ SKU →</button>
       <button class="btn btn-outline btn-sm" onclick="clearAll()" style="color:var(--tx-error);border-color:rgba(224,90,122,.2);">🗑 ล้างข้อมูลทั้งหมด</button>
     </div>
-  </div>
-</div>
-
-<!-- ══════════ STEP 2: แสดงข้อมูล Order ══════════ -->
-<div class="panel py-2" id="p2">
-  <div id="alert-2" style="margin-bottom:12px;"></div>
-  <div class="result-title text-base font-bold mb-3 flex items-center gap-2">📦 ข้อมูลในคำสั่งสั่งซื้อ <span id="order-count-badge" class="tag" style="margin-left:4px;"></span></div>
-  <div id="orders-display"></div>
-  <div class="action-row">
-    <button class="btn btn-primary" onclick="goto(3)">▶ ถัดไป: ใส่ชื่อสินค้า →</button>
-    <button class="btn btn-outline btn-sm" onclick="goto(1)">← กลับ</button>
   </div>
 </div>
 
@@ -1293,97 +1206,15 @@ kbd{
     <!-- Auto-map result cards -->
     <div id="automap-list"></div>
     <div class="action-row" style="margin-top:14px;">
-      <button class="btn btn-primary" onclick="buildAndGoStep4()">▶ ยืนยัน &amp; ไปขั้นตอน 4 →</button>
+      <button class="btn btn-primary" onclick="buildAndGoStep4()">▶ ยืนยัน &amp; ดูผลลัพธ์ →</button>
       <button class="btn btn-outline btn-sm" onclick="goto(1)">← ดึงข้อมูล</button>
       <button class="btn btn-outline btn-sm" onclick="forgetLearnedMappings()"
         title="ลืมการจับคู่ที่ระบบจำไว้ แล้วจับคู่ใหม่ทั้งหมด">🧠 ล้างความจำการจับคู่</button>
     </div>
   </div>
 
-  <!-- SKU Management -->
-  <div class="glass-effect rounded-xl p-5 mb-5">
-    <div class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--tx-primary);" style="justify-content:space-between;">
-      <span>🗂 จัดการ SKU Mapping</span>
-      <div style="display:flex;gap:6px;">
-        <button class="btn btn-outline btn-sm" onclick="exportSku()">⬇️ Export Excel</button>
-        <label class="btn btn-outline btn-sm" style="cursor:pointer;">⬆️ Import Excel<input type="file" accept=".xlsx,.json" onchange="importSku(event)" style="display:none;"></label>
-        <button class="btn btn-outline btn-sm" onclick="resetSku()" style="color:var(--tx-muted);">↺ Reset</button>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:80px 160px 110px 75px 1fr 1fr auto;gap:6px;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:8px;">
-      <input id="nw-code" placeholder="รหัส (B21)">
-      <input id="nw-sku" placeholder="SKU (B1732...)">
-      <input id="nw-name" placeholder="ชื่อสินค้า">
-      <input id="nw-color" placeholder="สี">
-      <input id="nw-cn1" placeholder="ชื่อจีน 1">
-      <input id="nw-cn2" placeholder="ชื่อจีน 2">
-      <button class="btn btn-success btn-sm" onclick="addSkuRow()">+ เพิ่ม</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-      <span class="material-symbols-outlined" style="font-size:16px;color:var(--tx-muted);">search</span>
-      <input type="text" id="sku-search" placeholder="ค้นหา SKU / รหัส / สี / ชื่อจีน..."
-        oninput="renderSkuTable()" style="flex:1;font-size:12px;padding:6px 10px;">
-      <span class="t-caption" id="sku-count" style="color:var(--tx-muted);"></span>
-    </div>
-    <div class="sku-tbl-wrap">
-      <table>
-        <thead><tr>
-          <th style="width:75px;">รหัสสินค้า</th>
-          <th style="min-width:175px;">SKU</th>
-          <th style="min-width:100px;">ชื่อสินค้า</th>
-          <th style="min-width:75px;">สี</th>
-          <th style="min-width:150px;">ชื่อจีน 1</th>
-          <th style="min-width:150px;">ชื่อจีน 2</th>
-          <th style="width:40px;"></th>
-        </tr></thead>
-        <tbody id="sku-tbody"></tbody>
-      </table>
-    </div>
-  </div>
 </div>
 
-
-<!-- ══════════ STEP 4: ผลลัพธ์เบื้องต้น ══════════ -->
-<div class="panel py-2" id="p4">
-  <div id="alert-4" style="margin-bottom:12px;"></div>
-  <div class="result-title text-base font-bold mb-3 flex items-center gap-2">📊 ผลลัพธ์เบื้องต้น (ก่อนข้อมูลกล่องพัสดุ)</div>
-  <div class="tbl-wrap">
-    <table id="tbl-4">
-      <thead><tr>
-        <th>Order</th><th>เลขกล่องพัสดุ</th><th>รหัสสินค้า</th><th>SKU</th>
-        <th>ชื่อสินค้า</th><th>สี</th><th>จำนวน</th>
-        <th>ราคา/ชิ้น(฿)</th><th>ขนส่งจีน-จีน</th><th>ค่าบริการ</th>
-        <th>ราคาชิ้นละ(หลังรวม)</th><th>ราคารวมสุทธิ</th>
-      </tr></thead>
-      <tbody id="tbody-4"></tbody>
-    </table>
-  </div>
-  <div class="copy-bar">
-    <span id="sum-4" style="color:var(--tx-secondary);"></span>
-    <div style="display:flex;gap:6px;">
-      <button class="btn btn-outline btn-sm" onclick="copyTSV(4)" title="Copy Tab-separated สำหรับ Google Sheets">📋 Copy TSV</button>
-      <button class="btn btn-success btn-sm" onclick="dlXLSX(4)">⬇️ Excel (.xlsx)</button>
-    </div>
-  </div>
-  <div class="action-row">
-    <button class="btn btn-primary" onclick="doStep5()">▶ ถัดไป: ผลลัพธ์สุดท้าย →</button>
-    <button class="btn btn-outline btn-sm" onclick="goto(3)">← กลับ</button>
-  </div>
-</div>
-
-<!-- ══════════ STEP 5: กล่องพัสดุ ══════════ -->
-<div class="panel py-2" id="p5">
-  <div class="glass-effect rounded-xl p-5 mb-5">
-    <div class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--tx-primary);">📦 วางข้อมูลกล่องพัสดุ</div>
-    <div class="alert alert-info" style="margin-bottom:12px;"><span>💡</span><span>Copy ข้อมูลกล่องพัสดุจาก VCANBUY — ค่าขนส่งจีน-ไทย ค่าบริการนำส่ง ค่าบรรจุภัณฑ์</span></div>
-    <textarea id="inp-boxes" rows="12" placeholder="วางข้อมูลกล่องพัสดุที่นี่...&#10;&#10;ตัวอย่าง:&#10;ออเดอร์ XLY260222100104&#10;เลขซื้อออเดอร์/กล่องพัสดุ: นำมูลค่าตามบิลสินค้าจีน-ไทย...&#10;กล่อง CX26031900..."></textarea>
-    <div id="alert-5" style="margin-top:10px;"></div>
-    <div class="action-row">
-      <button class="btn btn-primary" onclick="doStep5()">▶ ประมวลผล &amp; ดูผลลัพธ์สุดท้าย →</button>
-      <button class="btn btn-outline btn-sm" onclick="goto(4)">← กลับ</button>
-    </div>
-  </div>
-</div>
 
 <!-- ══════════ STEP 6: ผลลัพธ์สุดท้าย ══════════ -->
 <div class="panel py-2" id="p6">
@@ -1403,16 +1234,11 @@ kbd{
   </div>
   <div class="copy-bar">
     <span id="sum-6" style="color:var(--tx-secondary);"></span>
-    <div style="display:flex;gap:6px;">
-      <button class="btn btn-outline btn-sm" onclick="copyTSV(6)" title="Copy Tab-separated สำหรับ Google Sheets">📋 Copy TSV</button>
-      <button class="btn btn-success btn-sm" onclick="dlXLSX(6)">⬇️ Excel (.xlsx)</button>
-    </div>
   </div>
   <div class="action-row">
-    <button class="btn btn-success" onclick="exportAll()" style="font-size:13px;font-weight:600;">📋 ดูผลลัพธ์ทั้ง 2 Export</button>
     <button class="btn btn-primary" onclick="buildStep7();goto(7)">▶ Export to VCANBUY →</button>
     <button class="btn btn-primary" style="background:linear-gradient(135deg,var(--teal),var(--teal2));" onclick="buildStep8();goto(8)">▶ Export to Peak →</button>
-    <button class="btn btn-outline btn-sm" onclick="goto(4)">← กลับ</button>
+    <button class="btn btn-outline btn-sm" onclick="goto(3)">← Map SKU</button>
     <button class="btn btn-outline" onclick="goto(1)">🔄 เริ่มใหม่</button>
   </div>
 </div>
@@ -1442,46 +1268,6 @@ kbd{
   </div>
   <div class="copy-bar">
     <span id="sum-7"></span>
-  </div>
-
-  <!-- สรุปคำสั่งซื้อทั้งหมด — Order Summary Table -->
-  <div class="glass-effect rounded-xl p-4 mb-4" style="margin-top:16px;">
-    <div class="card-title" style="margin-bottom:10px;justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="material-symbols-outlined" style="color:var(--accent);font-size:18px;">receipt_long</span>
-        <span>สรุปรายการทั้งหมด</span>
-        <span id="order-summary-count" class="tag tag-blue"></span>
-      </div>
-      <button class="btn btn-success btn-sm" onclick="exportOrderSummaryExcel()">⬇️ Export Excel</button>
-    </div>
-    <div class="tbl-wrap" style="max-height:300px;overflow-y:auto;">
-      <table>
-        <thead><tr>
-          <th style="width:40px;">#</th>
-          <th>Order ID</th>
-          <th>กล่องพัสดุ</th>
-          <th>รหัส</th>
-          <th>ชื่อสินค้า</th>
-          <th>สี</th>
-          <th>จำนวน</th>
-          <th>ราคารวม</th>
-        </tr></thead>
-        <tbody id="tbody-order-summary"></tbody>
-      </table>
-    </div>
-    <div class="copy-bar">
-      <span id="sum-order-summary" style="color:var(--tx-secondary);font-size:11.5px;"></span>
-    </div>
-  </div>
-
-  <!-- Order IDs list -->
-  <div class="glass-effect rounded-xl p-4 mb-4">
-    <div class="card-title" style="margin-bottom:8px;">
-      <span class="material-symbols-outlined" style="color:var(--teal);font-size:18px;">tag</span>
-      Order IDs ทั้งหมด
-      <span id="order-ids-count" class="tag tag-purple"></span>
-    </div>
-    <div id="order-ids-list" class="mono" style="font-size:12px;color:var(--tx-secondary);line-height:2;word-break:break-all;"></div>
   </div>
 
   <div class="action-row">
@@ -1701,11 +1487,12 @@ function saveStorage(){
 // saveStorage defined below
 
 // ── Navigation
-// ขั้น 2 (ดูออเดอร์) และ 5 (วางกล่องพัสดุ) ไม่มีแล้ว — ข้อมูลมาจากปุ่มดึงข้อมูล Vcanbuy
-const VISIBLE_STEPS=[3,4,6,7,8];
+// ขั้นที่เหลือ: 3 Map SKU · 6 สุดท้าย · 7 VCANBUY · 8 Peak (+ หน้า 1 ดึงข้อมูล)
+// 2 ดูออเดอร์ / 4 เบื้องต้น / 5 วางกล่องพัสดุ ไม่มีแล้ว — ข้อมูลมาจากปุ่มดึงข้อมูล Vcanbuy
+const VISIBLE_STEPS=[3,6,7,8];
 function goto(n){
   if(n===2) n=3;
-  if(n===5) return doStep5();                    // อ่านข้อมูลกล่องพัสดุแล้วไปผลลัพธ์สุดท้ายเลย
+  if(n===4||n===5) return doStep5();             // อ่านข้อมูลกล่องพัสดุแล้วไปผลลัพธ์สุดท้ายเลย
   if(n>=3&&!parsedOrders.length) n=1;            // ยังไม่มีข้อมูล → หน้าดึงข้อมูล
   const sc=document.getElementById('start-continue'); if(sc) sc.hidden=!parsedOrders.length;
   for(let i=1;i<=8;i++){
@@ -1757,7 +1544,8 @@ function goto(n){
 
 function alert_(id,type,msg){
   const ic={success:'✅',error:'❌',warn:'⚠️',info:'ℹ️'};
-  document.getElementById(id).innerHTML=`<div class="alert alert-${type}"><span>${ic[type]||'•'}</span><div>${msg}</div></div>`;
+  const el=document.getElementById(id); if(!el) return;
+  el.innerHTML=`<div class="alert alert-${type}"><span>${ic[type]||'•'}</span><div>${msg}</div></div>`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1775,7 +1563,6 @@ function doStep1(){
     ? `parse สำเร็จ: ${parsedOrders.length} Orders <span style="color:var(--accent3);">(ข้าม ${cancelledCount} Order ที่ยกเลิก)</span>`
     : `parse สำเร็จ: ${parsedOrders.length} Orders`;
   alert_('alert-1','success',msg);
-  renderStep2();
   saveState();
   goto(2);
 }
@@ -1933,65 +1720,6 @@ function parseOrders(raw){
 // ═══════════════════════════════════════════════════════════
 // STEP 2 — DISPLAY ORDER INFO (no product names yet)
 // ═══════════════════════════════════════════════════════════
-function renderStep2(){
-  const activeOrders=parsedOrders.filter(o=>!o.orderCancelled);
-  document.getElementById('order-count-badge').textContent=activeOrders.length+' Orders';
-
-  // Build flat rows — 1 row per item
-  const rows=[];
-  parsedOrders.forEach(o=>{
-    const activeItems=o.items.filter(i=>!i.cancelled);
-    const cancelledItems=o.items.filter(i=>i.cancelled);
-    activeItems.forEach((item,idx)=>{
-      rows.push({
-        orderId:o.orderId, boxId:o.boxId||'—',
-        exRate:o.exRate, serviceFee:o.serviceFee||0,
-        shpCNCN:o.totalShpCNCN||0,
-        variantLine:item.variantLine, qty:item.qty,
-        priceThb:item.priceThb, cancelled:false,
-        isFirst:idx===0, orderItemCount:activeItems.length,
-        cancelledCount:cancelledItems.length
-      });
-    });
-    cancelledItems.forEach(item=>{
-      rows.push({
-        orderId:o.orderId, boxId:o.boxId||'—',
-        variantLine:item.variantLine, qty:item.qty,
-        priceThb:item.priceThb, cancelled:true,
-        isFirst:false, orderItemCount:activeItems.length
-      });
-    });
-  });
-
-  const tbody=rows.map(r=>{
-    const vl=esc(r.variantLine||'—');
-    const rowStyle=r.cancelled?'opacity:.45;':'';
-    const cancelBadge=r.cancelled?'<span class="tag tag-orange" style="font-size:11px;">ยกเลิก</span>':'';
-    return`<tr class="${rowColor(r.orderId)} ${rowStyle?'opacity-50':''}" style="${rowStyle}">
-      <td class="mono" style="font-size:11.5px;color:var(--teal);">${esc(r.orderId)}</td>
-      <td class="mono" style="font-size:11.5px;color:var(--tx-secondary);">${esc(r.boxId)}</td>
-      <td style="font-size:12px;">${vl} ${cancelBadge}</td>
-      <td class="ncell">${r.qty.toLocaleString()}</td>
-      <td class="ncell">฿${fmt(r.priceThb)}</td>
-      <td class="ncell">${r.exRate>0?r.exRate+' ฿/¥':'—'}</td>
-      <td class="ncell">${r.serviceFee>0?'฿'+fmt(r.serviceFee):'—'}</td>
-      <td class="ncell">${r.shpCNCN>0?'฿'+fmt(r.shpCNCN):'—'}</td>
-    </tr>`;
-  }).join('');
-
-  document.getElementById('orders-display').innerHTML=`
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr>
-          <th>Order ID</th><th>กล่องพัสดุ</th><th>รายการสินค้า / สี</th>
-          <th>จำนวน</th><th>ราคา/ชิ้น</th><th>อัตราแลก</th>
-          <th>ค่าบริการ</th><th>ขนส่งจีน-จีน</th>
-        </tr></thead>
-        <tbody>${tbody}</tbody>
-      </table>
-    </div>`;
-  alert_('alert-2','info',`แสดงข้อมูล ${parsedOrders.length} Orders — กด "ถัดไป" เพื่อจับคู่ SKU`);
-}
 
 // ═══════════════════════════════════════════════════════════
 // STEP 3 — SMART AUTO-MAP per item (รองรับหลายรุ่นใน Order เดียวกัน)
@@ -2234,7 +1962,7 @@ function renderAutoMapUI(){
     <button class="shot-btn" onclick="mapConfirmAll()"><span class="material-symbols-outlined" style="font-size:14px;">done_all</span> ยืนยันคำแนะนำทั้งหมด</button></div>`:'';
   container.innerHTML=bulk+cards;
 
-  if(totalSpecs&&doneSpecs===totalSpecs) alert_('alert-3','success',`✅ จับคู่ครบ ${doneSpecs}/${totalSpecs} สเปก (${view.length} สินค้า) — กด "ยืนยัน & ไปขั้นตอน 4" ได้เลย`);
+  if(totalSpecs&&doneSpecs===totalSpecs) alert_('alert-3','success',`✅ จับคู่ครบ ${doneSpecs}/${totalSpecs} สเปก (${view.length} สินค้า) — กด "ยืนยัน & ดูผลลัพธ์" ได้เลย`);
   else alert_('alert-3','warn',`จับคู่แล้ว ${doneSpecs}/${totalSpecs} สเปก (${view.length} สินค้า) — เลือกรุ่นของเราต่อสินค้า แล้วยืนยันสี`);
 }
 
@@ -2304,10 +2032,8 @@ function buildAndGoStep4(){
     return;
   }
   applyAllMappings();
-  buildStep4();
-  saveState();
-  goto(4);
-  alert_('alert-4','success',`✅ สร้างผลลัพธ์เบื้องต้น ${rows4.length} รายการ`);
+  buildStep4();          // ต้นทุนก่อนรวมค่ากล่อง (ใช้คำนวณต่อ ไม่แสดงแยกแล้ว)
+  doStep5();             // รวมข้อมูลกล่องพัสดุ → หน้าผลลัพธ์สุดท้าย
 }
 
 // LOOKUP HELPERS
@@ -2403,29 +2129,8 @@ function buildStep4(){
       });
     }
   }
-  renderStep4();
 }
 
-function renderStep4(){
-  const tbody=document.getElementById('tbody-4');
-  tbody.innerHTML=rows4.map(r=>`<tr class="${rowColor(r.orderId)}">
-    <td class="mono" style="font-size:11px;">${esc(r.orderId)}</td>
-    <td class="mono" style="font-size:11px;">${esc(r.boxId)}</td>
-    <td><span class="tag">${esc(r.code)}</span></td>
-    <td class="mono" style="font-size:11px;">${esc(r.sku||'—')}</td>
-    <td>${esc(r.name)}</td>
-    <td><span class="tag tag-purple">${esc(r.color)}</span></td>
-    <td class="ncell">${r.qty.toLocaleString()}</td>
-    <td class="ncell">${fmt(r.priceUnit)}</td>
-    <td class="ncell">${fmt(r.shpCNCN)}</td>
-    <td class="ncell">${fmt(r.svcFee)}</td>
-    <td class="ncell">${fmt(r.unitAfter)}</td>
-    <td class="ncell" style="color:var(--accent);font-weight:600;">${fmt(r.total)}</td>
-  </tr>`).join('');
-  const totalQty=rows4.reduce((s,r)=>s+r.qty,0);
-  const totalAmt=rows4.reduce((s,r)=>s+r.total,0);
-  document.getElementById('sum-4').textContent=`${rows4.length} รายการ | ${totalQty.toLocaleString()} ชิ้น | รวม ฿${fmt(totalAmt)}`;
-}
 
 // ═══════════════════════════════════════════════════════════
 // STEP 5 — PARSE BOXES
@@ -2725,230 +2430,18 @@ function renderStep6(){
 // ═══════════════════════════════════════════════════════════
 // TSV EXPORT
 // ═══════════════════════════════════════════════════════════
-function _getStepMeta(step){
-  if(step===4) return {
-    hdr:['Order','เลขกล่องพัสดุ','รหัสสินค้า','SKU','ชื่อสินค้า','สี','จำนวน','ราคา/ชิ้น(฿)','ขนส่งจีน-จีน','ค่าบริการ','ราคาชิ้นละ(หลังรวม)','ราคารวมสุทธิ'],
-    rows:rows4.map(r=>[r.orderId,r.boxId,r.code,r.sku,r.name,r.color,r.qty,r.priceUnit,r.shpCNCN,r.svcFee,r.unitAfter,r.total]),
-    numCols:[6,7,8,9,10,11],
-    sheet:'ผลลัพธ์เบื้องต้น',
-    file:`vcanbuy_step4_${_dateStr()}.xlsx`
-  };
-  if(step===6) return {
-    hdr:['Order','กล่องพัสดุ','รหัสสินค้า','SKU','ชื่อสินค้า','สี','จำนวน','ราคา/ชิ้น(฿)','ขนส่งจีน-จีน','ขนส่งจีน-ไทย','ค่าบริการ','ค่าบริการนำส่ง','ค่าบรรจุภัณฑ์','ขนส่งไทย-ไทย','ราคาชิ้นละ(หลังรวม)','ราคารวมสุทธิ'],
-    rows:rows6.map(r=>[r.orderId,r.boxId,r.code,r.sku,r.name,r.color,r.qty,r.priceUnit,r.shpCNCN,r.shpCNTH,r.svcFee,r.delivFee,r.packFee,r.shpTH,r.unitAfter,r.total]),
-    numCols:[6,7,8,9,10,11,12,13,14,15],
-    sheet:'ผลลัพธ์สุดท้าย',
-    file:`vcanbuy_step6_${_dateStr()}.xlsx`
-  };
-  return null;
-}
-function _dateStr(){
-  const d=new Date();
-  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-}
-function _buildStepWb(step){
-  const m=_getStepMeta(step); if(!m) return null;
-  const wsData=[m.hdr,...m.rows];
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet(wsData);
-  ws['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};
-  const colW=m.hdr.map((h,ci)=>({wch:m.numCols.includes(ci)?12:Math.min(Math.max(h.length+2,10),32)}));
-  ws['!cols']=colW;
-  const range=XLSX.utils.decode_range(ws['!ref']);
-  // Format number columns
-  for(let R=1;R<=range.e.r;R++){
-    for(const C of m.numCols){
-      const addr=XLSX.utils.encode_cell({r:R,c:C});
-      const cell=ws[addr];
-      if(cell&&cell.v!==undefined&&cell.v!==''){cell.t='n';cell.z='#,##0.00';}
-    }
-  }
-  XLSX.utils.book_append_sheet(wb,ws,m.sheet);
-  return {wb,file:m.file};
-}
-function getTSV(step){
-  const m=_getStepMeta(step); if(!m) return '';
-  return [m.hdr,...m.rows].map(r=>r.join('\t')).join('\n');
-}
-function copyTSV(step){
-  navigator.clipboard.writeText(getTSV(step)).then(()=>alert('✅ Copy สำเร็จ — วางใน Google Sheets ได้เลย'));
-}
-function dlXLSX(step){
-  if(typeof XLSX==='undefined'){alert('SheetJS ยังโหลดไม่เสร็จ กรุณารอสักครู่');return;}
-  const r=_buildStepWb(step); if(!r) return;
-  XLSX.writeFile(r.wb,r.file);
-  // Mark orders as exported in cloud
-  try{
-    const src=step===4?rows4:step===6?rows6:[];
-    const ids=[...new Set(src.map(x=>x.orderId).filter(Boolean))];
-    if(ids.length&&window.Cloud?.ws) Cloud.markExported(ids,step);
-  }catch(e){console.warn('markExported call failed',e);}
-}
-function dlTSV(step){dlXLSX(step);}
 
 // ═══════════════════════════════════════════════════════════
 // SKU MANAGEMENT
 // ═══════════════════════════════════════════════════════════
-function renderSkuTable(){
-  const tbody=document.getElementById('sku-tbody');
-  const q=(document.getElementById('sku-search')?.value||'').trim().toLowerCase();
-  const codes=[...new Set(skuVariants.map(v=>v.code))];
-  const colors={};let ci=0;
-  codes.forEach(c=>{colors[c]=ci++%2;});
-  // index original positions ก่อน filter — onclick handlers ต้องอ้างถึง index จริง
-  const indexed=skuVariants.map((v,i)=>({v,i}));
-  const filtered=q?indexed.filter(({v})=>{
-    const hay=`${v.code} ${v.sku} ${v.name} ${v.color} ${v.cn1} ${v.cn2}`.toLowerCase();
-    return hay.includes(q);
-  }):indexed;
-  const cnt=document.getElementById('sku-count');
-  if(cnt) cnt.textContent=q?`${filtered.length} / ${skuVariants.length}`:`${skuVariants.length} รายการ`;
-  tbody.innerHTML=filtered.map(({v,i})=>`<tr style="${colors[v.code]===1?'background:var(--bg-card2);':''}">
-    <td><span class="tag tag-purple">${esc(v.code)}</span></td>
-    <td class="mono" style="font-size:11px;">${esc(v.sku||'—')}</td>
-    <td><input class="sku-edit" value="${esc(v.name)}" onchange="updateSv(${i},'name',this.value)"></td>
-    <td><input class="sku-edit" value="${esc(v.color)}" onchange="updateSv(${i},'color',this.value)"></td>
-    <td class="mono" style="font-size:11px;color:var(--tx-secondary);" title="${esc(v.cn1)}">${esc(v.cn1||'—')}</td>
-    <td class="mono" style="font-size:11px;color:var(--tx-secondary);" title="${esc(v.cn2)}">${esc(v.cn2||'—')}</td>
-    <td><button class="del-btn" onclick="delSv(${i})">✕</button></td>
-  </tr>`).join('');
-}
-function updateSv(i,f,v){skuVariants[i][f]=v.trim();saveStorage();}
-function delSv(i){
-  const removed=skuVariants[i];
-  if(!removed) return;
-  skuVariants.splice(i,1);
-  saveStorage();renderSkuTable();
-  Toast.show({
-    msg:`ลบ SKU <b>${esc(removed.sku||'?')}</b> แล้ว`, type:'success', duration:6000,
-    action:{label:'↶ เลิก', onClick:()=>{
-      skuVariants.splice(i,0,removed);saveStorage();renderSkuTable();
-      Toast.success('กู้คืน SKU แล้ว');
-    }}
-  });
-}
-function addSkuRow(){
-  const code=document.getElementById('nw-code').value.trim();
-  const sku=document.getElementById('nw-sku').value.trim();
-  const name=document.getElementById('nw-name').value.trim();
-  const color=document.getElementById('nw-color').value.trim();
-  const cn1=document.getElementById('nw-cn1').value.trim();
-  const cn2=document.getElementById('nw-cn2').value.trim();
-  if(!code||!sku){alert('ต้องใส่รหัสสินค้าและ SKU');return;}
-  skuVariants.push({code,sku,name,color,cn1,cn2});
-  if(cn1) cnToCode['cn:'+cn1]=code;
-  if(cn2) cnToCode['cn:'+cn2]=code;
-  saveStorage(); renderSkuTable();
-  ['nw-code','nw-sku','nw-name','nw-color','nw-cn1','nw-cn2'].forEach(id=>document.getElementById(id).value='');
-}
-function exportSku(){
-  // Export skuVariants as Excel sheet (columns: code, sku, name, color, cn1, cn2)
-  const ws_data=[['รหัส (B2...)','SKU (B1732...)','ชื่อสินค้า','สี','ชื่อจีน 1','ชื่อจีน 2']];
-  skuVariants.forEach(v=>ws_data.push([v.code||'',v.sku||'',v.name||'',v.color||'',v.cn1||'',v.cn2||'']));
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet(ws_data);
-  // Column widths
-  ws['!cols']=[{wch:12},{wch:26},{wch:20},{wch:14},{wch:46},{wch:46}];
-  XLSX.utils.book_append_sheet(wb,ws,'SKU Mapping');
-  XLSX.writeFile(wb,'vcanbuy_sku_mapping.xlsx');
-}
-function importSku(e){
-  const f=e.target.files[0];if(!f)return;
-  const ext=f.name.split('.').pop().toLowerCase();
-  // Support both xlsx and json
-  if(ext==='json'){
-    const r=new FileReader();r.onload=ev=>{
-      try{const d=JSON.parse(ev.target.result);
-        if(d.skuVariants)skuVariants=d.skuVariants;
-        if(d.cnToCode)cnToCode=d.cnToCode;
-        if(d.variantToSku)variantToSku=d.variantToSku;
-        _rebuildLookups();
-        saveStorage();renderSkuTable();alert('Import JSON สำเร็จ: '+skuVariants.length+' rows');
-      }catch{alert('ไฟล์ JSON ไม่ถูกต้อง');}
-    };r.readAsText(f);
-  } else {
-    const r=new FileReader();r.onload=ev=>{
-      try{
-        const wb=XLSX.read(ev.target.result,{type:'array'});
-        const ws=wb.Sheets[wb.SheetNames[0]];
-        const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-        // Skip header row (row 0)
-        const newVariants=[];
-        for(let i=1;i<rows.length;i++){
-          const [code,sku,name,color,cn1,cn2]=rows[i].map(c=>(c+'').trim());
-          if(!code&&!sku) continue; // skip empty rows
-          newVariants.push({code,sku,name,color,cn1,cn2});
-        }
-        skuVariants=newVariants;
-        _rebuildLookups();
-        saveStorage();renderSkuTable();alert('Import Excel สำเร็จ: '+skuVariants.length+' rows');
-      }catch(err){alert('ไฟล์ Excel ไม่ถูกต้อง: '+err.message);}
-    };r.readAsArrayBuffer(f);
-  }
-}
-function _rebuildLookups(){
-  // Rebuild cnToCode from skuVariants (keep existing entries not in new data)
-  cnToCode={};
-  skuVariants.forEach(v=>{
-    if(v.cn1) cnToCode['cn:'+v.cn1]=v.code;
-    if(v.cn2) cnToCode['cn:'+v.cn2]=v.code;
-  });
-  // variantToSku: rebuild from skuVariants color field
-  // (keep existing user-built entries; just ensure skuVariants-based ones exist)
-  skuVariants.forEach(v=>{
-    if(v.color&&v.cn1&&v.sku){
-      const key=`variant:${v.cn1}::${v.color}`;
-      if(!variantToSku[key]) variantToSku[key]=v.sku;
-    }
-  });
-}
-function resetSku(){
-  if(!confirm('รีเซ็ต SKU เป็นค่า default? (ล้างข้อมูลที่บันทึกไว้ทั้งหมด)'))return;
-  localStorage.removeItem('vcb3_sv');
-  localStorage.removeItem('vcb3_cn');
-  localStorage.removeItem('vcb3_vt');
-  skuVariants=JSON.parse(JSON.stringify(DFLT_DATA.skuVariants));
-  cnToCode=JSON.parse(JSON.stringify(DFLT_DATA.cnToCode));
-  variantToSku=JSON.parse(JSON.stringify(DFLT_DATA.variantToSku));
-  renderSkuTable();
-  alert('✅ Reset เรียบร้อย');
-}
 
 // ── DEMO
-function loadDemo(){
-  document.getElementById('inp-orders').value=`เลขที่ออเดอร์: XLY260330100427
-เลขกล่องพัสดุ: CX26033100042701
-韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发
-深咖Deep,
-深咖Deep,
-฿20.96\t100\t฿7334.6
-韩版百搭金扣小皮带女牛仔裤腰带时尚装饰裙子西装细腰带一件代发
-黑色Black,
-黑色Black,
-฿20.96\t200\t฿12483.5
-
-เลขที่ออเดอร์: XLY260330100425
-เลขกล่องพัสดุ: CX26033100042501
-韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女
-驼色Lighttan, 105cm
-驼色Lighttan, 105cm
-฿21.46\t340\t฿21846.8
-韩国复古小腰带细款黑色简约百搭裤带装饰配裙子西装牛仔裤皮带女
-卡其色Khaki, 105cm
-卡其色Khaki, 105cm
-฿21.46\t150\t฿9649.3`;
-}
 
 // ═══════════════════════════════════════════════════════════
 // STEP 7 — GROUP BY CODE + EXPORT TO VCANBUY EXCEL
 // ═══════════════════════════════════════════════════════════
 let rows7=[];
 
-function exportAll(){
-  buildStep7();
-  buildStep8();
-  goto(7);
-}
 
 // สรุปแบบฟอร์ม VCANBUY จากแถว step 6 ชุดหนึ่ง (เช่น เฉพาะบิลเดียว)
 function computeRows7(src){
@@ -3010,71 +2503,9 @@ function buildStep7(){
   document.getElementById('sum-7').innerHTML=(multi?`<b>${esc(_billLabel(curBill))}</b> | `:'')+
     `${rows7.length} รายการ | ยอดรวม ฿${fmt(grandTotal)} | VAT 7% ฿${fmt(vat)} | <b>ยอดทั้งหมด ฿${fmt(r2(grandTotal+vat))}</b>`;
 
-  renderOrderSummary();
   _syncBillButtons();
 }
 
-function renderOrderSummary(){
-  // สรุปทุก row ของบิลที่เลือก เรียงตาม orderId A→Z แล้ว code
-  const sorted=[...rowsOfBill(curBill)].sort((a,b)=>{
-    const oa=a.orderId||'', ob=b.orderId||'';
-    if(oa!==ob) return oa.localeCompare(ob);
-    return (a.code||'').localeCompare(b.code||'');
-  });
-
-  const tbody=document.getElementById('tbody-order-summary');
-  if(!tbody) return;
-
-  tbody.innerHTML=sorted.map((r,i)=>`<tr>
-    <td class="ncell" style="color:var(--tx-secondary);font-size:12px;">${i+1}</td>
-    <td class="mono" style="font-size:12px;color:var(--teal);white-space:nowrap;">${esc(r.orderId||'-')}</td>
-    <td class="mono" style="font-size:12px;color:var(--tx-secondary);white-space:nowrap;">${esc(r.boxId||'-')}</td>
-    <td><span class="tag tag-purple">${esc(r.code||'?')}</span></td>
-    <td style="white-space:nowrap;">${esc(r.name||'-')}</td>
-    <td><span class="tag tag-blue">${esc(r.color||'-')}</span></td>
-    <td class="ncell">${(r.qty||0).toLocaleString()}</td>
-    <td class="ncell" style="font-weight:600;color:var(--tx-primary);">฿${fmt(r.total||0)}</td>
-  </tr>`).join('');
-
-  const totalQty=sorted.reduce((s,r)=>s+(r.qty||0),0);
-  const totalAmt=sorted.reduce((s,r)=>s+(r.total||0),0);
-  const el=document.getElementById('order-summary-count');
-  if(el) el.textContent=`${sorted.length} รายการ`;
-  const sumEl=document.getElementById('sum-order-summary');
-  if(sumEl) sumEl.innerHTML=`${sorted.length} รายการ | รวม ${totalQty.toLocaleString()} ชิ้น | <b>ยอดรวม ฿${fmt(r2(totalAmt))}</b>`;
-}
-function exportOrderSummaryExcel(){
-  if(!rows6.length){alert('ไม่มีข้อมูล กรุณาทำขั้นตอน 6 ก่อน');return;}
-  if(typeof XLSX==='undefined'){alert('กำลังโหลด SheetJS กรุณารอสักครู่แล้วลองใหม่');return;}
-  const sorted=[...rows6].sort((a,b)=>{
-    const oa=a.orderId||'', ob=b.orderId||'';
-    if(oa!==ob) return oa.localeCompare(ob);
-    return (a.code||'').localeCompare(b.code||'');
-  });
-  const hdr=['#','Order ID','กล่องพัสดุ','รหัสสินค้า','ชื่อสินค้า','สี','SKU','จำนวน','ราคารวม (฿)'];
-  const rows=sorted.map((r,i)=>[
-    i+1, r.orderId||'', r.boxId||'', r.code||'',
-    r.name||'', r.color||'', r.sku||'',
-    r.qty||0, r2(r.total||0)
-  ]);
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet([hdr,...rows]);
-  ws['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};
-  ws['!cols']=[{wch:5},{wch:22},{wch:20},{wch:8},{wch:18},{wch:12},{wch:26},{wch:8},{wch:14}];
-  const range=XLSX.utils.decode_range(ws['!ref']);
-  for(let R=1;R<=range.e.r;R++){
-    const qtyCell=ws[XLSX.utils.encode_cell({r:R,c:7})];
-    if(qtyCell&&qtyCell.v!==undefined){qtyCell.t='n';qtyCell.z='#,##0';}
-    const totCell=ws[XLSX.utils.encode_cell({r:R,c:8})];
-    if(totCell&&totCell.v!==undefined){totCell.t='n';totCell.z='#,##0.00';}
-  }
-  XLSX.utils.book_append_sheet(wb,ws,'Order Summary');
-  const uniqueIds=[...new Set(sorted.map(r=>r.orderId||'').filter(Boolean))];
-  const ws2=XLSX.utils.aoa_to_sheet([['Order ID'],...uniqueIds.map(id=>[id])]);
-  ws2['!cols']=[{wch:24}];
-  XLSX.utils.book_append_sheet(wb,ws2,'Order IDs');
-  XLSX.writeFile(wb,'vcanbuy_order_summary_'+_dateStr()+'.xlsx');
-}
 
 // ═══════════════════════════════════════════════════════════
 // ฟอร์มขอใบกำกับภาษี VCANBUY — แก้ค่าในไฟล์ต้นฉบับของ Vcanbuy ตรง ๆ (XML)
@@ -3219,11 +2650,12 @@ const VF={
     return anchors;
   },
   // zip = JSZip ของไฟล์ต้นฉบับ · คืน {sum, vat}
-  async build(zip,{items,date,pictures}){
+  // pictureRows = แถวในชีตรูปภาพ [{name}] (ไม่ส่ง = ใช้ชื่อรายการในชีตฟอร์ม) · pictures[].row อ้างลำดับใน pictureRows
+  async build(zip,{items,date,pictures,pictureRows}){
     const s1=await zip.file(this.SHEET1).async('string');
     const f=this.fillForm(s1,items,date);
     zip.file(this.SHEET1,f.xml);
-    const names=items.map(i=>i.name);
+    const names=(pictureRows||items).map(i=>i.name);
     const s2=await zip.file(this.SHEET2).async('string');
     zip.file(this.SHEET2,this.fillPictures(s2,names));
     const pics=(pictures||[]).filter(p=>p&&p.bytes&&p.w&&p.h);
@@ -3256,14 +2688,23 @@ async function _vcbPicture(url){
   }catch(e){ console.warn('ดึงรูปสินค้าไม่ได้',url,e); return null; }
 }
 // รูปของรหัสรุ่นนี้จากออเดอร์ในบิลนี้ (รายการแรกที่มีรูป)
-function _imgForCode(code,rows){
+// สินค้าจริงที่สั่งจาก Vcanbuy ในบิลนี้ — 1 แถว = 1 สินค้า/สี (รวมหลายออเดอร์ที่เป็นสินค้า+สเปกเดียวกัน)
+// ชื่อ: "เข็มขัด B17 ขาว · 白色White" (รุ่น+สีของเรา · สเปกบน Vcanbuy) · รูป: รูปสีนั้นจาก Vcanbuy
+function _vcbPictureRows(rows){
   const ids=new Set(rows.map(r=>r.orderId));
+  const map=new Map();
   for(const o of parsedOrders){
     if(!ids.has(o.orderId)) continue;
-    const it=o.items.find(i=>!i.cancelled&&i.img&&(i.resolvedCode===code));
-    if(it) return it.img;
+    for(const it of o.items){
+      if(it.cancelled) continue;
+      const code=it.resolvedCode||'?';
+      const spec=(it.spec||it.variantLine||'').replace(/,\s*$/,'');
+      const key=`${code}|${it.resolvedSku||''}|${it.offerId||it.shop||''}|${specKey(spec)}`;
+      if(!map.has(key)) map.set(key,{code,name:`เข็มขัด ${code}${it.resolvedColor?' '+it.resolvedColor:''}${spec?' · '+spec:''}`,img:it.img||'',qty:0});
+      const r=map.get(key); r.qty+=it.qty; if(!r.img&&it.img) r.img=it.img;
+    }
   }
-  return '';
+  return [...map.values()].sort((a,b)=>a.code.localeCompare(b.code,'en',{numeric:true})||a.name.localeCompare(b.name,'th'));
 }
 // key = เลขบิลขนส่ง (TOUT…) · '*' = รวมทุกบิล · ไม่ส่ง = บิลที่เลือกอยู่
 async function exportVcanbuyExcel(key){
@@ -3275,14 +2716,14 @@ async function exportVcanbuyExcel(key){
   // วันที่ในฟอร์ม = วันที่เปิดบิลขนส่ง · ไม่มีบิล/รวมทุกบิล = วันนี้
   const now=(key&&key!=='*')?billDateObj(key):new Date();
   const zip=await JSZip.loadAsync(VCANBUY_TEMPLATE_B64,{base64:true});
+  const pictureRows=_vcbPictureRows(rows);
   const pictures=[];
-  for(let i=0;i<items.length;i++){
-    const code=items[i].name.replace(/^เข็มขัด\s*/,'');
-    const url=_imgForCode(code,rows);
+  for(let i=0;i<pictureRows.length;i++){
+    const url=pictureRows[i].img;
     const pic=url?await _vcbPicture(url):null;
-    if(pic) pictures.push({...pic,row:i,name:code});
+    if(pic) pictures.push({...pic,row:i,name:pictureRows[i].name});
   }
-  await VF.build(zip,{items:items.map(it=>({name:it.name,qty:it.qty,unit:it.unit,unitPrice:it.unitPrice})),date:now,pictures});
+  await VF.build(zip,{items:items.map(it=>({name:it.name,qty:it.qty,unit:it.unit,unitPrice:it.unitPrice})),date:now,pictures,pictureRows});
   const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',
     mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const tag=(key&&key!=='*')?key.replace(/\+/g,'-')+'_':(key==='*'?'ALL_':'');
@@ -3291,10 +2732,18 @@ async function exportVcanbuyExcel(key){
   a.href=URL.createObjectURL(blob); a.download=fname;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),5000);
-  if(pictures.length<items.length) Toast.show({msg:`ใส่รูปสินค้าได้ ${pictures.length}/${items.length} รุ่น — รุ่นที่ไม่มีรูปมาจากข้อมูล copy มือ (ใช้ปุ่มดึงข้อมูล Vcanbuy จะได้รูป)`,type:'info',duration:6000});
+  _markBillExported(rows,7);
+  if(pictures.length<pictureRows.length) Toast.show({msg:`ใส่รูปสินค้าได้ ${pictures.length}/${pictureRows.length} รายการ — รายการที่ไม่มีรูปมาจากข้อมูลเก่าที่ copy มือ (ดึงบิลนั้นใหม่ด้วยปุ่มดึงข้อมูล Vcanbuy จะได้รูป)`,type:'info',duration:6000});
   return true;
 }
 const _sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// จดว่าออเดอร์เหล่านี้ export แล้ว (เตือนเมื่อออเดอร์เดียวกันโผล่ใน session อื่น)
+function _markBillExported(rows,step){
+  try{
+    const ids=[...new Set(rows.map(r=>r.orderId).filter(Boolean))];
+    if(ids.length&&window.Cloud?.ws) Cloud.markExported(ids,step);
+  }catch(e){ console.warn('markExported failed',e); }
+}
 // ดาวน์โหลดใบกำกับ VCANBUY ทุกบิล — 1 ไฟล์ต่อ 1 บิล
 async function exportVcanbuyAllBills(){
   const groups=getBillGroups();
@@ -3449,6 +2898,7 @@ function exportPeakExcel(keys){
   const dateStr=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
   const tag=docs.length>1?`ALL_${docs.length}bills_`:(docs[0].ref?docs[0].ref.replace(/\+/g,'-')+'_':'');
   XLSX.writeFile(wb,`peak_import_${tag}${dateStr}.xlsx`,{bookSST:false,compression:true});
+  _markBillExported(keys.flatMap(k=>rowsOfBill(k)),8);
 }
 function exportPeakAllBills(){
   exportPeakExcel(getBillGroups().map(g=>g.key));
@@ -3525,15 +2975,13 @@ function loadState(){
     // Restore parsed data
     if(state.parsedOrders?.length){
       parsedOrders=state.parsedOrders;
-      renderStep2();
-    }
+        }
     if(state.parsedBoxes && Object.keys(state.parsedBoxes).length){
       parsedBoxes=state.parsedBoxes;
     }
     if(state.rows4?.length){
       rows4=state.rows4;
-      renderStep4();
-    }
+        }
     if(state.rows6?.length){
       rows6=state.rows6;
       renderStep6();
@@ -3584,8 +3032,6 @@ function clearAll(){
       if(typeof rows7!=='undefined') rows7=backup.rows7;
       itemMappings=backup.itemMappings;
       try{
-        if(parsedOrders.length) renderStep2();
-        if(rows4.length) renderStep4();
         if(rows6.length) renderStep6();
       }catch(e){console.warn(e);}
       goto(backup.step||1);
@@ -3671,162 +3117,6 @@ window.alert=(msg)=>{
 };
 window.confirm=_nativeConfirm; // คงเดิม — destructive จะแทนด้วย Toast+Undo เฉพาะจุด
 
-// ═══════════════════════════════════════════════════════════
-// OCR — Screenshot → Text (Tesseract.js)
-// ═══════════════════════════════════════════════════════════
-const OCR = {
-  images: [],          // [{id, dataUrl, file, status:'pending|processing|done|error', text}]
-  worker: null,
-  workerLoading: false,
-  langs: 'chi_sim+tha+eng',
-
-  async _ensureWorker(){
-    if(this.worker) return this.worker;
-    if(this.workerLoading){
-      await new Promise(r=>{const t=setInterval(()=>{if(!this.workerLoading){clearInterval(t);r();}},200);});
-      return this.worker;
-    }
-    if(typeof Tesseract==='undefined') throw new Error('Tesseract.js ยังโหลดไม่เสร็จ');
-    this.workerLoading=true;
-    this._setStatus('กำลังโหลดโมเดล OCR (จีน+ไทย+อังกฤษ) ครั้งแรก ~30MB...');
-    try{
-      this.worker=await Tesseract.createWorker(this.langs,1,{
-        logger: m=>{
-          if(m.status&&m.progress!==undefined){
-            this._setProgress(Math.round(m.progress*100), `${m.status}`);
-          }
-        }
-      });
-      this._setStatus('โมเดลพร้อมใช้งาน');
-    } finally { this.workerLoading=false; }
-    return this.worker;
-  },
-
-  _setStatus(msg){const el=document.getElementById('shot-status-text');if(el) el.textContent=msg||'';},
-  _setProgress(pct, label){
-    const wrap=document.getElementById('shot-progress');
-    const bar=document.getElementById('shot-progress-bar');
-    if(!wrap||!bar) return;
-    if(pct==null){wrap.style.display='none';return;}
-    wrap.style.display='block';
-    bar.style.width=pct+'%';
-    if(label) this._setStatus(`${label} — ${pct}%`);
-  },
-
-  _refreshUI(){
-    const c=document.getElementById('shot-thumbs');
-    const runBtn=document.getElementById('shot-run-btn');
-    const clrBtn=document.getElementById('shot-clear-btn');
-    if(!c) return;
-    c.innerHTML=this.images.map((img,i)=>{
-      const cls=img.status==='done'?'done':img.status==='error'?'error':img.status==='processing'?'processing':'';
-      const label=img.status==='done'?'✓ อ่านแล้ว':img.status==='error'?'✗ ผิดพลาด':img.status==='processing'?'กำลังอ่าน...':'รอ';
-      return `<div class="shot-thumb">
-        <img src="${img.dataUrl}" alt="">
-        <button class="x-btn" onclick="OCR.remove(${i})" title="ลบ">×</button>
-        <div class="status ${cls}">${label}</div>
-      </div>`;
-    }).join('');
-    const has=this.images.length>0;
-    const pending=this.images.some(x=>x.status!=='done');
-    if(runBtn) runBtn.disabled=!has||!pending;
-    if(clrBtn) clrBtn.disabled=!has;
-  },
-
-  async addFiles(fileList){
-    if(!fileList?.length) return;
-    const arr=[...fileList].filter(f=>f.type.startsWith('image/'));
-    if(!arr.length){alert('กรุณาเลือกไฟล์รูปภาพ');return;}
-    for(const f of arr){
-      const dataUrl=await this._fileToDataUrl(f);
-      this.images.push({
-        id:'i_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
-        dataUrl, file:f, status:'pending', text:''
-      });
-    }
-    this._refreshUI();
-  },
-
-  remove(idx){this.images.splice(idx,1);this._refreshUI();},
-  clear(){
-    if(this.images.length&&!confirm('ลบรูปทั้งหมด?')) return;
-    this.images=[];this._refreshUI();this._setStatus('');this._setProgress(null);
-  },
-
-  _fileToDataUrl(file){
-    return new Promise((res,rej)=>{
-      const r=new FileReader();
-      r.onload=()=>res(r.result);
-      r.onerror=()=>rej(r.error);
-      r.readAsDataURL(file);
-    });
-  },
-
-  async pasteFromClipboard(){
-    if(!navigator.clipboard?.read){
-      alert('Browser ไม่รองรับการอ่าน clipboard\nลองกด Ctrl+V บนหน้าเพจแทน');
-      return;
-    }
-    try{
-      const items=await navigator.clipboard.read();
-      const files=[];
-      for(const item of items){
-        for(const type of item.types){
-          if(type.startsWith('image/')){
-            const blob=await item.getType(type);
-            files.push(new File([blob],`paste_${Date.now()}.png`,{type:blob.type}));
-          }
-        }
-      }
-      if(!files.length){alert('ไม่พบรูปภาพใน clipboard\nกรุณา copy รูปก่อนแล้วลองอีกครั้ง');return;}
-      await this.addFiles(files);
-    }catch(e){
-      alert('ไม่สามารถอ่าน clipboard ได้: '+e.message+'\nลองกด Ctrl+V บนหน้าเพจแทน');
-    }
-  },
-
-  async run(){
-    const todo=this.images.filter(x=>x.status!=='done');
-    if(!todo.length) return;
-    try{
-      const worker=await this._ensureWorker();
-      let combinedNew='';
-      for(let i=0;i<todo.length;i++){
-        const img=todo[i];
-        img.status='processing';this._refreshUI();
-        this._setStatus(`อ่านรูปที่ ${i+1}/${todo.length}...`);
-        try{
-          const {data}=await worker.recognize(img.dataUrl);
-          img.text=(data?.text||'').trim();
-          img.status='done';
-          combinedNew += (combinedNew?'\n\n':'') + img.text;
-        }catch(e){
-          console.warn('OCR err',e);
-          img.status='error';
-        }
-        this._refreshUI();
-      }
-      // Append to textarea ด้วย marker บอกว่ามาจาก OCR
-      const ta=document.getElementById('inp-orders');
-      if(ta&&combinedNew){
-        const marker=`# ── 📷 OCR ${new Date().toLocaleTimeString('th-TH')} (${todo.length} รูป) ──`;
-        ta.value=(ta.value.trim()?ta.value.trim()+'\n\n':'')+marker+'\n'+combinedNew;
-        ta.dispatchEvent(new Event('input',{bubbles:true}));
-        // เลื่อน cursor ไปท้าย แล้ว highlight สั้น ๆ
-        ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);
-        ta.style.transition='box-shadow .3s';
-        ta.style.boxShadow='0 0 0 3px rgba(125,181,212,.4)';
-        setTimeout(()=>ta.style.boxShadow='',1200);
-      }
-      this._setStatus(`✅ อ่านครบ ${todo.length} รูป — ตรวจสอบข้อความใน textarea ด้านล่าง`);
-      Toast.success(`📷 OCR สำเร็จ ${todo.length} รูป — ตรวจสอบข้อความก่อนกดประมวลผล`);
-      this._setProgress(null);
-    }catch(e){
-      this._setStatus('❌ '+e.message);
-      this._setProgress(null);
-    }
-  }
-};
 
 // Auto-save textarea changes (debounced) so refresh ไม่ทำข้อมูลหาย
 let _inputSaveTimer=null;
@@ -3835,43 +3125,10 @@ function _autoSaveOnInput(){
   _inputSaveTimer=setTimeout(()=>{ try{ saveState(); }catch{} },350);
 }
 
-// Drag-drop + global paste handlers (Step 1 only)
 window.addEventListener('DOMContentLoaded',()=>{
   ['inp-orders','inp-boxes','inp-products'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.addEventListener('input',_autoSaveOnInput);
-  });
-  const zone=document.getElementById('shot-uploader');
-  if(zone){
-    ['dragenter','dragover'].forEach(ev=>zone.addEventListener(ev,e=>{
-      e.preventDefault();e.stopPropagation();zone.classList.add('dragging');
-    }));
-    ['dragleave','drop'].forEach(ev=>zone.addEventListener(ev,e=>{
-      e.preventDefault();e.stopPropagation();
-      if(ev==='dragleave'&&zone.contains(e.relatedTarget)) return;
-      zone.classList.remove('dragging');
-    }));
-    zone.addEventListener('drop',e=>{
-      const files=e.dataTransfer?.files;
-      if(files?.length) OCR.addFiles(files);
-    });
-  }
-  // Global paste (only when Step 1 is active and not in textarea)
-  window.addEventListener('paste',e=>{
-    const p1=document.getElementById('p1');
-    if(!p1?.classList.contains('active')) return;
-    const items=e.clipboardData?.items||[];
-    const files=[];
-    for(const it of items){
-      if(it.type.startsWith('image/')){
-        const f=it.getAsFile();
-        if(f) files.push(f);
-      }
-    }
-    if(files.length){
-      e.preventDefault();
-      OCR.addFiles(files);
-    }
   });
 });
 
@@ -4017,7 +3274,6 @@ const Cloud = {
         try{ localStorage.setItem('vcb3_learn',JSON.stringify(learnedMap)); }catch{}
       }
       Hub.apply();       // รายการสินค้าจาก Hub เป็นตัวจริง — ทับชื่อ/ชื่อย่อ/สีที่มาจาก cloud เก่า
-      try{ renderSkuTable(); }catch{}
     }
   },
   async pushSkuMapping(){
@@ -4178,8 +3434,6 @@ const Cloud = {
     if(cloudState.rows6) rows6=cloudState.rows6;
     if(cloudState.itemMappings) itemMappings=cloudState.itemMappings;
     try{
-      if(parsedOrders.length) renderStep2();
-      if(rows4.length) renderStep4();
       if(rows6.length) renderStep6();
     }catch(e){console.warn('render after open',e);}
     goto(cloudState.lastStep&&parsedOrders.length?cloudState.lastStep:1);
@@ -4418,7 +3672,6 @@ function removeOrdersFromCalc(ids){
   // ผลลัพธ์ที่คำนวณไว้ไม่ตรงกับข้อมูลใหม่แล้ว
   rows4=[];rows6=[];
   resetDataUI();
-  try{ renderStep2(); }catch{}
   goto(3);
   saveState();
   Toast.show({
@@ -4426,7 +3679,6 @@ function removeOrdersFromCalc(ids){
     type:'success', duration:9000,
     action:{label:'↶ เลิกทำ', onClick:()=>{
       parsedOrders=backupOrders; itemMappings=backupMaps;
-      try{ renderStep2(); }catch{}
       goto(backupStep||3); saveState();
       Toast.success('คืนออเดอร์กลับแล้ว');
     }}
@@ -4467,7 +3719,6 @@ document.addEventListener('keydown',e=>{
     e.preventDefault();
     if(active.id==='p1'&&typeof doStep1==='function') doStep1();
     else if(active.id==='p3'&&typeof autoMapOrders==='function') autoMapOrders();
-    else if(active.id==='p5'&&typeof doStep5==='function') doStep5();
     return;
   }
 
@@ -4613,7 +3864,6 @@ const Hub={
     const localOnly=skuVariants.filter(v=>!v.sku||!hubSkus.has(v.sku)).map(v=>({...v,hub:false}));
     skuVariants=[...fromHub,...localOnly].sort((a,b)=>a.code.localeCompare(b.code,'en',{numeric:true})||String(a.color).localeCompare(String(b.color),'th'));
     try{ rebuildLookups(); }catch{}
-    try{ renderSkuTable(); }catch{}
     try{ if(currentStep===3) renderAutoMapUI(); }catch{}
   },
   render(){
@@ -4627,7 +3877,6 @@ const Hub={
 Hub._load();
 Hub.apply();
 Hub.refresh();
-renderSkuTable();
 
 // ── ส่งต้นทุนต่อชิ้นเข้า Salepage (หน้าเว็บ lamsangstore.com) ──
 function hubWriteKey(forcePrompt){
