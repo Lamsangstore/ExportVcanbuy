@@ -3075,6 +3075,10 @@ function exportOrderSummaryExcel(){
 const VF={
   SHEET1:'xl/worksheets/sheet1.xml', SHEET2:'xl/worksheets/sheet2.xml',
   ITEM_FIRST:12, ITEM_TPL_LAST:25,   // แถวสินค้า 12–25 (14 แถว) · แถวสรุปเริ่ม 26
+  // ต้นฉบับตั้งรูปแบบตัวเลขไม่เท่ากันทุกแถว — ใช้สไตล์ที่มีคอมมาของต้นฉบับเองกับทุกแถว
+  // (ต่างจากสไตล์เดิมแค่รูปแบบตัวเลข ฟอนต์/สีพื้น/เส้นขอบ/จัดวางเหมือนกัน)
+  QTY_STYLE:58,    // จำนวน  " "* #,##0  (แบบแถว 22–25)
+  PRICE_STYLE:50,  // ราคา/หน่วย #,##0.00  (แบบแถว 12–19)
   PIC_FIRST:3, PIC_TPL_LAST:16,      // ชีตรูปภาพสินค้า แถว 3–16 · แถว 17 = เส้นปิดตาราง
   PIC_ROW_EMU:168*12700, PIC_MAX_EMU:1944590, PIC_COL_OFF:1715551,
   TH_MONTHS:['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'],
@@ -3082,12 +3086,12 @@ const VF={
   rowRe:r=>new RegExp(`<row r="${r}"[^>]*?(?:/>|>[\\s\\S]*?</row>)`),
   cellRe:ref=>new RegExp(`<c r="${ref}"(?=[\\s/>])([^>]*?)(?:/>|>([\\s\\S]*?)</c>)`),
   // เขียนค่าลงเซลล์ — คง style (s="…") เดิมไว้ · kind: n=ตัวเลข s=ข้อความ blank=ว่าง fv=คงสูตรเปลี่ยนแค่ค่าที่คำนวณไว้
-  setCell(xml,ref,kind,val){
+  setCell(xml,ref,kind,val,style){
     const re=this.cellRe(ref);
     const m=xml.match(re);
     if(!m) return xml;
     const attrs=m[1].replace(/\s+t="[^"]*"/,'').replace(/\s+cm="[^"]*"/,'');
-    const s=(attrs.match(/\ss="\d+"/)||[''])[0];
+    const s=style!=null?` s="${style}"`:(attrs.match(/\ss="\d+"/)||[''])[0];
     let out;
     if(kind==='n') out=`<c r="${ref}"${s}><v>${val}</v></c>`;
     else if(kind==='s') out=`<c r="${ref}"${s} t="inlineStr"><is><t xml:space="preserve">${this.xesc(val)}</t></is></c>`;
@@ -3155,12 +3159,14 @@ const VF={
         sum+=line;
         xml=this.setCell(xml,`B${r}`,'n',r-this.ITEM_FIRST+1);
         xml=this.setCell(xml,`C${r}`,'s',it.name);
-        xml=this.setCell(xml,`I${r}`,'n',it.qty);
+        xml=this.setCell(xml,`I${r}`,'n',it.qty,this.QTY_STYLE);
         xml=this.setCell(xml,`J${r}`,'s',it.unit||'ชิ้น');
-        xml=this.setCell(xml,`K${r}`,'n',up);
+        xml=this.setCell(xml,`K${r}`,'n',up,this.PRICE_STYLE);
         xml=this.setCell(xml,`L${r}`,'fv',line);
       }else{
-        for(const c of ['B','C','I','J','K']) xml=this.setCell(xml,`${c}${r}`,'blank');
+        for(const c of ['B','C','J']) xml=this.setCell(xml,`${c}${r}`,'blank');
+        xml=this.setCell(xml,`I${r}`,'blank',null,this.QTY_STYLE);
+        xml=this.setCell(xml,`K${r}`,'blank',null,this.PRICE_STYLE);
         xml=this.setCell(xml,`L${r}`,'fv',0);
       }
     }
