@@ -520,6 +520,48 @@ input[type=file]{display:none;}
 .alert-error{background:rgba(224,90,122,.07);border:1px solid rgba(224,90,122,.2);color:var(--tx-error);}
 .alert-error::before{background:var(--tx-error);}
 
+/* ── MAP SKU (สินค้า Vcanbuy → SKU ของเรา) ── */
+.map-card{border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-card);margin-bottom:12px;overflow:hidden;}
+.map-card-done{border-color:rgba(45,170,106,.35);}
+.map-head{display:flex;gap:12px;align-items:center;padding:10px 12px;background:var(--bg-card2);flex-wrap:wrap;}
+.map-img{width:56px;height:56px;border-radius:8px;object-fit:cover;flex:none;background:var(--bg-hover);}
+.map-img-empty{display:flex;align-items:center;justify-content:center;font-size:22px;}
+.map-info{flex:1;min-width:200px;}
+.map-title{font-size:13px;font-weight:600;color:var(--tx-primary);line-height:1.35;}
+.map-muted{font-size:11px;color:var(--tx-secondary);margin-top:2px;}
+.map-muted a{color:var(--teal2);}
+.map-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.map-actions select{font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--tx-primary);max-width:240px;}
+.map-tbl{width:100%;}
+.map-tbl td,.map-tbl th{padding:6px 12px;font-size:12px;vertical-align:middle;}
+.map-spec{font-size:12.5px;}
+.map-row-todo{background:rgba(224,90,122,.04);}
+
+.hub-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--tx-secondary);margin-bottom:10px;}
+.hub-status:empty{display:none;}
+.sku-chip:has(img){display:inline-flex;align-items:center;gap:5px;white-space:nowrap;padding-left:3px;}
+.sku-chip img{display:inline-block;width:20px;height:20px;border-radius:50%;object-fit:cover;flex:none;}
+.sku-chip.sku-inactive{opacity:.55;}
+
+/* ── BILL (TOUT) SELECTOR ── */
+.bill-bar{margin-bottom:14px;}
+.bill-bar-title{font-size:12px;font-weight:600;color:var(--tx-secondary);margin-bottom:8px;}
+.bill-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.bill-chip{
+  display:flex;flex-direction:column;align-items:flex-start;gap:1px;
+  padding:6px 12px;border-radius:var(--radius-md);cursor:pointer;
+  background:var(--bg-card);border:1px solid var(--border);color:var(--tx-primary);
+  font-size:12px;font-weight:600;text-align:left;transition:all .15s;
+}
+.bill-chip small{font-size:10.5px;font-weight:400;color:var(--tx-secondary);}
+.bill-chip:hover{background:var(--bg-hover);}
+.bill-chip.active{background:var(--accent-glow);border-color:var(--accent);}
+.vcb-pull-link{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--radius-full);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff!important;
+  font-size:12px;font-weight:600;text-decoration:none;cursor:grab;
+}
+
 /* ── TAGS ── */
 .tag{
   display:inline-flex;align-items:center;
@@ -1177,6 +1219,11 @@ kbd{
   <div class="glass-effect rounded-xl p-5 mb-5">
     <div class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--tx-primary);">📋 วางข้อมูลคำสั่งสั่งซื้อจาก VCANBUY</div>
     <div class="alert alert-info" style="margin-bottom:12px;"><span>💡</span><span>Copy ข้อความ <b>หรือ</b> อัพโหลด/วาง screenshot ก็ได้ — รองรับหลาย Order พร้อมกัน</span></div>
+    <div class="alert alert-success" style="margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
+      <span>⚡</span>
+      <span style="flex:1;min-width:220px;"><b>ดึงอัตโนมัติจาก Vcanbuy</b> — ลากปุ่มนี้ไปวางที่แถบ Bookmark ครั้งเดียว แล้วกดปุ่มนั้นตอนเปิดเว็บ Vcanbuy → เลือกบิลขนส่ง (TOUT…) → ข้อมูลออเดอร์ + กล่องพัสดุเข้ามาเอง</span>
+      <a id="vcb-pull-link" class="vcb-pull-link" href="#" onclick="event.preventDefault();alert('ลากปุ่มนี้ไปวางที่แถบ Bookmark ของ Chrome (กด ⌘⇧B ถ้าไม่เห็นแถบ) แล้วกดปุ่มนั้นตอนอยู่บนเว็บ www.vcanbuy.com');">📦 ดึงข้อมูล Vcanbuy</a>
+    </div>
 
     <div class="shot-uploader" id="shot-uploader">
       <div class="shot-uploader-bar">
@@ -1231,8 +1278,9 @@ kbd{
     <div class="text-sm font-bold mb-3 flex items-center gap-2" style="color:var(--tx-primary);">🔍 จับคู่สินค้ากับ SKU</div>
     <div class="alert alert-info" style="margin-bottom:12px;">
       <span>💡</span>
-      <span>ระบบวิเคราะห์สีและจับคู่ SKU ให้อัตโนมัติ — ตรวจสอบและแก้ไขได้ก่อนดำเนินการต่อ</span>
+      <span>จับคู่ตาม <b>สินค้า (รหัส 1688 · ร้าน · ชื่อสินค้า)</b> + <b>สเปกสี/ไซส์</b> จาก Vcanbuy — เลือกรุ่นของเราครั้งเดียวต่อสินค้า แล้วยืนยันสี · ยืนยันแล้วระบบจำไว้ ครั้งหน้าจับคู่ให้เอง (🧠) · 💡 = เดาจากข้อมูลเก่า ต้องกดยืนยัน</span>
     </div>
+    <div id="hub-status" class="hub-status"></div>
     <div id="alert-3" style="margin-top:0;margin-bottom:10px;"></div>
     <!-- Auto-map result cards -->
     <div id="automap-list"></div>
@@ -1366,8 +1414,9 @@ kbd{
   <div class="result-title text-base font-bold mb-3 flex items-center gap-2">📋 Export to VCANBUY — ใบกำกับภาษี</div>
   <div class="alert alert-info" style="margin-bottom:14px;">
     <span>ℹ️</span>
-    <span>รวมรหัสสินค้าเดียวกันทุก Order เป็นรายการเดียว — ราคา/หน่วย = ราคาเฉลี่ยถ่วงน้ำหนัก</span>
+    <span>รวมรหัสสินค้าเดียวกันทุก Order <b>ในบิลขนส่งเดียวกัน</b> เป็นรายการเดียว — ราคา/หน่วย = ราคาเฉลี่ยถ่วงน้ำหนัก · วันที่ในใบ = วันที่เปิดบิลขนส่ง</span>
   </div>
+  <div id="bill-bar-7" class="bill-bar" style="display:none;"></div>
 
   <!-- Preview table -->
   <div class="tbl-wrap" style="margin-bottom:16px;">
@@ -1429,7 +1478,10 @@ kbd{
 
   <div class="action-row">
     <button class="btn btn-success" onclick="exportVcanbuyExcel()" style="font-size:13px;padding:9px 20px;">
-      ⬇️ ใบกำกับภาษี VCANBUY (.xlsx)
+      ⬇️ ใบกำกับภาษี VCANBUY (.xlsx) <span class="bill-btn-label"></span>
+    </button>
+    <button class="btn btn-primary bill-all-btn" onclick="exportVcanbuyAllBills()" style="display:none;">
+      ⬇️ ทุกบิล (แยกไฟล์ละบิล)
     </button>
     <button class="btn btn-outline btn-sm" onclick="goto(6)">← กลับ</button>
   </div>
@@ -1440,8 +1492,9 @@ kbd{
   <div class="result-title text-base font-bold mb-3 flex items-center gap-2">📊 Export to Peak — นำเข้าสินค้าคงคลัง</div>
   <div class="alert alert-info" style="margin-bottom:14px;">
     <span>ℹ️</span>
-    <span>รวม SKU เดียวกันทุก Order เป็นรายการเดียว — 1 บรรทัดต่อ 1 SKU (สี) — ราคาต่อหน่วย = weighted average</span>
+    <span>รวม SKU เดียวกันทุก Order <b>ในบิลขนส่งเดียวกัน</b> — 1 บรรทัดต่อ 1 SKU (สี) — ราคาต่อหน่วย = weighted average · 1 บิล = 1 เอกสาร Peak (อ้างอิง = เลขบิล)</span>
   </div>
+  <div id="bill-bar-8" class="bill-bar" style="display:none;"></div>
 
   <!-- Preview -->
   <div class="tbl-wrap" style="margin-bottom:16px;">
@@ -1458,7 +1511,16 @@ kbd{
   </div>
   <div class="action-row">
     <button class="btn btn-success" onclick="exportPeakExcel()" style="font-size:13px;padding:9px 20px;">
-      ⬇️ Download Excel (.xlsx)
+      ⬇️ Download Excel (.xlsx) <span class="bill-btn-label"></span>
+    </button>
+    <button class="btn btn-primary bill-all-btn" onclick="exportPeakAllBills()" style="display:none;">
+      ⬇️ ทุกบิล (ไฟล์เดียว · แยกเอกสารตามบิล)
+    </button>
+    <button class="btn btn-outline" onclick="sendCostsToHub()" title="ส่งต้นทุนต่อชิ้นของบิลนี้เข้า Salepage (lamsangstore.com) — ทับค่าเดิม">
+      📤 ส่งต้นทุนเข้า Salepage <span class="bill-btn-label"></span>
+    </button>
+    <button class="btn btn-outline bill-all-btn" onclick="sendCostsToHub(getBillGroups().map(g=>g.key))" style="display:none;" title="SKU ที่อยู่หลายบิลใช้ต้นทุนของบิลล่าสุด">
+      📤 ส่งต้นทุนทุกบิล
     </button>
     <button class="btn btn-outline btn-sm" onclick="goto(6)">← ผลลัพธ์สุดท้าย</button>
   </div>
@@ -1515,45 +1577,87 @@ function loadStorage(){
     skuVariants=JSON.parse(JSON.stringify(DFLT_DATA.skuVariants));
   }
 
-  // การจับคู่ที่จำไว้
+  // การจับคู่แบบเก่า (ใช้เป็นคำแนะนำเท่านั้น) + ความจำแบบใหม่ (รหัส 1688 + สเปก)
   try{ learnedMap=JSON.parse(localStorage.getItem('vcb3_learn')||'{}')||{}; }catch{ learnedMap={}; }
+  try{ skuLinks=JSON.parse(localStorage.getItem('vcb4_links')||'{}')||{}; }catch{ skuLinks={}; }
 
   // cnToCode + variantToSku: สร้างใหม่จาก DFLT_DATA + skuVariants เสมอ
   // ไม่ใช้ localStorage เพราะอาจ corrupt
   rebuildLookups();
 }
 
-function learnKeyOf(item){
-  return `${item?.chineseName||''}::${item?.variantLine||''}`;
+// ═══ ความจำการจับคู่แบบใหม่ — สินค้า Vcanbuy (รหัส 1688 + สเปก) → SKU ของเรา ═══
+// key "p:<รหัสสินค้า 1688>|<สเปกจีน>"  (หลัก — ได้จากปุ่มดึงข้อมูล Vcanbuy)
+//     "s:<ชื่อร้าน>|<สเปกจีน>"       (สำรอง — ใช้ตอน copy มือ ที่ไม่มีรหัส 1688)
+// learnedMap แบบเก่า (ชื่อจีน::variant) ไม่ถูกเขียนเพิ่มแล้ว — ใช้แค่เป็น "คำแนะนำ"
+let skuLinks={};
+// "21046-米白21046-เมตรขาว,105cm" → "21046-米白|105cm" · "黑色สีดำ" → "黑色" · "白色White" → "白色"
+// (ตัดคำแปลไทย/อังกฤษที่ Vcanbuy ต่อท้าย เพราะแปลไม่นิ่ง — เหลือสเปกต้นฉบับของร้านจีน)
+function specKey(spec){
+  return String(spec||'').split(/[,，]/).map(part=>{
+    const p=part.replace(/[\u0e00-\u0e7f\u00c0-\u024f]/g,'').trim();
+    const cjk=[...p.matchAll(/[\u4e00-\u9fff]/g)];
+    if(cjk.length){ const last=cjk[cjk.length-1]; return p.slice(0,last.index+1).replace(/\s+/g,''); }
+    return p.toLowerCase().replace(/\s+/g,'');
+  }).filter(Boolean).join('|');
 }
-// จำการจับคู่ไว้ใช้ครั้งหน้า (ออเดอร์ใหม่ / session ใหม่ ไม่ต้องจับคู่ซ้ำ)
-function learnMapping(item,map){
-  if(!item||!map?.confirmed||!map.code) return false;
-  const k=learnKeyOf(item);
-  const cur=learnedMap[k];
-  if(cur&&cur.code===map.code&&cur.sku===(map.sku||'')) return false;
-  learnedMap[k]={code:map.code,sku:map.sku||''};
-  return true;
+function linkKeysOf(item){
+  const sk=specKey(item?.spec||item?.variantLine);
+  const keys=[];
+  if(item?.offerId) keys.push(`p:${item.offerId}|${sk}`);
+  if(item?.shop) keys.push(`s:${item.shop}|${sk}`);
+  return keys;
 }
-// ลืมการจับคู่ที่จำไว้ทั้งหมด (เผื่อจำผิด) — undo ได้
+// จำว่า สินค้า+สเปกนี้ = SKU นี้ (ทั้ง key หลักและ key สำรอง)
+function learnLink(item,map){
+  if(!item||!map?.confirmed||!map.sku) return false;
+  let changed=false;
+  for(const k of linkKeysOf(item)){
+    if(skuLinks[k]?.sku===map.sku) continue;
+    skuLinks[k]={sku:map.sku,code:map.code,shop:item.shop||'',title:item.title||'',spec:item.spec||item.variantLine||'',img:item.img||'',at:Date.now()};
+    changed=true;
+  }
+  return changed;
+}
+function recallLink(item){
+  for(const k of linkKeysOf(item)){
+    const L=skuLinks[k];
+    const sv=L&&skuVariants.find(v=>v.sku===L.sku);
+    if(sv) return {code:sv.code,sku:sv.sku,name:sv.name||'',color:sv.color||'',confirmed:true,src:k[0]==='p'?'memory':'memory-shop'};
+  }
+  return null;
+}
+// คำแนะนำจากข้อมูลเก่า (ต้องกดยืนยัน): ความจำแบบเก่า → ชื่อสินค้าจีน (cn1/cn2) → สีที่เจาะจงรุ่นเดียว
+function suggestFor(item){
+  let code=null;
+  const old=learnedMap[`${item.chineseName||''}::${item.variantLine||''}`];
+  if(old?.sku){ const sv=skuVariants.find(v=>v.sku===old.sku); if(sv) return {code:sv.code,sku:sv.sku,name:sv.name||'',color:sv.color||'',confirmed:false,src:'hint'}; }
+  if(old?.code) code=old.code;
+  if(!code&&item.title) code=cnToCode['cn:'+item.title]||null;
+  if(!code){ const c=candidateCodes(item.variantLine||''); if(c.length===1) code=c[0]; }
+  if(!code) return null;
+  const r=findSkuByCodeAndVariant(code,item.spec||item.variantLine||'');
+  return {code,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:false,src:'hint'};
+}
 function forgetLearnedMappings(){
-  const n=Object.keys(learnedMap).length;
+  const n=Object.keys(skuLinks).length;
   if(!n){ Toast.show({msg:'ยังไม่มีการจับคู่ที่จำไว้',type:'info',duration:3000}); return; }
-  const backup=JSON.parse(JSON.stringify(learnedMap));
-  learnedMap={}; saveLearned();
+  if(!confirm(`ลบการจับคู่ที่จำไว้ทั้งหมด ${n} รายการ?`)) return;
+  const backup=JSON.parse(JSON.stringify(skuLinks));
+  skuLinks={}; saveLearned();
   itemMappings={};
   try{ autoMapOrders(); }catch{}
   Toast.show({
     msg:`🧠 ล้างความจำการจับคู่แล้ว (${n} รายการ)`, type:'success', duration:8000,
     action:{label:'↶ เลิกทำ', onClick:()=>{
-      learnedMap=backup; saveLearned();
+      skuLinks=backup; saveLearned();
       try{ autoMapOrders(); }catch{}
       Toast.success('คืนความจำการจับคู่แล้ว');
     }}
   });
 }
 function saveLearned(){
-  try{ localStorage.setItem('vcb3_learn',JSON.stringify(learnedMap)); }catch{}
+  try{ localStorage.setItem('vcb4_links',JSON.stringify(skuLinks)); }catch{}
   if(window.Cloud?.ws){clearTimeout(saveLearned._t);saveLearned._t=setTimeout(()=>Cloud.pushSkuMapping(),700);}
 }
 // หา item จาก key ที่ UI ส่งมา
@@ -1670,6 +1774,12 @@ function parseOrders(raw){
     const lines=blk.split('\n').map(l=>l.trim()).filter(Boolean);
     const order={orderId:'',boxId:'',serviceFee:0,exRate:0,totalShpCNCN:0,items:[]};
     let curCn='';let curVariant='';let variantCount=0;let curStatus='';
+    // หน้ารายละเอียดออเดอร์: ชื่อร้าน → "1." → (@vcb ข้อมูลสินค้า 1688) → สเปก สี/ไซส์
+    let curShop='';let curMeta=null;let expectSpec=false;
+    const itemExtra=()=>{
+      const x={shop:curShop,spec:curVariant,offerId:curMeta?.offer||'',title:curMeta?.title||'',img:curMeta?.img||''};
+      curMeta=null; return x;
+    };
 
     for(let i=0;i<lines.length;i++){
       const ln=lines[i];
@@ -1684,7 +1794,12 @@ function parseOrders(raw){
 
       // Box ID
       const mBox=ln.match(/เลขกล่องพัสดุ[:\s]+([A-Z0-9]+)/);
-      if(mBox){order.boxId=mBox[1];continue;}
+      if(mBox){
+        order.boxId=mBox[1];
+        // ทุกกล่องของออเดอร์ "CX… | CX…" — ใช้นับค่าขนส่งไทย-ไทย และเช็คว่ากล่องมาถึงครบหรือยัง
+        order.boxIds=[...new Set([...ln.matchAll(/\b(CX[A-Z0-9]+)/g)].map(m=>m[1]))];
+        continue;
+      }
 
       // ค่าบริการ
       if(/^ค่าบริการ[:\s]/.test(ln)){
@@ -1708,6 +1823,16 @@ function parseOrders(raw){
         continue;
       }
 
+      // บรรทัดก่อน "1." = ชื่อร้าน (จีน หรือ ละติน เช่น xfpidai)
+      if(/^\d+\.$/.test(lines[i+1]||'')&&!/\t|^\d+\.$|^@vcb /.test(ln)){ curShop=ln.replace(/^\d+\.\s*/,''); continue; }
+      // ข้อมูลสินค้าจากปุ่มดึงข้อมูล Vcanbuy: @vcb {"offer":…,"title":…,"img":…}
+      if(ln.startsWith('@vcb ')){ try{ curMeta=JSON.parse(ln.slice(5)); }catch{} continue; }
+      // "1." = เริ่มสินค้าชิ้นใหม่ → บรรทัดถัดไปคือสเปก สี/ไซส์ (เช่น 黑色สีดำ,105cm)
+      if(/^\d+\.$/.test(ln)){ expectSpec=true; curVariant=''; variantCount=1; continue; }
+      if(expectSpec&&!/^(ทั่วไป|กำลังเดินทาง|นำส่งบริษัท|รอร้านค้า|สินค้าหมด|ยกเลิก|ดูรายละเอียด)/.test(ln)&&!/^\d+\t/.test(ln)){
+        curVariant=ln.replace(/^\d+\.\s*/,'').trim(); expectSpec=false; continue;
+      }
+      expectSpec=false;
       // Skip noise
       if(/^(บิลสั่งซื้อ|ดูรายละเอียด|วันที่เปิด|ราคารวม|ขนส่งจีนไทย|ค่าตี|ค่าใช้|ค่าขนส่งภายใน|ขนส่งใน|รูปแบบ|ประกัน|คูปอง|ส่วนลด|หมายเหตุ|ที่อยู่|ผู้รับ|เบอร์โทร|รหัสไปรษณีย์|สินค้าจำนวน|Welcome|รวม\()/.test(ln)) continue;
       // Skip promo/event lines: "3.3 Sale", "11.11", "Surprise rate" etc.
@@ -1733,7 +1858,7 @@ function parseOrders(raw){
         // สินค้าหมด = คืนเงิน = cancelled (ไม่นับ qty/ราคา แต่ค่าขนส่งยังนับอยู่)
         const cancelled=curStatus.includes('ยกเลิก')||curStatus.includes('สินค้าหมด');
         if(shp>0) order.totalShpCNCN=r2(order.totalShpCNCN+shp);
-        order.items.push({chineseName:curCn,variantLine:curVariant||curCn,fullCnKey:curCn+(curVariant?'\n'+curVariant+'\n'+curVariant:''),qty,priceThb:price,cancelled});
+        order.items.push({chineseName:curCn,variantLine:curVariant||curCn,fullCnKey:curCn+(curVariant?'\n'+curVariant+'\n'+curVariant:''),qty,priceThb:price,cancelled,...itemExtra()});
         curVariant='';variantCount=0;curStatus='';
         continue;
       }
@@ -1744,7 +1869,7 @@ function parseOrders(raw){
         const price=parseFloat(fmtB[1].replace(/,/g,''));
         const qty=parseInt(fmtB[2]);
         const cancelled=curStatus.includes('ยกเลิก')||curStatus.includes('สินค้าหมด');
-        order.items.push({chineseName:curCn,variantLine:curVariant||curCn,fullCnKey:curCn+(curVariant?'\n'+curVariant+'\n'+curVariant:''),qty,priceThb:price,cancelled});
+        order.items.push({chineseName:curCn,variantLine:curVariant||curCn,fullCnKey:curCn+(curVariant?'\n'+curVariant+'\n'+curVariant:''),qty,priceThb:price,cancelled,...itemExtra()});
         curVariant='';variantCount=0;curStatus='';
         continue;
       }
@@ -1760,7 +1885,7 @@ function parseOrders(raw){
         const shp=order.exRate>0?r2(shpY*order.exRate):shpY;
         const cancelled=curStatus.includes('ยกเลิก')||curStatus.includes('สินค้าหมด');
         if(shp>0) order.totalShpCNCN=r2(order.totalShpCNCN+shp);
-        order.items.push({chineseName:curCn,variantLine:curVariant||curCn,fullCnKey:curCn+(curVariant?'\n'+curVariant+'\n'+curVariant:''),qty,priceThb:price,cancelled});
+        order.items.push({chineseName:curCn,variantLine:curVariant||curCn,fullCnKey:curCn+(curVariant?'\n'+curVariant+'\n'+curVariant:''),qty,priceThb:price,cancelled,...itemExtra()});
         curVariant='';variantCount=0;curStatus='';
         continue;
       }
@@ -1771,6 +1896,8 @@ function parseOrders(raw){
         let cln=ln.replace(/^\d+\.\s*/,'')
           .replace(/\s*(ทั่วไป|กำลังเดินทาง|นำส่งบริษัท|รอร้านค้า|ยกเลิก|สินค้าหมด).*$/,'').trim();
         if(!cln) continue;
+        // บรรทัดก่อน "1." = ชื่อร้าน
+        if(/^\d+\.\s*$/.test(lines[i+1]||'')){ curShop=cln; continue; }
         const cnChars=cln.replace(/[^\u4e00-\u9fff]/g,'').length;
         const isVariant=!!(cln.match(/,\s*$|,\s*\d+cm\s*$/)||
           (cln.length<60&&/[A-Z]/.test(cln)&&!/[\u0e00-\u0e7f]{5,}/.test(cln)));
@@ -1944,409 +2071,217 @@ function findSkuByCodeAndVariant(code, variantLine){
 
 function itemKey(orderId,variantLine,idx){return orderId+'::'+variantLine+'::'+(idx==null?0:idx);}
 
+// ── รายการสินค้าทั้งหมด (เฉพาะที่ไม่ถูกยกเลิก) พร้อม key ของ itemMappings ──
+function _mapEntries(){
+  const out=[];
+  for(const o of parsedOrders){
+    o.items.filter(i=>!i.cancelled).forEach((item,idx)=>out.push({o,item,idx,key:itemKey(o.orderId,item.variantLine,idx)}));
+  }
+  return out;
+}
+// สินค้าเดียวกัน = รหัส 1688 เดียวกัน (ไม่มีรหัส → ร้าน + ชื่อสินค้า)
+function _productKey(item){
+  if(item.offerId) return 'p:'+item.offerId;
+  if(item.shop||item.title) return 's:'+(item.shop||'')+'|'+(item.title||'');
+  return 'x:'+(item.chineseName||'');
+}
+
 function autoMapOrders(){
   if(!parsedOrders.length){alert_('alert-3','warn','ยังไม่มีข้อมูล Order');return;}
-  const prev=itemMappings;      // เก็บงานที่จับคู่ไว้แล้ว — ไม่ต้องจับใหม่
+  const prev=itemMappings;      // งานที่จับคู่ไว้แล้วในรอบก่อน — ไม่ต้องจับใหม่
   itemMappings={};
-  let keptCount=0, recallCount=0;
-
-  for(const o of parsedOrders){
-    const active=o.items.filter(i=>!i.cancelled);
-    if(!active.length) continue;
-
-    // Pass 1: find uniquely-identifiable items (preserve active-array index)
-    const perItem=active.map((item,idx)=>({
-      item, idx,
-      codes: candidateCodes(item.variantLine)
-    }));
-
-    // Pass 2: collect codes that are uniquely confirmed
-    const confirmedCodes=new Set(
-      perItem.filter(x=>x.codes.length===1).map(x=>x.codes[0])
-    );
-
-    // Pass 3: for ambiguous items, filter to only confirmed codes if any match
-    for(const {item,idx,codes} of perItem){
-      const key=itemKey(o.orderId,item.variantLine,idx);
-
-      // 1) รายการนี้จับคู่ไว้แล้วในรอบก่อน → ใช้ของเดิม
-      if(prev[key]?.confirmed){ itemMappings[key]=prev[key]; keptCount++; continue; }
-
-      // 2) สินค้า+สีนี้เคยจับคู่ไว้ (จำข้ามออเดอร์/ข้าม session)
-      const L=learnedMap[learnKeyOf(item)];
-      if(L?.code){
-        const r=(L.sku&&skuVariants.find(v=>v.sku===L.sku))||findSkuByCodeAndVariant(L.code,item.variantLine);
-        if(r?.sku){
-          itemMappings[key]={code:L.code,sku:r.sku,name:r.name||'',color:r.color||'',confirmed:true};
-          recallCount++; continue;
-        }
-      }
-
-      let resolvedCode=null;
-
-      if(codes.length===1){
-        resolvedCode=codes[0];
-      } else if(confirmedCodes.size>0){
-        const filtered=codes.filter(c=>confirmedCodes.has(c));
-        if(filtered.length===1) resolvedCode=filtered[0];
-      }
-
-      // Also check chineseName from parser (if already set)
-      if(!resolvedCode && item.chineseName){
-        const c=cnToCode['cn:'+item.chineseName];
-        if(c) resolvedCode=c;
-      }
-
-      if(resolvedCode){
-        const r=findSkuByCodeAndVariant(resolvedCode,item.variantLine);
-        itemMappings[key]={code:resolvedCode,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:true};
-      } else {
-        itemMappings[key]={code:null,sku:'',name:'',color:'',confirmed:false};
-      }
+  let kept=0, recalled=0, hinted=0;
+  for(const {item,key} of _mapEntries()){
+    if(prev[key]?.confirmed&&prev[key]?.sku){ itemMappings[key]=prev[key]; kept++; continue; }
+    const R=recallLink(item);
+    if(R){ itemMappings[key]=R; recalled++; continue; }
+    const H=suggestFor(item);
+    if(H){ itemMappings[key]=H; hinted++; continue; }
+    itemMappings[key]={code:null,sku:'',name:'',color:'',confirmed:false};
+  }
+  // สินค้าเดียวกันควรเป็นรุ่นเดียวกัน — คำแนะนำในสินค้าเดียวกันใช้รุ่นที่เจอมากสุด (ที่ยืนยันแล้วมีน้ำหนักกว่า)
+  const byProd={};
+  for(const e of _mapEntries()) (byProd[_productKey(e.item)]=byProd[_productKey(e.item)]||[]).push(e);
+  for(const list of Object.values(byProd)){
+    const score={};
+    for(const {item,key} of list){ const m=itemMappings[key]; if(m?.code) score[m.code]=(score[m.code]||0)+(m.confirmed?1e6:0)+item.qty; }
+    const code=Object.entries(score).sort((a,b)=>b[1]-a[1])[0]?.[0];
+    if(!code) continue;
+    for(const {item,key} of list){
+      const m=itemMappings[key];
+      if(m?.confirmed||m?.code===code) continue;
+      const r=findSkuByCodeAndVariant(code,item.spec||item.variantLine||'');
+      itemMappings[key]={code,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:false,src:'hint'};
     }
   }
-
   renderAutoMapUI();
-  const reused=keptCount+recallCount;
-  if(reused>0) alert_('alert-3','info',
-    `♻️ ใช้การจับคู่เดิม <b>${reused}</b> รายการ` +
-    (recallCount?` (จำจากที่เคยจับคู่ไว้ ${recallCount})`:'') +
-    ` — จับคู่เฉพาะรายการที่เหลือได้เลย`);
+  const msgs=[];
+  if(recalled) msgs.push(`🧠 จำได้ ${recalled}`);
+  if(kept) msgs.push(`♻️ ใช้ของเดิม ${kept}`);
+  if(hinted) msgs.push(`💡 มีคำแนะนำ ${hinted} — ตรวจแล้วกดยืนยัน`);
+  if(msgs.length) Toast.show({msg:msgs.join(' · '),type:'info',duration:5000});
+}
+
+// ── หน้าจับคู่: จัดกลุ่มตามสินค้า → สเปก (สี/ไซส์) ──
+let _mapView=[];
+function _buildMapView(){
+  const prods=new Map();
+  for(const e of _mapEntries()){
+    const pk=_productKey(e.item);
+    if(!prods.has(pk)) prods.set(pk,{pk,item:e.item,orders:new Set(),specs:new Map()});
+    const P=prods.get(pk);
+    P.orders.add(e.o.orderId);
+    if(!P.item.title&&e.item.title) P.item=e.item;
+    const sk=specKey(e.item.spec||e.item.variantLine)||e.item.variantLine||'?';
+    if(!P.specs.has(sk)) P.specs.set(sk,{sk,label:e.item.spec||e.item.variantLine||'',qty:0,entries:[]});
+    const S=P.specs.get(sk);
+    S.qty+=e.item.qty; S.entries.push(e);
+  }
+  _mapView=[...prods.values()].map(P=>({...P,orders:[...P.orders],specs:[...P.specs.values()]}));
+  return _mapView;
+}
+const _specMap=S=>itemMappings[S.entries[0].key]||{};
+const _specDone=S=>S.entries.every(e=>itemMappings[e.key]?.confirmed&&itemMappings[e.key]?.sku);
+function _setSpec(S,map,learn){
+  for(const e of S.entries){
+    itemMappings[e.key]={...map};
+    if(learn&&learnLink(e.item,map)) _learnDirty=true;
+  }
+}
+function _productCode(P){
+  const cnt={};
+  for(const S of P.specs){ const c=_specMap(S).code; if(c) cnt[c]=(cnt[c]||0)+S.qty; }
+  return Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
 }
 
 function renderAutoMapUI(){
   const container=document.getElementById('automap-list');
-  let totalItems=0, mappedItems=0;
-
+  const view=_buildMapView();
   const allCodes=[...new Set(skuVariants.map(v=>v.code).filter(Boolean))].sort();
-  const codeOpts=(selected='')=>'<option value="">— เลือกรุ่น —</option>'+allCodes.map(c=>{
-    const sv=skuVariants.find(v=>v.code===c);
-    return`<option value="${esc(c)}"${c===selected?'selected':''}>${esc(c)} — ${esc(sv?.name||'')}</option>`;
+  const codeOpts=sel=>'<option value="">— เลือกรุ่นของเรา —</option>'+allCodes.map(c=>{
+    const sv=skuVariants.find(v=>v.code===c&&v.active!==false)||skuVariants.find(v=>v.code===c);
+    return `<option value="${esc(c)}"${c===sel?' selected':''}>${esc(sv?.shortName||`${c} — ${sv?.name||''}`)}</option>`;
   }).join('');
+  let totalSpecs=0, doneSpecs=0, hintSpecs=0;
 
-  // Build flat rows across all orders
-  const rows=[];
-  parsedOrders.forEach(o=>{
-    const active=o.items.filter(i=>!i.cancelled);
-    if(!active.length) return;
-
-    // dominant code for order-level selector
-    const codeCounts={};
-    active.forEach((item,idx)=>{
-      const m=itemMappings[itemKey(o.orderId,item.variantLine,idx)];
-      if(m?.code) codeCounts[m.code]=(codeCounts[m.code]||0)+1;
-    });
-    const dominantCode=Object.entries(codeCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
-    const orderDone=active.every((item,idx)=>itemMappings[itemKey(o.orderId,item.variantLine,idx)]?.confirmed);
-    const doneCount=active.filter((item,idx)=>itemMappings[itemKey(o.orderId,item.variantLine,idx)]?.confirmed).length;
-
-    active.forEach((item,idx)=>{
-      const key=itemKey(o.orderId,item.variantLine,idx);
-      const map=itemMappings[key]||{};
-      const colorPart=item.variantLine.split(',')[0].trim();
-      totalItems++;
-      if(map.confirmed) mappedItems++;
-      rows.push({
-        orderId:o.orderId, boxId:o.boxId||'—',
-        colorPart, qty:item.qty, itemIdx:idx,
-        variantLine:item.variantLine,
-        map, dominantCode, orderDone, doneCount,
-        orderTotal:active.length, isFirst:idx===0
-      });
-    });
-  });
-
-  const CHIP_THRESHOLD=5;
-  const skuListForCode=(code)=>skuVariants.filter(v=>v.code===code&&v.sku);
-
-  const skuChipsForCode=(code,selectedSku='',orderId='',variantLine='',idx=0)=>{
-    const list=skuListForCode(code);
-    return list.map(sv=>{
-      const sel=sv.sku===selectedSku;
-      return `<button type="button" class="sku-chip${sel?' sku-chip-active':''}"
-        title="${esc(sv.sku)}"
-        onclick="onItemSkuChange('${esc(orderId)}','${esc(variantLine)}',${idx},'${esc(sv.sku)}')">
-        ${esc(sv.color||'(ไม่มีสี)')}
-      </button>`;
+  const cards=view.map((P,pi)=>{
+    const pCode=_productCode(P);
+    const it=P.item;
+    const link=it.offerId?`https://detail.1688.com/offer/${encodeURIComponent(it.offerId)}.html`:'';
+    const pending=P.specs.filter(S=>!_specDone(S)&&_specMap(S).sku).length;
+    const allDone=P.specs.every(_specDone);
+    const rows=P.specs.map((S,si)=>{
+      totalSpecs++;
+      const m=_specMap(S);
+      const done=_specDone(S);
+      if(done) doneSpecs++; else if(m.sku) hintSpecs++;
+      const code=m.code||pCode;
+      let status;
+      if(done) status=(m.src||'').startsWith('memory')
+        ?`<span class="tag tag-green" title="จำจากที่เคยจับคู่ไว้">🧠 ${esc(m.color||'')}</span>`
+        :`<span class="tag tag-green">✅ ${esc(m.color||'')}</span>`;
+      else if(m.sku) status=`<span class="tag tag-yellow" title="เดาจากข้อมูลเก่า/สี — ตรวจแล้วกดยืนยัน">💡 ${esc(m.code)} ${esc(m.color||'')}</span>`;
+      else if(m.code) status=`<span class="tag tag-yellow">💡 ${esc(m.code)} — เลือกสี</span>`;
+      else status=`<span class="tag tag-orange">⚠️ ยังไม่เลือก</span>`;
+      const list=code?skuVariants.filter(v=>v.code===code&&v.sku):[];
+      const chips=!code?'<span class="map-muted">เลือกรุ่นด้านบนก่อน</span>'
+        :!list.length?'<span class="map-muted" style="color:var(--tx-error);">รุ่นนี้ยังไม่มี SKU</span>'
+        :list.map(sv=>`<button type="button" class="sku-chip${sv.sku===m.sku?' sku-chip-active':''}${sv.active===false?' sku-inactive':''}" title="${esc(sv.sku)}${sv.active===false?' (ปิดขาย)':''}"
+            onclick="mapPickSku(${pi},${si},'${esc(sv.sku)}')">${sv.img?`<img src="${esc(sv.img)}" alt="" loading="lazy">`:''}${esc(sv.color||'(ไม่มีสี)')}</button>`).join('');
+      return `<tr class="${done?'':'map-row-todo'}">
+        <td class="map-spec">${esc(S.label)}${S.entries.length>1?`<div class="map-muted">${S.entries.length} ออเดอร์</div>`:''}</td>
+        <td class="ncell">${S.qty.toLocaleString()}</td>
+        <td>${status}</td>
+        <td><div class="sku-chips">${chips}</div></td>
+      </tr>`;
     }).join('');
-  };
-
-  const skuOptsForCode=(code,selectedSku='')=>{
-    const list=skuListForCode(code);
-    if(!list.length) return '';
-    return '<option value="">— เลือกสี —</option>'+list.map(sv=>
-      `<option value="${esc(sv.sku)}"${sv.sku===selectedSku?'selected':''}>${esc(sv.color||'(ไม่มีสี)')} — ${esc(sv.sku)}</option>`
-    ).join('');
-  };
-
-  const tbody=rows.map(r=>{
-    const map=r.map;
-    const variantCount=map.code?skuListForCode(map.code).length:0;
-    const isAmbiguous=variantCount>1; // multiple SKUs to choose from
-    let statusCell;
-    if(map.code){
-      const headTag=map.confirmed
-        ? `<span class="tag tag-green" style="font-size:11px;">✅ ${esc(map.color||'')}</span>`
-        : `<span class="tag tag-orange" style="font-size:11px;">⚠️ เลือกสี</span>`;
-      const skuMono=map.confirmed?`<div class="mono" style="font-size:10px;color:var(--tx-secondary);margin-top:2px;">${esc(map.sku||'')}</div>`:'';
-      const autoBtn=isAmbiguous?`<button type="button" class="auto-chip" title="ให้ระบบเดาสีจาก variant"
-        onclick="onItemAutoMatch('${esc(r.orderId)}','${esc(r.variantLine)}',${r.itemIdx})">
-        <span class="material-symbols-outlined" style="font-size:13px;vertical-align:-2px;">auto_fix_high</span> auto
-      </button>`:'';
-      let picker='';
-      if(variantCount===0){
-        picker=`<div style="font-size:10.5px;color:var(--tx-error);margin-top:4px;">ยังไม่มี SKU ในรุ่นนี้</div>`;
-      } else if(variantCount<=CHIP_THRESHOLD){
-        picker=`<div class="sku-chips">${skuChipsForCode(map.code,map.sku||'',r.orderId,r.variantLine,r.itemIdx)}</div>`;
-      } else {
-        picker=`<select style="margin-top:4px;width:100%;background:#fff;border:1px solid rgba(192,132,176,.2);border-radius:var(--radius-sm);padding:4px 6px;font-size:11.5px;color:var(--tx-primary);"
-          onchange="onItemSkuChange('${esc(r.orderId)}','${esc(r.variantLine)}',${r.itemIdx},this.value)">
-          ${skuOptsForCode(map.code,map.sku||'')}
-        </select>`;
-      }
-      statusCell=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${headTag}${autoBtn}</div>${skuMono}${picker}`;
-    } else {
-      statusCell=`<span class="tag tag-orange">⚠️ ยังไม่ได้เลือก</span>`;
-    }
-
-    const orderHeader=r.isFirst
-      ? `<td rowspan="${r.orderTotal}" style="border-right:1px solid rgba(192,132,176,.2);vertical-align:top;padding-top:10px;background:rgba(250,244,255,.6);">
-           <div class="mono" style="font-size:11.5px;color:var(--teal);">${esc(r.orderId)}</div>
-           <div style="font-size:11px;color:var(--tx-secondary);margin-top:3px;">📦 ${esc(r.boxId)}</div>
-           <div style="margin-top:6px;">${r.orderDone
-             ?`<span class="tag tag-green" style="font-size:11px;">✅ ${r.doneCount}/${r.orderTotal}</span>`
-             :`<span class="tag tag-orange" style="font-size:11px;">⚠️ ${r.doneCount}/${r.orderTotal}</span>`}
-           </div>
-           <select style="margin-top:8px;width:100%;background:rgba(192,132,176,.07);border:1px solid var(--border-sub);border-radius:.5rem;padding:5px 7px;font-size:11px;color:var(--tx-primary);"
-             onchange="onOrderCodeChange('${esc(r.orderId)}',this.value);this.value=''">
-             <option value="">🔀 ตั้งทั้งหมด</option>
-             ${codeOpts(r.dominantCode)}
-           </select>
-         </td>`
-      : '';
-
-    const rowOutline = !map.confirmed
-      ? 'outline:1px solid rgba(224,90,122,.18);'
-      : (isAmbiguous?'outline:1px solid rgba(220,170,80,.35);background:rgba(255,250,235,.4);':'');
-
-    return`<tr class="${rowColor(r.orderId)}" style="${rowOutline}">
-      ${orderHeader}
-      <td style="font-size:12px;">${esc(r.colorPart)}</td>
-      <td class="ncell">${r.qty.toLocaleString()}</td>
-      <td>
-        <select style="width:100%;background:#fff;border:1px solid rgba(192,132,176,.2);border-radius:var(--radius-sm);padding:5px 8px;font-size:12px;color:var(--tx-primary);"
-          onchange="onItemCodeChange('${esc(r.orderId)}','${esc(r.variantLine)}',${r.itemIdx},this.value)">
-          ${codeOpts(map.code||'')}
-        </select>
-      </td>
-      <td style="min-width:200px;background:var(--bg-card2);">${statusCell}</td>
-    </tr>`;
-  }).join('');
-
-  // Bulk action toolbar — สำหรับตั้งค่ารวดเร็ว
-  const unmappedCount=totalItems-mappedItems;
-  const allCodesOpts='<option value="">— เลือกรุ่น —</option>'+allCodes.map(c=>{
-    const sv=skuVariants.find(v=>v.code===c);
-    return`<option value="${esc(c)}">${esc(c)} — ${esc(sv?.name||'')}</option>`;
-  }).join('');
-  const bulkBar=`<div class="bulk-bar">
-    <span style="font-weight:600;color:var(--tx-secondary);">⚡ Bulk:</span>
-    <select id="bulk-code-sel" style="font-size:11.5px;padding:5px 8px;border-radius:8px;border:1px solid rgba(192,132,176,.25);">${allCodesOpts}</select>
-    <button class="shot-btn" onclick="bulkAssignCode('unmapped')" title="ตั้งรุ่นที่เลือกให้แถวที่ยังว่าง"
-      ${unmappedCount===0?'disabled':''}>
-      <span class="material-symbols-outlined" style="font-size:14px;">checklist</span>
-      ตั้งรุ่นนี้ให้แถวว่าง (${unmappedCount})
-    </button>
-    <button class="shot-btn" onclick="bulkAssignCode('all')" title="ตั้งรุ่นที่เลือกให้ทุกแถว (รวมที่ตั้งแล้ว)">
-      <span class="material-symbols-outlined" style="font-size:14px;">select_all</span>
-      ตั้งทุกแถว
-    </button>
-    <button class="shot-btn" onclick="bulkAutoMatchAll()" title="ให้ระบบเดาสีอัตโนมัติทุกแถวที่ยังเลือกผิด">
-      <span class="material-symbols-outlined" style="font-size:14px;">auto_fix_high</span>
-      Auto-match สีทั้งหมด
-    </button>
-  </div>`;
-
-  container.innerHTML=`${bulkBar}
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr>
-          <th style="min-width:200px;background:var(--bg-card2);">Order / กล่องพัสดุ</th>
-          <th>สี / Variant</th>
-          <th>จำนวน</th>
-          <th style="min-width:200px;background:var(--bg-card2);">รุ่นสินค้า</th>
-          <th style="min-width:200px;background:var(--bg-card2);">สี / SKU</th>
-        </tr></thead>
-        <tbody>${tbody}</tbody>
-      </table>
+    return `<div class="map-card${allDone?' map-card-done':''}">
+      <div class="map-head">
+        ${it.img?`<img class="map-img" src="${esc(it.img)}" referrerpolicy="no-referrer" loading="lazy" alt="">`:'<div class="map-img map-img-empty">📦</div>'}
+        <div class="map-info">
+          <div class="map-title">${esc(it.title||'(ไม่มีชื่อสินค้า — ข้อมูล copy มือ ใช้ปุ่มดึงข้อมูล Vcanbuy จะได้ชื่อ/รูป/รหัส 1688)')}</div>
+          <div class="map-muted">🏪 ${esc(it.shop||'ไม่ทราบร้าน')}${it.offerId?` · <a href="${esc(link)}" target="_blank" rel="noopener">1688 #${esc(it.offerId)}</a>`:''} · ${P.orders.map(esc).join(', ')}</div>
+        </div>
+        <div class="map-actions">
+          <select onchange="mapPickCode(${pi},this.value)">${codeOpts(pCode)}</select>
+          ${pending?`<button class="btn btn-success btn-sm" onclick="mapConfirmProduct(${pi})">✓ ยืนยัน ${pending} สี</button>`:''}
+        </div>
+      </div>
+      <table class="map-tbl"><thead><tr><th>สเปก จาก Vcanbuy</th><th>จำนวน</th><th>สถานะ</th><th>สีของเรา (SKU)</th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
+  }).join('');
 
-  const pct=totalItems>0?Math.round(mappedItems/totalItems*100):0;
-  if(mappedItems===totalItems&&totalItems>0){
-    alert_('alert-3','success',`✅ จับคู่ครบ ${mappedItems}/${totalItems} items — กด "ยืนยัน & ไปขั้นตอน 4" ได้เลย`);
-  } else {
-    alert_('alert-3','warn',`จับคู่แล้ว ${mappedItems}/${totalItems} items (${pct}%) — เลือกรุ่นให้ครบ`);
-  }
+  const bulk=hintSpecs?`<div class="bulk-bar"><span>💡 มีคำแนะนำ ${hintSpecs} สเปก ที่ยังไม่ยืนยัน</span>
+    <button class="shot-btn" onclick="mapConfirmAll()"><span class="material-symbols-outlined" style="font-size:14px;">done_all</span> ยืนยันคำแนะนำทั้งหมด</button></div>`:'';
+  container.innerHTML=bulk+cards;
+
+  if(totalSpecs&&doneSpecs===totalSpecs) alert_('alert-3','success',`✅ จับคู่ครบ ${doneSpecs}/${totalSpecs} สเปก (${view.length} สินค้า) — กด "ยืนยัน & ไปขั้นตอน 4" ได้เลย`);
+  else alert_('alert-3','warn',`จับคู่แล้ว ${doneSpecs}/${totalSpecs} สเปก (${view.length} สินค้า) — เลือกรุ่นของเราต่อสินค้า แล้วยืนยันสี`);
 }
 
-function onOrderCodeChange(orderId, code){
-  if(!code) return;
-  // Set ALL items in this order to the selected code
-  for(const o of parsedOrders){
-    if(o.orderId!==orderId) continue;
-    const active=o.items.filter(i=>!i.cancelled);
-    active.forEach((item,idx)=>{
-      const r=findSkuByCodeAndVariant(code,item.variantLine);
-      itemMappings[itemKey(orderId,item.variantLine,idx)]={
-        code,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:true
-      };
-    });
+// เลือกรุ่นของเราให้ทั้งสินค้า → เดาสีให้ทุกสเปก (ยังต้องยืนยัน)
+function mapPickCode(pi,code){
+  const P=_mapView[pi]; if(!P) return;
+  for(const S of P.specs){
+    if(_specDone(S)&&_specMap(S).code===code) continue;
+    if(!code){ _setSpec(S,{code:null,sku:'',name:'',color:'',confirmed:false}); continue; }
+    const r=findSkuByCodeAndVariant(code,S.label);
+    _setSpec(S,{code,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:false,src:'hint'});
   }
-  renderAutoMapUI();
+  renderAutoMapUI(); saveState();
 }
-
-function bulkAssignCode(scope){
-  const sel=document.getElementById('bulk-code-sel');
-  const code=sel?.value;
-  if(!code){Toast.warn('เลือกรุ่นก่อน');return;}
-  let count=0;
-  for(const o of parsedOrders){
-    const active=o.items.filter(i=>!i.cancelled);
-    active.forEach((item,idx)=>{
-      const k=itemKey(o.orderId,item.variantLine,idx);
-      const cur=itemMappings[k]||{};
-      if(scope==='unmapped'&&cur.confirmed) return;
-      const r=findSkuByCodeAndVariant(code,item.variantLine);
-      itemMappings[k]={code,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:true};
-      count++;
-    });
-  }
-  renderAutoMapUI();saveState();
-  Toast.success(`✅ ตั้งรุ่นให้ ${count} แถวแล้ว`);
+// กดเลือกสี = ยืนยันสเปกนี้ + จำไว้
+function mapPickSku(pi,si,sku){
+  const S=_mapView[pi]?.specs[si]; const sv=skuVariants.find(v=>v.sku===sku);
+  if(!S||!sv) return;
+  _learnDirty=false;
+  _setSpec(S,{code:sv.code,sku:sv.sku,name:sv.name||'',color:sv.color||'',confirmed:true,src:'user'},true);
+  if(_learnDirty) saveLearned();
+  renderAutoMapUI(); saveState();
 }
-
-function bulkAutoMatchAll(){
-  let count=0;
-  for(const o of parsedOrders){
-    const active=o.items.filter(i=>!i.cancelled);
-    active.forEach((item,idx)=>{
-      const k=itemKey(o.orderId,item.variantLine,idx);
-      const cur=itemMappings[k]||{};
-      if(!cur.code) return;
-      const r=findSkuByCodeAndVariant(cur.code,item.variantLine);
-      if(r&&r.sku){
-        itemMappings[k]={code:cur.code,sku:r.sku,name:r.name||'',color:r.color||'',confirmed:true};
-        count++;
-      }
-    });
+function _confirmSpecs(specs){
+  _learnDirty=false; let n=0;
+  for(const S of specs){
+    const m=_specMap(S);
+    if(_specDone(S)||!m.sku) continue;
+    _setSpec(S,{...m,confirmed:true,src:'user'},true); n++;
   }
-  renderAutoMapUI();saveState();
-  Toast.success(`🪄 Auto-match สำเร็จ ${count} แถว`);
+  if(_learnDirty) saveLearned();
+  renderAutoMapUI(); saveState();
+  return n;
 }
-
-function onItemAutoMatch(orderId, variantLine, idx){
-  const key=itemKey(orderId,variantLine,idx);
-  const cur=itemMappings[key]||{};
-  if(!cur.code){return;}
-  const r=findSkuByCodeAndVariant(cur.code,variantLine);
-  if(r&&r.sku){
-    itemMappings[key]={code:cur.code,sku:r.sku,name:r.name||'',color:r.color||'',confirmed:true};
-  } else {
-    itemMappings[key]={code:cur.code,sku:'',name:'',color:'',confirmed:false};
-  }
-  renderAutoMapUI();
-}
-
-function onItemSkuChange(orderId, variantLine, idx, sku){
-  const key=itemKey(orderId,variantLine,idx);
-  const cur=itemMappings[key]||{};
-  if(!sku){
-    itemMappings[key]={code:cur.code||null,sku:'',name:cur.name||'',color:'',confirmed:false};
-  } else {
-    const sv=skuVariants.find(v=>v.sku===sku);
-    if(sv){
-      itemMappings[key]={code:sv.code,sku:sv.sku,name:sv.name||'',color:sv.color||'',confirmed:true};
-      if(learnMapping(findItemByKey(orderId,idx),itemMappings[key])) saveLearned();
-    }
-  }
-  renderAutoMapUI();
-}
-
-function onItemCodeChange(orderId, variantLine, idx, code){
-  const key=itemKey(orderId,variantLine,idx);
-  if(!code){
-    itemMappings[key]={code:null,sku:'',name:'',color:'',confirmed:false};
-  } else {
-    const r=findSkuByCodeAndVariant(code,variantLine);
-    itemMappings[key]={code,sku:r?.sku||'',name:r?.name||'',color:r?.color||'',confirmed:true};
-    if(learnMapping(findItemByKey(orderId,idx),itemMappings[key])) saveLearned();
-    // Propagate: if other items in SAME order are still ambiguous and this code fits → resolve them
-    for(const o of parsedOrders){
-      if(o.orderId!==orderId) continue;
-      const active=o.items.filter(i=>!i.cancelled);
-      active.forEach((item,i2)=>{
-        const k2=itemKey(orderId,item.variantLine,i2);
-        if(itemMappings[k2]?.confirmed) return; // already mapped
-        const cands=candidateCodes(item.variantLine);
-        if(cands.includes(code)){
-          const r2=findSkuByCodeAndVariant(code,item.variantLine);
-          itemMappings[k2]={code,sku:r2?.sku||'',name:r2?.name||'',color:r2?.color||'',confirmed:true};
-        }
-      });
-    }
-  }
-  renderAutoMapUI();
+function mapConfirmProduct(pi){ const P=_mapView[pi]; if(P) _confirmSpecs(P.specs); }
+function mapConfirmAll(){
+  const n=_confirmSpecs(_mapView.flatMap(P=>P.specs));
+  Toast.success(`✅ ยืนยันแล้ว ${n} สเปก`);
 }
 
 let _learnDirty=false;
 function applyAllMappings(){
   _learnDirty=false;
-  for(const o of parsedOrders){
-    const active=o.items.filter(i=>!i.cancelled);
-    active.forEach((item,idx)=>{
-      const key=itemKey(o.orderId,item.variantLine,idx);
-      const map=itemMappings[key];
-      if(!map?.confirmed) return;
-      // Set item data
-      item.resolvedCode=map.code;
-      item.resolvedSku=map.sku;
-      item.resolvedName=map.name;
-      item.resolvedColor=map.color;
-      if(learnMapping(item,map)) _learnDirty=true;
-      // Set chineseName + cnToCode for lookupSku
+  for(const {item,key} of _mapEntries()){
+    const map=itemMappings[key];
+    if(!map?.confirmed) continue;
+    item.resolvedCode=map.code;
+    item.resolvedSku=map.sku;
+    item.resolvedName=map.name;
+    item.resolvedColor=map.color;
+    if(learnLink(item,map)) _learnDirty=true;
+    if(!item.chineseName){
       const sv=skuVariants.find(v=>v.code===map.code);
-      if(sv){
-        item.chineseName=sv.cn1||sv.cn2||'';
-        if(item.chineseName&&!cnToCode['cn:'+item.chineseName])
-          cnToCode['cn:'+item.chineseName]=map.code;
-        item.fullCnKey=item.chineseName;
-        const cp=item.variantLine.split(',')[0].trim();
-        const pfx=getCnPrefix(cp);
-        if(item.chineseName&&map.sku){
-          variantToSku[`variant:${item.chineseName}::${cp}`]=map.sku;
-          if(pfx&&pfx!==cp) variantToSku[`variant:${item.chineseName}::${pfx}`]=map.sku;
-        }
-      }
-    });
+      item.chineseName=item.title||sv?.cn1||sv?.cn2||'';
+    }
   }
   if(_learnDirty) saveLearned();
 }
 
 function buildAndGoStep4(){
-  // ตรวจว่า map ครบทุก item แล้วหรือยัง
-  const unmapped=Object.values(itemMappings).filter(m=>!m.confirmed).length;
-  let totalItems=0;
-  for(const o of parsedOrders) totalItems+=o.items.filter(i=>!i.cancelled).length;
-  const mappedCount=Object.values(itemMappings).filter(m=>m.confirmed).length;
-
-  if(mappedCount<totalItems){
-    const missing=totalItems-mappedCount;
-    alert_('alert-3','error',`⛔ ยังมี <b>${missing} item</b> ที่ยังไม่ได้เลือกรุ่น — กรุณาเลือกให้ครบก่อน`);
-    // scroll to first unmapped
-    setTimeout(()=>{
-      const el=document.querySelector('#automap-list select option[value=""]:checked')?.closest('div');
-      if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
-    },100);
+  // ตรวจว่าจับคู่ครบทุกรายการ (ต้องยืนยันและมี SKU)
+  const entries=_mapEntries();
+  const missing=entries.filter(e=>!(itemMappings[e.key]?.confirmed&&itemMappings[e.key]?.sku)).length;
+  if(missing){
+    alert_('alert-3','error',`⛔ ยังมี <b>${missing} รายการ</b> ที่ยังไม่ได้ยืนยัน SKU — เลือกรุ่น/สี หรือกด "ยืนยัน" ให้ครบก่อน`);
+    setTimeout(()=>document.querySelector('#automap-list .map-row-todo')?.scrollIntoView({behavior:'smooth',block:'center'}),100);
     return;
   }
   applyAllMappings();
@@ -2481,38 +2416,225 @@ let parsedBoxes={};
 function doStep5(){
   const raw=document.getElementById('inp-boxes').value.trim();
   parsedBoxes=parseBoxes(raw);
+  curBill=null;
   buildStep6();
   saveState();
   goto(6);
 }
 
 function parseBoxes(raw){
-  const result={};// orderId → [{boxId, shpCNTH, shpTH, delivFee, packFee}]
+  const result={};// orderId → [{boxId, shpCNTH, shpTH, delivFee, packFee, bill, billDate, billTotal}]
   if(!raw) return result;
   const lines=raw.split('\n').map(l=>l.trim());
   let curOrder='';
-  let curBox='';
-  for(let i=0;i<lines.length;i++){
-    const ln=lines[i];
+  let curBill='', curBillDate='', curBillTotal=0, wantTotal=false;
+  // หน้า "พัสดุของฉัน" ของ Vcanbuy — 1 กล่องมี 2 แถว:
+  //   กล่อง CX…            ฿ขนส่งจีนไทย ฿ขนส่งในไทย ฿ค่านำส่ง ฿ค่าบรรจุ ฿ยอดรวม
+  //   เลขกล่องแพ็กรวม TX…  ค่าเดียวกันซ้ำ + ค่านำส่ง/บรรจุภัณฑ์ตอนแพ็กรวม
+  // → ขนส่งจีนไทยเอาจากแถว CX, ค่าที่เกิดตอนแพ็กรวมเอาจากแถว TX (นับครั้งเดียวต่อ TX) — ไม่นับกล่องซ้ำ
+  // ราคาอาจอยู่บรรทัดเดียวกับหัวแถว (copy แบบ tab / ติดกัน) หรือแยกบรรทัดละช่อง — รองรับทั้งหมด
+  let row=null;              // {kind:'CX'|'TX'|'', id, prices:[]}
+  let lastCX=null;
+  const seenTX=new Set();
+  const priceRe=/฿([\d,]+\.?\d*)/g;
+  const nums=ln=>[...ln.matchAll(priceRe)].map(m=>parseFloat(m[1].replace(/,/g,'')));
+  // "CX260728006739.10 กก." (copy แล้วเลขกล่องติดกับน้ำหนัก) → CX2607280067
+  const boxId=(ln,m)=>{
+    const rest=ln.slice(m.index+m[0].length);
+    return /^[.\d]*\s*กก/.test(rest)&&m[1].length>12?m[1].slice(0,12):m[1];
+  };
+  const flush=()=>{
+    const r=row; row=null;
+    if(!r||r.prices.length<4||!curOrder) return;
+    const [cnth,th,deliv,pack]=r.prices;
+    if(r.kind==='TX'){
+      if(lastCX&&!seenTX.has(r.id)){
+        seenTX.add(r.id);
+        lastCX.tx=r.id;
+        lastCX.shpTH=Math.max(lastCX.shpTH,th);
+        lastCX.delivFee=Math.max(lastCX.delivFee,deliv);
+        lastCX.packFee=Math.max(lastCX.packFee,pack);
+      }
+      return;
+    }
+    if(!result[curOrder]) result[curOrder]=[];
+    const box={boxId:r.id,shpCNTH:cnth,shpTH:th,delivFee:deliv,packFee:pack,bill:curBill,billDate:curBillDate,billTotal:curBillTotal};
+    result[curOrder].push(box);
+    if(r.kind==='CX') lastCX=box;
+  };
+  for(const ln of lines){
+    if(!ln) continue;
+    const mBill=ln.match(/เลขบิลขนส่ง[:\s]*(TOUT[A-Z0-9]+)/i);
+    if(mBill){
+      flush(); lastCX=null; curOrder='';
+      curBill=mBill[1].replace(/วันที่.*$/,'');
+      const mDate=ln.match(/วันที่เปิดออเดอร์[:\s]*(\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2}(?::\d{2})?)?)/);
+      curBillDate=mDate?mDate[1]:'';
+      curBillTotal=0;
+      continue;
+    }
+    // ยอด "ทั้งหมด" ของบิล (ใช้ตรวจว่าค่ากล่องรวมตรงกับบิล) — อาจอยู่บรรทัดเดียวกันหรือบรรทัดถัดไป
+    if(curBill&&!curOrder){
+      const mTot=ln.match(/^ทั้งหมด\s*:\s*(?:฿([\d,]+\.?\d*))?$/);
+      if(mTot){ if(mTot[1]) curBillTotal=parseFloat(mTot[1].replace(/,/g,'')); else wantTotal=true; continue; }
+      const mOnly=wantTotal&&ln.match(/^฿([\d,]+\.?\d*)$/);
+      wantTotal=false;
+      if(mOnly){ curBillTotal=parseFloat(mOnly[1].replace(/,/g,'')); continue; }
+    }
     const mOrd=ln.match(/ออเดอร์\s+(\S+)|Order[:\s]+(\S+)|เลขที่ออเดอร์[:\s]+(\S+)/);
-    if(mOrd){curOrder=mOrd[1]||mOrd[2]||mOrd[3];continue;}
-    const mBox=ln.match(/กล่อง\s+(C[A-Z0-9]+|T[A-Z0-9]+)/i)||ln.match(/^(CX\d+|TX\d+)/);
-    if(mBox){curBox=mBox[1]||mBox[0];continue;}
-    // Price line: multiple ฿ values
-    const prices=[...ln.matchAll(/฿([\d,]+\.?\d*)/g)].map(m=>parseFloat(m[1].replace(/,/g,'')));
+    if(mOrd){flush(); lastCX=null; curOrder=mOrd[1]||mOrd[2]||mOrd[3];continue;}
+    const mTX=ln.match(/เลขกล่องแพ็กรวม\s*(TX\d+)/i);
+    const mCX=!mTX&&(ln.match(/กล่อง\s+(C[A-Z]*\d+|T[A-Z]*\d+)/i)||ln.match(/^(CX\d+|TX\d+)/));
+    if(mTX||mCX){
+      flush();
+      const m=mTX||mCX;
+      const id=boxId(ln,m);
+      row={kind:mTX?'TX':(/^CX/i.test(id)?'CX':''),id,prices:nums(ln)};
+      if(row.prices.length>=5) flush();
+      continue;
+    }
+    const prices=nums(ln);
+    if(row){
+      row.prices.push(...prices);
+      if(row.prices.length>=5) flush();
+      continue;
+    }
+    // รูปแบบเก่า: บรรทัดราคาหลายช่อง ไม่มีหัวกล่อง
     if(prices.length>=3&&curOrder){
-      const [shpCNTH,shpTH,delivFee,packFee]=prices;
-      if(!result[curOrder]) result[curOrder]=[];
-      result[curOrder].push({boxId:curBox,shpCNTH:shpCNTH||0,shpTH:shpTH||0,delivFee:delivFee||0,packFee:packFee||0});
-      curBox='';
+      row={kind:'',id:'',prices}; flush();
     }
   }
+  flush();
   return result;
+}
+
+// ── บิลขนส่ง (TOUT) — 1 บิล = 1 ใบกำกับ VCANBUY + 1 เอกสาร Peak ──
+// ออเดอร์เดียวอาจมีหลายกล่อง CX ที่มาถึงไทยคนละรอบ → อยู่คนละบิล TOUT
+// บิลที่มีออเดอร์ร่วมกันจะถูกรวมเป็นกลุ่มเดียว (1 ใบกำกับ) — key = "TOUT…+TOUT…" เรียงตามวันที่เปิดบิล
+function _billIndex(){
+  const parent={}, billDate={}, billTotal={};
+  const find=b=>parent[b]===b?b:(parent[b]=find(parent[b]));
+  for(const boxes of Object.values(parsedBoxes)){
+    const bills=[...new Set(boxes.map(b=>b.bill).filter(Boolean))];
+    for(const b of boxes){
+      if(!b.bill) continue;
+      if(!(b.bill in parent)) parent[b.bill]=b.bill;
+      if(b.billDate) billDate[b.bill]=b.billDate;
+      if(b.billTotal) billTotal[b.bill]=b.billTotal;
+    }
+    for(let k=1;k<bills.length;k++) parent[find(bills[k])]=find(bills[0]);
+  }
+  const members={};
+  for(const b of Object.keys(parent)) (members[find(b)]=members[find(b)]||[]).push(b);
+  const keyOfBill={};
+  for(const ms of Object.values(members)){
+    ms.sort((a,b)=>(billDate[a]||'').localeCompare(billDate[b]||'')||a.localeCompare(b));
+    const key=ms.join('+');
+    ms.forEach(b=>{ keyOfBill[b]=key; });
+  }
+  return {keyOfBill,billDate,billTotal};
+}
+function _groupKeyOf(orderId,idx){
+  const b=(parsedBoxes[orderId]||[]).find(x=>x.bill);
+  return b?idx.keyOfBill[b.bill]:'';
+}
+// กลุ่มบิลที่มีใน rows6 เรียงตามวันที่ — [{key, bills, date, orderIds, fees, billTotal}]
+// date = วันที่เปิดบิลล่าสุดในกลุ่ม (วันที่กล่องสุดท้ายของออเดอร์มาถึง)
+function getBillGroups(){
+  const idx=_billIndex();
+  const map={};
+  for(const r of rows6){
+    const key=_groupKeyOf(r.orderId,idx);
+    if(!map[key]){
+      const bills=key?key.split('+'):[];
+      map[key]={key,bills,
+        date:bills.map(b=>idx.billDate[b]||'').sort().pop()||'',
+        billTotal:r2(bills.reduce((a,b)=>a+(idx.billTotal[b]||0),0)),
+        orderIds:[],fees:0};
+    }
+    const g=map[key];
+    if(!g.orderIds.includes(r.orderId)){
+      g.orderIds.push(r.orderId);
+      // ค่ากล่องรวม (จากหน้า Vcanbuy) เทียบกับยอด "ทั้งหมด" ของบิล
+      for(const b of (parsedBoxes[r.orderId]||[])) g.fees+=b.shpCNTH+b.shpTH+b.delivFee+b.packFee;
+    }
+  }
+  return Object.values(map).sort((a,b)=>{
+    if(!a.key) return 1; if(!b.key) return -1;
+    return (a.date||'').localeCompare(b.date||'')||a.key.localeCompare(b.key);
+  });
+}
+// กล่อง CX ที่หน้าออเดอร์บอกว่ามี แต่ยังไม่พบในข้อมูลบิลขนส่ง (ยังไม่ถึงไทย / ยังไม่ได้ดึงบิลนั้นมา)
+function missingBoxes(orderIds){
+  if(!Object.keys(parsedBoxes).length) return [];
+  const out=[];
+  for(const oid of orderIds){
+    const have=new Set((parsedBoxes[oid]||[]).map(b=>b.boxId));
+    const all=parsedOrders.find(o=>o.orderId===oid)?.boxIds||[];
+    for(const cx of all) if(!have.has(cx)) out.push({orderId:oid,boxId:cx});
+  }
+  return out;
+}
+function rowsOfBill(key){
+  if(key==null){ _ensureCurBill(); key=curBill; }
+  if(key==='*') return rows6;
+  const idx=_billIndex();
+  return rows6.filter(r=>_groupKeyOf(r.orderId,idx)===key);
+}
+// "2026-09-26 17:30:06" → Date (ใช้เป็นวันที่เอกสาร) — ไม่มีบิล = วันนี้
+function billDateObj(key){
+  const g=getBillGroups().find(x=>x.key===key);
+  const m=(g?.date||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m?new Date(+m[1],+m[2]-1,+m[3]):new Date();
+}
+let curBill=null;   // บิลที่กำลังดูใน step 7/8 (null = ยังไม่เลือก, '*' = รวมทุกบิล)
+function _ensureCurBill(){
+  const groups=getBillGroups();
+  if(curBill==='*'||groups.some(g=>g.key===curBill)) return groups;
+  curBill=groups.length?groups[0].key:'*';
+  return groups;
+}
+function selectBill(key){
+  curBill=key;
+  buildStep7();
+  buildStep8();
+}
+// ✓ ค่ากล่องตรงกับยอดบิล / ⚠️ ไม่ตรง (หน้า Vcanbuy แสดงค่านำส่งในแถวกล่องไม่ตรงกับที่เก็บจริงในบิลได้)
+function _billCheck(g){
+  if(!g.key||!g.billTotal) return '';
+  const d=r2(g.fees-g.billTotal);
+  return Math.abs(d)<0.01?` · ค่ากล่อง ✓ ฿${fmt(g.billTotal)}`:` · ⚠️ ค่ากล่อง ฿${fmt(r2(g.fees))} ≠ บิล ฿${fmt(g.billTotal)}`;
+}
+function renderBillBars(){
+  const groups=_ensureCurBill();
+  ['bill-bar-7','bill-bar-8'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    if(groups.length<=1&&!groups.some(g=>g.key)){ el.innerHTML=''; el.style.display='none'; return; }
+    el.style.display='';
+    const chip=(key,label,sub)=>`<button class="bill-chip${curBill===key?' active':''}" onclick="selectBill('${esc(key)}')">
+      <span class="mono">${esc(label)}</span>${sub?`<small>${esc(sub)}</small>`:''}</button>`;
+    const merged=groups.filter(g=>g.bills.length>1);
+    const missing=missingBoxes(groups.flatMap(g=>g.orderIds));
+    el.innerHTML=`<div class="bill-bar-title">🧾 แยกตามเลขบิลขนส่ง — ${groups.length} ใบ</div>
+      <div class="bill-chips">
+        ${groups.map(g=>chip(g.key,g.bills.length?g.bills.join(' + '):'ไม่มีเลขบิลขนส่ง',`${g.date||'วันที่: วันนี้'} · ${g.orderIds.length} ออเดอร์${_billCheck(g)}`)).join('')}
+        ${groups.length>1?chip('*','รวมทุกบิล','ใบเดียว (แบบเดิม)'):''}
+      </div>
+      ${merged.length?`<div class="alert alert-info" style="margin-top:8px;"><span>🔗</span><span>รวมบิลเป็นใบเดียว เพราะออเดอร์เดียวกันมีกล่องมาหลายรอบ: ${merged.map(g=>esc(g.bills.join(' + '))).join(' · ')}</span></div>`:''}
+      ${missing.length?`<div class="alert alert-warn" style="margin-top:8px;"><span>⚠️</span><span>ยังไม่พบกล่องในบิลขนส่ง: ${missing.map(m=>esc(m.orderId+' › '+m.boxId)).join(', ')} — ยังไม่ถึงไทย หรือยังไม่ได้ดึงบิลนั้นมา (ค่าขนส่งจีน-ไทยของกล่องนี้ยังไม่ถูกนับ)</span></div>`:''}`;
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
 // STEP 6 — FINAL RESULTS
 // ═══════════════════════════════════════════════════════════
+const SHP_TH_PER_BOX=100;
+function orderBoxCount(orderId){
+  const inBills=(parsedBoxes[orderId]||[]).length;
+  const inOrder=(parsedOrders.find(o=>o.orderId===orderId)?.boxIds||[]).length;
+  return Math.max(inBills,inOrder,1);
+}
 function buildStep6(){
   rows6=[];
   // Group rows4 by orderId
@@ -2526,11 +2648,9 @@ function buildStep6(){
     // Get box data for this order
     const boxes=parsedBoxes[orderId]||[];
     const sumShpCNTH=boxes.reduce((s,b)=>s+b.shpCNTH,0);
-    const sumShpTH=(()=>{
-      if(boxes.length===0) return 200;
-      const s=boxes.reduce((a,b)=>a+b.shpTH,0);
-      return s===0?200:s;
-    })();
+    // ค่าขนส่งไทย-ไทย = 100 บาท × จำนวนกล่อง CX ของออเดอร์
+    // (นับจากกล่องที่อยู่ในบิลขนส่ง หรือจากเลขกล่องในหน้าออเดอร์ — เอาค่าที่มากกว่า, ไม่มีข้อมูลเลย = 1 กล่อง)
+    const sumShpTH=SHP_TH_PER_BOX*orderBoxCount(orderId);
     const sumDeliv=boxes.reduce((s,b)=>s+b.delivFee,0);
     const sumPack=boxes.reduce((s,b)=>s+b.packFee,0);
     const boxId=boxes.length>0?boxes.map(b=>b.boxId).join(', '):(items[0]?.boxId||'-');
@@ -2811,18 +2931,18 @@ function exportAll(){
   goto(7);
 }
 
-function buildStep7(){
-  // Group rows6 by code → รวม qty และ weighted avg unitAfter
+// สรุปแบบฟอร์ม VCANBUY จากแถว step 6 ชุดหนึ่ง (เช่น เฉพาะบิลเดียว)
+function computeRows7(src){
+  // Group by code → รวม qty และ weighted avg unitAfter
   const grouped={};
-  for(const r of rows6){
+  for(const r of src){
     const code=r.code||'?';
-    const sv=skuVariants.find(v=>v.code===code);
-    const name=sv?.name?`เข็มขัด ${code}`:`เข็มขัด ${code}`;
+    const name=`เข็มขัด ${code}`;
     if(!grouped[code]) grouped[code]={code,name,totalQty:0,totalCost:0};
     grouped[code].totalQty+=r.qty;
     grouped[code].totalCost+=r.total;
   }
-  rows7=Object.values(grouped)
+  return Object.values(grouped)
     .sort((a,b)=>a.name.localeCompare(b.name,'th'))
     .map((g,i)=>{
       // ราคา/หน่วย 2 ตำแหน่ง แล้วคิดยอดรายการจากราคานั้น → เว็บกับไฟล์ตรงกัน และคูณมือแล้วตรง
@@ -2837,6 +2957,22 @@ function buildStep7(){
         costTotal:r2(g.totalCost)   // ยอดจริงจาก Vcanbuy (อ้างอิง)
       };
     });
+}
+function _billLabel(key){
+  if(key==='*') return 'รวมทุกบิล';
+  if(!key) return 'ไม่มีเลขบิลขนส่ง';
+  const g=getBillGroups().find(x=>x.key===key);
+  return key+(g?.date?` (${g.date.slice(0,10)})`:'');
+}
+function _syncBillButtons(){
+  const groups=getBillGroups();
+  const multi=groups.length>1||groups.some(g=>g.key);
+  document.querySelectorAll('.bill-btn-label').forEach(el=>{ el.textContent=multi?`· ${curBill==='*'?'รวมทุกบิล':(curBill||'ไม่มีบิล')}`:''; });
+  document.querySelectorAll('.bill-all-btn').forEach(el=>{ el.style.display=groups.length>1?'':'none'; });
+}
+function buildStep7(){
+  renderBillBars();
+  rows7=computeRows7(rowsOfBill(curBill));
 
   // Render preview
   const tbody=document.getElementById('tbody-7');
@@ -2851,15 +2987,17 @@ function buildStep7(){
 
   const grandTotal=rows7.reduce((s,r)=>s+r.total,0);
   const vat=r2(grandTotal*0.07);
-  document.getElementById('sum-7').innerHTML=
+  const multi=getBillGroups().some(g=>g.key);
+  document.getElementById('sum-7').innerHTML=(multi?`<b>${esc(_billLabel(curBill))}</b> | `:'')+
     `${rows7.length} รายการ | ยอดรวม ฿${fmt(grandTotal)} | VAT 7% ฿${fmt(vat)} | <b>ยอดทั้งหมด ฿${fmt(r2(grandTotal+vat))}</b>`;
 
   renderOrderSummary();
+  _syncBillButtons();
 }
 
 function renderOrderSummary(){
-  // สรุปทุก row จาก rows6 เรียงตาม orderId A→Z แล้ว code
-  const sorted=[...rows6].sort((a,b)=>{
+  // สรุปทุก row ของบิลที่เลือก เรียงตาม orderId A→Z แล้ว code
+  const sorted=[...rowsOfBill(curBill)].sort((a,b)=>{
     const oa=a.orderId||'', ob=b.orderId||'';
     if(oa!==ob) return oa.localeCompare(ob);
     return (a.code||'').localeCompare(b.code||'');
@@ -2963,16 +3101,19 @@ function xlInsertRows(ws,beforeRow,count){
   ws['!ref']=XLSX.utils.encode_range(range);
 }
 
-function exportVcanbuyExcel(){
-  if(!rows7.length){buildStep7();if(!rows7.length){alert('ไม่มีข้อมูล');return;}}
-  if(typeof XLSX==='undefined'){alert('กำลังโหลด SheetJS กรุณารอสักครู่แล้วลองใหม่');return;}
+// key = เลขบิลขนส่ง (TOUT…) · '*' = รวมทุกบิล · ไม่ส่ง = บิลที่เลือกอยู่
+function exportVcanbuyExcel(key){
+  if(key===undefined){ _ensureCurBill(); key=curBill; }
+  const items=computeRows7(rowsOfBill(key));
+  if(!items.length){alert('ไม่มีข้อมูล');return false;}
+  if(typeof XLSX==='undefined'){alert('กำลังโหลด SheetJS กรุณารอสักครู่แล้วลองใหม่');return false;}
 
   // อ่าน template จาก base64 ที่ embed ไว้ (preserve styles + formulas ทั้งหมด)
   const wb=XLSX.read(VCANBUY_TEMPLATE_B64,{type:'base64',cellFormula:true,cellStyles:true});
   const ws=wb.Sheets['ฟอร์ม'];
 
-  // อัปเดตวันที่ (G9=วันเดือน, H9=ปี พ.ศ.)
-  const now=new Date();
+  // อัปเดตวันที่ (G9=วันเดือน, H9=ปี พ.ศ.) — ใช้วันที่เปิดบิลขนส่ง, ไม่มีบิล/รวมทุกบิล = วันนี้
+  const now=(key&&key!=='*')?billDateObj(key):new Date();
   const thaiMonths=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
     'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
   const monthStr=`${now.getDate()} ${thaiMonths[now.getMonth()]}`;
@@ -2981,14 +3122,14 @@ function exportVcanbuyExcel(){
 
   // template มีช่องสินค้า 11 แถว (12–22) — ถ้ารายการเกินให้แทรกแถวเพิ่ม ไม่ตัดทิ้ง
   const FIRST=12, TPL_LAST=22;
-  const extra=Math.max(0,rows7.length-(TPL_LAST-FIRST+1));
+  const extra=Math.max(0,items.length-(TPL_LAST-FIRST+1));
   if(extra>0) xlInsertRows(ws,TPL_LAST,extra);   // แทรกก่อนแถวสุดท้าย → เก็บ format แถวปิดท้ายไว้
   const LAST=TPL_LAST+extra;                     // แถวสินค้าสุดท้าย
   const SUM_ROW=LAST+1, VAT_ROW=LAST+2, TOT_ROW=LAST+3;
 
   // Clear + inject data rows
   for(let r=FIRST;r<=LAST;r++){
-    const item=rows7[r-FIRST];
+    const item=items[r-FIRST];
     const put=(col,val,t)=>{
       const addr=col+r;
       ws[addr]={...(ws[addr]||{}),v:val,w:val===''?'':String(val),t:t};
@@ -3013,7 +3154,7 @@ function exportVcanbuyExcel(){
   }
 
   // สูตรสรุปท้ายตาราง — ชี้ช่วงใหม่ + อัปเดตค่า cache
-  const sumVal=rows7.reduce((s,it)=>s+r2(it.qty*r2(it.unitPrice)),0);
+  const sumVal=items.reduce((s,it)=>s+r2(it.qty*r2(it.unitPrice)),0);
   const vatVal=r2(sumVal*0.07);
   const setFormula=(addr,f,v)=>{
     if(!ws[addr]) return;
@@ -3024,8 +3165,21 @@ function exportVcanbuyExcel(){
   setFormula('L'+VAT_ROW,`ROUND(L${SUM_ROW}*0.07,2)`,vatVal);
   setFormula('L'+TOT_ROW,`L${VAT_ROW}+L${SUM_ROW}`,r2(sumVal+vatVal));
 
-  const fname=`vcanbuy_form_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.xlsx`;
+  const tag=(key&&key!=='*')?key.replace(/\+/g,'-')+'_':(key==='*'?'ALL_':'');
+  const fname=`vcanbuy_form_${tag}${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.xlsx`;
   XLSX.writeFile(wb,fname,{bookSST:false,compression:true});
+  return true;
+}
+const _sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// ดาวน์โหลดใบกำกับ VCANBUY ทุกบิล — 1 ไฟล์ต่อ 1 บิล
+async function exportVcanbuyAllBills(){
+  const groups=getBillGroups();
+  let n=0;
+  for(const g of groups){
+    if(exportVcanbuyExcel(g.key)) n++;
+    await _sleep(600);   // เว้นจังหวะ — Chrome บล็อกดาวน์โหลดรัวๆ
+  }
+  if(n) Toast.show({msg:`ดาวน์โหลดใบกำกับ VCANBUY ${n} ไฟล์ (${n} บิล)`,type:'success',duration:4000});
 }
 
 
@@ -3034,13 +3188,12 @@ function exportVcanbuyExcel(){
 // ═══════════════════════════════════════════════════════════
 let rows8=[];
 
-function buildStep8(){
-  if(!rows6.length){alert('ไม่มีข้อมูล กรุณาทำขั้นตอน 5-6 ก่อน');return;}
-
-  // Group rows6 by SKU → รวม qty + cost (full precision)
+// สรุปรายการ Peak (1 แถว = 1 SKU) จากแถว step 6 ชุดหนึ่ง
+function computeRows8(src){
+  // Group by SKU → รวม qty + cost (full precision)
   // 1 แถว = 1 SKU (สี) เหมือน template
   const bysku={};
-  for(const r of rows6){
+  for(const r of src){
     const sku=r.sku||'';
     if(!sku||sku==='?') continue;
     if(!bysku[sku]) bysku[sku]={sku, code:r.code, name:r.name, color:r.color, totalQty:0, totalCost:0};
@@ -3074,11 +3227,16 @@ function buildStep8(){
     grp.forEach(x=>{ x.unitPrice=up; });
   }
 
-  rows8=list.sort((a,b)=>{
+  return list.sort((a,b)=>{
     const da=`${a.code} - ${a.name} - (${a.color})`;
     const db=`${b.code} - ${b.name} - (${b.color})`;
     return da.localeCompare(db,'th');
   });
+}
+function buildStep8(){
+  if(!rows6.length){alert('ไม่มีข้อมูล กรุณาทำขั้นตอน 5-6 ก่อน');return;}
+  renderBillBars();
+  rows8=computeRows8(rowsOfBill(curBill));
 
   // Render preview
   const tbody=document.getElementById('tbody-8');
@@ -3094,12 +3252,22 @@ function buildStep8(){
 
   const totalQty=rows8.reduce((s,r)=>s+r.qty,0);
   const totalAmt=rows8.reduce((s,r)=>s+r.qty*r.unitPrice,0);
-  document.getElementById('sum-8').innerHTML=`${rows8.length} รายการ (SKU) | รวม ${totalQty.toLocaleString()} ชิ้น | <b>ยอดรวม ฿${fmt(r2(totalAmt))}</b>`;
+  const multi=getBillGroups().some(g=>g.key);
+  document.getElementById('sum-8').innerHTML=(multi?`<b>${esc(_billLabel(curBill))}</b> | `:'')+`${rows8.length} รายการ (SKU) | รวม ${totalQty.toLocaleString()} ชิ้น | <b>ยอดรวม ฿${fmt(r2(totalAmt))}</b>`;
+  _syncBillButtons();
 }
 
-function exportPeakExcel(){
-  if(!rows8.length){buildStep8();}
-  if(!rows8.length){alert('ไม่มีข้อมูล');return;}
+// keys = รายการเลขบิล — แต่ละบิลเป็น 1 เอกสาร Peak (ลำดับที่ 1,2,3…) ในไฟล์เดียว
+// ไม่ส่ง = บิลที่เลือกอยู่
+function exportPeakExcel(keys){
+  if(!keys){ _ensureCurBill(); keys=[curBill]; }
+  const ymd=d=>parseInt(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`);
+  const docs=keys.map(k=>({
+    ref: (k&&k!=='*')?k:'',
+    date: ymd((k&&k!=='*')?billDateObj(k):new Date()),
+    items: computeRows8(rowsOfBill(k))
+  })).filter(d=>d.items.length);
+  if(!docs.length){alert('ไม่มีข้อมูล');return;}
   if(typeof XLSX==='undefined'){alert('กำลังโหลด SheetJS กรุณารอสักครู่แล้วลองใหม่');return;}
 
   // โหลด template จริงของ PEAK — preserve header styling ทั้งหมด
@@ -3107,10 +3275,10 @@ function exportPeakExcel(){
   const ws=wb.Sheets['Import_PurchaseInventory'];
 
   const now=new Date();
-  const dateNum=parseInt(`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`);
 
   // Clear template sample rows (row 2–4 ใน template มีแค่ลำดับ 1,1,2)
-  for(let r=2;r<=20;r++){
+  const totalRows=docs.reduce((s,d)=>s+d.items.length,0);
+  for(let r=2;r<=Math.max(20,totalRows+1);r++){
     ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V'].forEach(col=>{
       const addr=col+r;
       if(ws[addr]) delete ws[addr];
@@ -3118,8 +3286,9 @@ function exportPeakExcel(){
   }
 
   // Inject data rows — 22 cols A-V ตรงตาม PEAK Import_PurchaseInventory
-  rows8.forEach((r,i)=>{
-    const row=i+2; // เริ่มที่ row 2
+  let row=1;
+  docs.forEach((doc,di)=>doc.items.forEach(r=>{
+    row++; // เริ่มที่ row 2
     const up=r2(r.unitPrice); // 2 ตำแหน่ง — ตรงกับที่แสดงบนเว็บและฟอร์ม Vcanbuy
 
     const setCell=(col,val,type,fmt)=>{
@@ -3130,9 +3299,9 @@ function exportPeakExcel(){
       else ws[addr].w=String(val);
     };
 
-    setCell('A', 1,          'n');          // ลำดับที่* = 1 ทุกแถว → Peak treats as เอกสารเดียว
-    setCell('B', dateNum,    'n');          // วันที่เอกสาร YYYYMMDD
-    // C อ้างอิงถึง — ว่าง
+    setCell('A', di+1,       'n');          // ลำดับที่* — แถวที่เลขเดียวกัน = เอกสารเดียวกัน (1 บิล = 1 เอกสาร)
+    setCell('B', doc.date,   'n');          // วันที่เอกสาร YYYYMMDD = วันที่เปิดบิลขนส่ง
+    if(doc.ref) setCell('C', doc.ref, 's'); // อ้างอิงถึง = เลขบิลขนส่ง TOUT…
     setCell('D', 'C00253',   's');          // ผู้รับเงิน/คู่ค้า
     setCell('E', '0125566031560','s','@'); // เลขทะเบียน 13 หลัก (text)
     setCell('F', '00000',    's','@');     // เลขสาขา 5 หลัก (text)
@@ -3147,14 +3316,18 @@ function exportPeakExcel(){
     // Q หัก ณ ที่จ่าย — ว่าง
     setCell('R', 'ADV001',   's');          // ชำระโดย
     // S,T,U,V — ว่าง
-  });
+  }));
 
   // Update !ref to cover all data rows
-  const lastRow=rows8.length+1;
+  const lastRow=totalRows+1;
   ws['!ref']=`A1:V${lastRow}`;
 
   const dateStr=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-  XLSX.writeFile(wb,`peak_import_${dateStr}.xlsx`,{bookSST:false,compression:true});
+  const tag=docs.length>1?`ALL_${docs.length}bills_`:(docs[0].ref?docs[0].ref.replace(/\+/g,'-')+'_':'');
+  XLSX.writeFile(wb,`peak_import_${tag}${dateStr}.xlsx`,{bookSST:false,compression:true});
+}
+function exportPeakAllBills(){
+  exportPeakExcel(getBillGroups().map(g=>g.key));
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3711,10 +3884,15 @@ const Cloud = {
       if(d.skuVariants) skuVariants=d.skuVariants;
       if(d.cnToCode) cnToCode=d.cnToCode;
       if(d.variantToSku) variantToSku=d.variantToSku;
+      if(d.skuLinks){     // รวมกับของในเครื่อง — ไม่ให้ของที่เพิ่งจับคู่หาย
+        skuLinks={...d.skuLinks,...skuLinks};
+        try{ localStorage.setItem('vcb4_links',JSON.stringify(skuLinks)); }catch{}
+      }
       if(d.learnedMap){   // รวมกับของในเครื่อง — ไม่ให้ของที่เพิ่งจับคู่หาย
         learnedMap={...d.learnedMap,...learnedMap};
         try{ localStorage.setItem('vcb3_learn',JSON.stringify(learnedMap)); }catch{}
       }
+      Hub.apply();       // รายการสินค้าจาก Hub เป็นตัวจริง — ทับชื่อ/ชื่อย่อ/สีที่มาจาก cloud เก่า
       try{ renderSkuTable(); }catch{}
     }
   },
@@ -3723,7 +3901,7 @@ const Cloud = {
     this._setStatus('syncing');
     try{
       await window.FB.setDoc(this._skuRef(),{
-        skuVariants, cnToCode, variantToSku, learnedMap,
+        skuVariants, cnToCode, variantToSku, learnedMap, skuLinks,
         updatedAt: window.FB.serverTimestamp()
       });
       this._setStatus('ok');
@@ -4256,9 +4434,185 @@ if(localStorage.getItem('vcb_dark')==='1'){
 }
 
 loadStorage();
+
+// ═══════════════════════════════════════════════════════════
+// HUB (lamsangstore.com) — รายการสินค้ากลาง · ชื่อย่อ · SKU Page365 · รูปประจำสี
+// และส่งต้นทุนต่อชิ้นล่าสุดกลับเข้า Salepage
+// ═══════════════════════════════════════════════════════════
+const HUB_BASE='https://lamsangstore.com/api/hub/v1';
+// กุญแจอ่านอย่างเดียว (ผูก origin vcanbuy.lamsangstore.com · ไม่เห็นต้นทุน) — ฝังในหน้าเว็บได้
+const HUB_READ_KEY='lsh_Xb-JiIw6eyJY4WoN0uC-j_Lkdwu5DJcrlgdaN8j8uZ8';
+// กุญแจส่งต้นทุน (สิทธิ์เขียน) ห้ามฝังในหน้าเว็บ — ผู้ใช้วางเองทีละเครื่อง เก็บใน localStorage เท่านั้น
+const HUB_WRITE_KEY_LS='vcb_hub_write_key';
+const Hub={
+  items:[],          // [{sku, productId, shortName, productName, variantName, img, active}]
+  at:null,           // เวลาที่ดึงล่าสุด (ISO)
+  status:'idle',     // idle | loading | ok | cache | error
+  _load(){
+    try{ const c=JSON.parse(localStorage.getItem('vcb_hub_cat')||'null'); if(c?.items){ this.items=c.items; this.at=c.at; this.status='cache'; } }catch{}
+  },
+  async refresh(){
+    this.status='loading'; this.render();
+    try{
+      const r=await fetch(`${HUB_BASE}/products?inactive=1&t=${Date.now()}`,{headers:{Authorization:`Bearer ${HUB_READ_KEY}`}});
+      if(!r.ok) throw new Error('Hub ตอบกลับ '+r.status);
+      const d=await r.json();
+      this.items=(d.items||[]).filter(i=>i.sku).map(i=>({
+        sku:i.sku, productId:i.productId, shortName:i.shortName||'', productName:i.productName||'',
+        variantName:i.variantName||'', img:i.colorImageUrl||i.imageUrl||'', active:!!i.isActive
+      }));
+      this.at=d.generatedAt||new Date().toISOString();
+      this.status='ok';
+      try{ localStorage.setItem('vcb_hub_cat',JSON.stringify({at:this.at,items:this.items})); }catch{}
+    }catch(e){
+      console.warn('Hub refresh failed',e);
+      this.status=this.items.length?'cache':'error';
+    }
+    this.apply(); this.render();
+  },
+  // "B21 Charming" → {code:"B21", name:"Charming"}
+  splitShort(short,full){
+    const m=String(short||'').match(/^([A-Z]{1,3}\d+[A-Z]?)\s*(.*)$/)||String(full||'').match(/\b([A-Z]{1,3}\d+[A-Z]?)\b/);
+    return m?{code:m[1],name:(m[2]||'').trim()}:{code:'',name:String(short||full||'').trim()};
+  },
+  // Hub เป็นตัวจริงของ รหัสรุ่น/ชื่อ/สี/รูป — เก็บชื่อจีน cn1/cn2 ของเดิมไว้เป็นคำแนะนำจับคู่
+  apply(){
+    if(!this.items.length) return;
+    const old=new Map(skuVariants.filter(v=>v.sku).map(v=>[v.sku,v]));
+    const fromHub=this.items.map(h=>{
+      const {code,name}=this.splitShort(h.shortName,h.productName);
+      const o=old.get(h.sku)||{};
+      return {code:code||o.code||'?',sku:h.sku,name:name||o.name||h.productName,color:(h.variantName||'').split(' / ')[0]||o.color||'',
+        cn1:o.cn1||'',cn2:o.cn2||'',hub:true,shortName:h.shortName,img:h.img,active:h.active};
+    }).filter(v=>v.code!=='?');
+    const hubSkus=new Set(fromHub.map(v=>v.sku));
+    const localOnly=skuVariants.filter(v=>!v.sku||!hubSkus.has(v.sku)).map(v=>({...v,hub:false}));
+    skuVariants=[...fromHub,...localOnly].sort((a,b)=>a.code.localeCompare(b.code,'en',{numeric:true})||String(a.color).localeCompare(String(b.color),'th'));
+    try{ rebuildLookups(); }catch{}
+    try{ renderSkuTable(); }catch{}
+    try{ if(currentStep===3) renderAutoMapUI(); }catch{}
+  },
+  render(){
+    const el=document.getElementById('hub-status'); if(!el) return;
+    const when=this.at?new Date(this.at).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}):'';
+    const n=skuVariants.filter(v=>v.hub).length;
+    const txt={loading:'⏳ กำลังดึงจาก Hub…',ok:`🟢 เชื่อม Hub แล้ว · ${n} SKU · ${when}`,cache:`🟡 ใช้ข้อมูล Hub ที่เก็บไว้ (${when}) · ต่อ Hub ไม่ได้ตอนนี้`,error:'🔴 ต่อ Hub ไม่ได้ — ใช้รายการ SKU ในเครื่อง',idle:''}[this.status]||'';
+    el.innerHTML=`<span>${esc(txt)}</span> <button class="btn btn-outline btn-sm" onclick="Hub.refresh()">↻ ดึงใหม่</button>`;
+  }
+};
+Hub._load();
+Hub.apply();
+Hub.refresh();
 renderSkuTable();
+
+// ── ส่งต้นทุนต่อชิ้นเข้า Salepage (หน้าเว็บ lamsangstore.com) ──
+function hubWriteKey(forcePrompt){
+  let k='';
+  try{ k=localStorage.getItem(HUB_WRITE_KEY_LS)||''; }catch{}
+  if(!k||forcePrompt){
+    const v=(prompt('วางกุญแจ Hub สำหรับ "ส่งต้นทุน" (lsh_…)\nออกได้ที่ lamsangstore.com → หลังบ้าน → Hub เชื่อมแอป (เปิด "ให้ส่งต้นทุนสินค้าเข้ามาได้")\nเก็บไว้ในเครื่องนี้เท่านั้น',k)||'').trim();
+    if(!v) return '';
+    if(!/^lsh_[A-Za-z0-9_-]{20,}$/.test(v)){ alert('รูปแบบกุญแจไม่ถูกต้อง'); return ''; }
+    k=v;
+    try{ localStorage.setItem(HUB_WRITE_KEY_LS,k); }catch{}
+  }
+  return k;
+}
+// keys = บิลที่จะส่ง · SKU ซ้ำหลายบิลใช้ต้นทุนของบิลที่เปิดล่าสุด (ต้นทุนล่าสุดทับค่าเดิม)
+async function sendCostsToHub(keys){
+  if(!keys){ _ensureCurBill(); keys=[curBill]; }
+  const groups=getBillGroups();
+  const dateOf=k=>k==='*'?'':(groups.find(g=>g.key===k)?.date||'');
+  const latest={};
+  for(const k of [...keys].sort((a,b)=>dateOf(a).localeCompare(dateOf(b)))){
+    for(const r of computeRows8(rowsOfBill(k))) if(r.sku&&r.unitPrice>0) latest[r.sku]={sku:r.sku,cost:r2(r.unitPrice),desc:r.desc};
+  }
+  const items=Object.values(latest);
+  if(!items.length){ alert('ไม่มีรายการที่มี SKU'); return; }
+  const ref=keys.filter(k=>k&&k!=='*').join(', ');
+  if(!confirm(`ส่งต้นทุนต่อชิ้นล่าสุด ${items.length} SKU เข้า Salepage?\n${ref?'บิล: '+ref+'\n':''}\n`+
+    items.slice(0,12).map(i=>`${i.desc} = ฿${fmt(i.cost)}`).join('\n')+(items.length>12?`\n… และอีก ${items.length-12} SKU`:'')+
+    '\n\n(ต้นทุนล่าสุดจะทับค่าเดิมใน Salepage)')) return;
+  const key=hubWriteKey(false); if(!key) return;
+  try{
+    const r=await fetch(`${HUB_BASE}/costs`,{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
+      body:JSON.stringify({source:'vcanbuy',ref,items:items.map(i=>({sku:i.sku,cost:i.cost}))})});
+    const d=await r.json().catch(()=>({}));
+    if(r.status===401||r.status===403){
+      alert('กุญแจส่งต้นทุนใช้ไม่ได้: '+(d.error||r.status)+'\nวางกุญแจใหม่แล้วลองอีกครั้ง');
+      try{ localStorage.removeItem(HUB_WRITE_KEY_LS); }catch{}
+      return;
+    }
+    if(!r.ok) throw new Error(d.error||('HTTP '+r.status));
+    const miss=(d.notFound||[]).length?` · ไม่พบใน Salepage ${d.notFound.length}: ${d.notFound.slice(0,5).join(', ')}`:'';
+    Toast.show({msg:`✅ ส่งต้นทุนเข้า Salepage แล้ว — อัปเดต ${d.updated} · เท่าเดิม ${d.unchanged}${miss}`,type:(d.notFound||[]).length?'warn':'success',duration:10000});
+  }catch(e){
+    alert('ส่งต้นทุนไม่สำเร็จ: '+e.message);
+  }
+}
 loadState(); // restore localStorage state ก่อน (เผื่อ Cloud โหลดช้า)
-Cloud.init().catch(e=>{console.warn('Cloud init failed',e);Cloud._setStatus('offline');});
+const _cloudReady=Cloud.init().catch(e=>{console.warn('Cloud init failed',e);Cloud._setStatus('offline');});
+
+// ═══════════════════════════════════════════════════════════
+// นำเข้าจากปุ่ม "ดึงข้อมูล Vcanbuy" (vcb-pull.js ที่รันบน www.vcanbuy.com)
+// ═══════════════════════════════════════════════════════════
+const VCB_ORIGIN='https://www.vcanbuy.com';
+let _vcbReady=false, _vcbBusy=false;
+// ลิงก์ bookmarklet — โหลด vcb-pull.js ล่าสุดจากโดเมนของแอปนี้
+(function(){
+  const a=document.getElementById('vcb-pull-link');
+  if(a) a.href=`javascript:(()=>{const s=document.createElement('script');s.src='${location.origin}/vcb-pull.js?'+Date.now();document.body.appendChild(s);})()`;
+})();
+// ต่อข้อความใหม่ท้ายของเดิม — ข้ามก้อนที่มีอยู่แล้ว (ออเดอร์ / บิลซ้ำ)
+function _appendBlocks(oldText,newText,splitRe,keyRe){
+  const have=new Set([...oldText.matchAll(new RegExp(keyRe,'g'))].map(m=>m[1]));
+  const blocks=newText.split(splitRe).map(b=>b.trim()).filter(Boolean);
+  const add=blocks.filter(b=>{ const k=(b.match(keyRe)||[])[1]; return !k||!have.has(k); });
+  return {text:[oldText.trim(),...add].filter(Boolean).join('\n\n'),added:add.length,skipped:blocks.length-add.length};
+}
+async function importFromVcanbuy(d){
+  if(typeof d.orders!=='string'||typeof d.boxes!=='string'||!d.orders.trim()) throw new Error('ข้อมูลไม่ครบ');
+  const elO=document.getElementById('inp-orders'), elB=document.getElementById('inp-boxes');
+  const o=_appendBlocks(elO.value,d.orders,/(?=เลขที่ออเดอร์:)/,/เลขที่ออเดอร์:\s*([A-Z0-9]+)/);
+  const b=_appendBlocks(elB.value,d.boxes,/(?=เลขบิลขนส่ง[:\s]*TOUT)/,/เลขบิลขนส่ง[:\s]*(TOUT[A-Z0-9]+)/);
+  elO.value=o.text;
+  elB.value=b.text;
+  curBill=null;
+  goto(1);
+  doStep1();
+  // ถ้ามีข้อมูลกล่องครบแล้ว ประมวลผล step 5 ไว้ให้ด้วย (ต้องจับคู่ SKU ใน step 3 ก่อนจึงจะเห็นผล)
+  parsedBoxes=parseBoxes(elB.value);
+  saveState();
+  const bills=(d.bills||[]).map(x=>x.bill).filter(Boolean);
+  Toast.show({
+    msg:`📥 นำเข้าจาก Vcanbuy: ${bills.length} บิล (${bills.join(', ')}) · เพิ่ม ${o.added} ออเดอร์`+
+        (o.skipped?` · ข้ามที่มีอยู่แล้ว ${o.skipped}`:'')+' — ข้อมูลกล่องพัสดุใส่ใน Step 5 แล้ว',
+    type:'success',duration:9000
+  });
+}
+window.addEventListener('message',async e=>{
+  if(e.origin!==VCB_ORIGIN||!e.source) return;
+  const d=e.data||{};
+  if(d.type==='vcb-ping'){ if(_vcbReady) e.source.postMessage({type:'vcb-ready'},VCB_ORIGIN); return; }
+  if(d.type!=='vcb-import'||_vcbBusy) return;
+  _vcbBusy=true;
+  try{
+    await importFromVcanbuy(d);
+    e.source.postMessage({type:'vcb-import-ok'},VCB_ORIGIN);
+  }catch(err){
+    console.warn('vcb import failed',err);
+    alert('นำเข้าข้อมูลจาก Vcanbuy ไม่สำเร็จ: '+err.message);
+    e.source.postMessage({type:'vcb-import-cancel'},VCB_ORIGIN);
+  }finally{ _vcbBusy=false; }
+});
+// พร้อมรับข้อมูลหลัง session เปิดเสร็จ (ไม่งั้นข้อมูลจาก cloud จะทับของที่เพิ่งนำเข้า)
+_cloudReady.finally(()=>{
+  _vcbReady=true;
+  if(location.hash==='#vcb-import'){
+    history.replaceState(null,'',location.pathname+location.search);
+    try{ window.opener?.postMessage({type:'vcb-ready'},VCB_ORIGIN); }catch{}
+  }
+});
 
 // Onboarding — แสดงครั้งแรกที่ใช้
 if(!localStorage.getItem('vcb_onboarded')){
