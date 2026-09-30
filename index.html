@@ -3923,6 +3923,102 @@ loadStorage();
 // HUB (lamsangstore.com) — รายการสินค้ากลาง · ชื่อย่อ · SKU Page365 · รูปประจำสี
 // และส่งต้นทุนต่อชิ้นล่าสุดกลับเข้า Salepage
 // ═══════════════════════════════════════════════════════════
+/* ---------------------------------------------------------------------------
+   ล็อกอินกลางของร้าน (เฟส G · 30 ก.ย. 2569) — ก้อนนี้เหมือนกันทุกแอป
+   แก้ APP ให้ตรงกับ slug ในทะเบียน `src/lib/hub-apps.ts` ของเว็บร้านเท่านั้น
+
+   กุญแจ Hub ที่ฝังในหน้าเว็บบอกได้แค่ว่า "คำขอมาจากแอปไหน" (ใครเปิด view-source ก็ได้ไป)
+   ส่วนก้อนนี้ทำให้รู้ว่า **ใคร** กำลังใช้ — พนักงานกดเข้าสู่ระบบด้วยบัญชีหลังบ้านของร้าน
+   เว็บร้านออกโทเค็นของคนนั้นให้ (อายุ 30 วัน เก็บไว้ในเครื่องนี้)
+
+   เจ้าของร้านปิดบัญชีหรือกด "บังคับออกจากระบบ" ที่ /admin/users = ตัดทุกแอปพร้อมกัน
+   **ยังไม่ล็อกอินก็ใช้แอปได้ตามปกติ** (ถอยไปใช้กุญแจของแอป) จนกว่าทุกคนจะมีบัญชี
+--------------------------------------------------------------------------- */
+window.HubLogin = (function () {
+  const APP  = 'vcanbuy';
+  const BASE = 'https://lamsangstore.com';
+
+  let token = '', user = null;
+  try {
+    token = localStorage.getItem('hubUserToken') || '';
+    user  = JSON.parse(localStorage.getItem('hubUser') || 'null');
+  } catch (e) {}
+
+  const listeners = [];
+  function notify() { listeners.forEach(function (fn) { try { fn(user); } catch (e) {} }); }
+
+  /* รับโทเค็นที่เว็บร้านส่งกลับมาทาง `#lsa=…` แล้วลบออกจากแถบที่อยู่ทันที
+     (ส่งทาง hash ไม่ใช่ query โทเค็นจึงไม่ไปโผล่ใน log ของเซิร์ฟเวอร์ไหนเลย) */
+  (function catchLogin() {
+    const m = /[#&]lsa=([^&]+)/.exec(location.hash || '');
+    if (!m) return;
+    try {
+      token = decodeURIComponent(m[1]);
+      localStorage.setItem('hubUserToken', token);
+    } catch (e) {}
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  })();
+
+  function setUser(u) {
+    user = u || null;
+    try {
+      if (user) localStorage.setItem('hubUser', JSON.stringify(user));
+      else localStorage.removeItem('hubUser');
+    } catch (e) {}
+    notify();
+  }
+
+  /** โทเค็นใช้ไม่ได้แล้ว (หมดอายุ · ถูกตัดสิทธิ์ · ลาออก) — ถอยไปใช้กุญแจของแอปต่อ */
+  function drop() {
+    token = '';
+    try { localStorage.removeItem('hubUserToken'); } catch (e) {}
+    setUser(null);
+  }
+
+  /** ถามเว็บร้านว่าโทเค็นยังใช้ได้ไหมและเป็นของใคร */
+  async function refresh() {
+    if (!token) { setUser(null); return null; }
+    try {
+      const res = await fetch(BASE + '/api/hub/v1/session', {
+        headers: { Authorization: 'Bearer ' + token }, cache: 'no-store'
+      });
+      if (res.status === 401) { drop(); return null; }
+      if (!res.ok) return user;              // เว็บมีปัญหาชั่วคราว — ใช้ชื่อเดิมไว้ก่อน
+      const json = await res.json();
+      setUser(json.user || null);
+      return user;
+    } catch (e) { return user; }             // ออฟไลน์ — ใช้ชื่อที่จำไว้
+  }
+
+  return {
+    app: APP,
+    user: function () { return user; },
+    token: function () { return token; },
+    /** กุญแจที่ควรใช้ยิง Hub — โทเค็นของคนมาก่อน ไม่มีค่อยใช้กุญแจของแอป */
+    auth: function (appKey) { return token || appKey || ''; },
+    /** เรียกเมื่อคำขอถูกตอบ 401 ขณะที่ใช้โทเค็นของคน — คืน true ถ้าควรลองใหม่ด้วยกุญแจแอป */
+    fell: function (status) {
+      if (status === 401 && token) { drop(); return true; }
+      return false;
+    },
+    loginHref: function () {
+      return BASE + '/app-login?app=' + APP + '&return=' +
+        encodeURIComponent(location.origin + location.pathname);
+    },
+    async signOut() {
+      if (!token) return;
+      try {
+        await fetch(BASE + '/api/hub/v1/session', {
+          method: 'DELETE', headers: { Authorization: 'Bearer ' + token }
+        });
+      } catch (e) {}
+      drop();
+    },
+    refresh: refresh,
+    onChange: function (fn) { listeners.push(fn); fn(user); }
+  };
+})();
+
 const HUB_BASE='https://lamsangstore.com/api/hub/v1';
 // กุญแจอ่านอย่างเดียว (ผูก origin vcanbuy.lamsangstore.com · ไม่เห็นต้นทุน) — ฝังในหน้าเว็บได้
 const HUB_READ_KEY='lsh_Xb-JiIw6eyJY4WoN0uC-j_Lkdwu5DJcrlgdaN8j8uZ8';
@@ -3938,7 +4034,9 @@ const Hub={
   async refresh(){
     this.status='loading'; this.render();
     try{
-      const r=await fetch(`${HUB_BASE}/products?inactive=1&t=${Date.now()}`,{headers:{Authorization:`Bearer ${HUB_READ_KEY}`}});
+      let r=await fetch(`${HUB_BASE}/products?inactive=1&t=${Date.now()}`,{headers:{Authorization:`Bearer ${HubLogin.auth(HUB_READ_KEY)}`}});
+      /* โทเค็นของคนหมดอายุหรือถูกตัดสิทธิ์ — ทิ้งแล้วดึงใหม่ด้วยกุญแจอ่านของแอป */
+      if(HubLogin.fell(r.status)) r=await fetch(`${HUB_BASE}/products?inactive=1&t=${Date.now()}`,{headers:{Authorization:`Bearer ${HUB_READ_KEY}`}});
       if(!r.ok) throw new Error('Hub ตอบกลับ '+r.status);
       const d=await r.json();
       this.items=(d.items||[]).filter(i=>i.sku).map(i=>({
@@ -3980,15 +4078,33 @@ const Hub={
     const when=this.at?new Date(this.at).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}):'';
     const n=skuVariants.filter(v=>v.hub).length;
     const txt={loading:'⏳ กำลังดึงจาก Hub…',ok:`🟢 เชื่อม Hub แล้ว · ${n} SKU · ${when}`,cache:`🟡 ใช้ข้อมูล Hub ที่เก็บไว้ (${when}) · ต่อ Hub ไม่ได้ตอนนี้`,error:'🔴 ต่อ Hub ไม่ได้ — ใช้รายการ SKU ในเครื่อง',idle:''}[this.status]||'';
-    el.innerHTML=`<span>${esc(txt)}</span> <button class="btn btn-outline btn-sm" onclick="Hub.refresh()">↻ ดึงใหม่</button>`;
+    const u=HubLogin.user();
+    const who=u?`👤 ${esc(u.name)}`:'👤 เข้าสู่ระบบ';
+    const tip=u?`${esc(u.name)} — กดเพื่อออกจากระบบเครื่องนี้`:'เข้าสู่ระบบด้วยบัญชีร้าน แล้วส่งต้นทุนได้โดยไม่ต้องวางกุญแจ';
+    el.innerHTML=`<span>${esc(txt)}</span> <button class="btn btn-outline btn-sm" onclick="Hub.refresh()">↻ ดึงใหม่</button>`
+      + ` <button class="btn btn-outline btn-sm" onclick="hubChipClick()" title="${tip}">${who}</button>`;
   }
 };
+/* ปุ่ม 👤 ในแถบเชื่อม Hub — ยังไม่ล็อกอินกดแล้วไปหน้าล็อกอินของร้าน · ล็อกอินแล้วกดเพื่อออก */
+async function hubChipClick(){
+  const u=HubLogin.user();
+  if(!u){ location.href=HubLogin.loginHref(); return; }
+  if(!confirm('ออกจากระบบของ '+u.name+' บนเครื่องนี้?\n(ส่งต้นทุนครั้งต่อไปจะต้องวางกุญแจเองเหมือนเดิม)')) return;
+  await HubLogin.signOut();
+}
+
 Hub._load();
 Hub.apply();
 Hub.refresh();
+/* ชื่อคนที่ล็อกอินไว้ — โชว์จากที่จำไว้ก่อน แล้วถามเว็บร้านว่ายังใช้ได้ไหม */
+HubLogin.onChange(()=>{ try{ Hub.render(); }catch(e){} });
+HubLogin.refresh();
 
 // ── ส่งต้นทุนต่อชิ้นเข้า Salepage (หน้าเว็บ lamsangstore.com) ──
 function hubWriteKey(forcePrompt){
+  /* ล็อกอินด้วยบัญชีร้านแล้วใช้โทเค็นของคนนั้นส่งต้นทุนได้เลย ไม่ต้องวางกุญแจเองทีละเครื่อง
+     (เว็บร้านเช็คให้ว่าเป็นผู้จัดการขึ้นไปไหม และบันทึกว่าใครเป็นคนส่ง) */
+  if(!forcePrompt && HubLogin.token()) return HubLogin.token();
   let k='';
   try{ k=localStorage.getItem(HUB_WRITE_KEY_LS)||''; }catch{}
   if(!k||forcePrompt){
@@ -4024,6 +4140,14 @@ async function sendCostsToHub(keys){
       body:JSON.stringify({source:'vcanbuy',ref,items:items.map(i=>({sku:i.sku,cost:i.cost}))})});
     const d=await r.json().catch(()=>({}));
     if(r.status===401||r.status===403){
+      /* ส่งด้วยโทเค็นของคนแล้วถูกปฏิเสธ = หมดอายุ ถูกตัดสิทธิ์ หรือไม่ใช่ผู้จัดการ — ให้ล็อกอินใหม่
+         ส่วนกรณีวางกุญแจเอง ให้ลบกุญแจที่ใช้ไม่ได้ทิ้งเหมือนเดิม */
+      if(key===HubLogin.token()){
+        HubLogin.fell(401);
+        Hub.render();
+        alert('ส่งต้นทุนไม่ได้: '+(d.error||r.status)+'\nกด "เข้าสู่ระบบ" ที่แถบเชื่อม Hub แล้วลองอีกครั้ง');
+        return;
+      }
       alert('กุญแจส่งต้นทุนใช้ไม่ได้: '+(d.error||r.status)+'\nวางกุญแจใหม่แล้วลองอีกครั้ง');
       try{ localStorage.removeItem(HUB_WRITE_KEY_LS); }catch{}
       return;
