@@ -24,22 +24,22 @@
   const ov=document.createElement('div');
   ov.id='vcb-pull';
   ov.innerHTML=`<style>
-    #vcb-pull{position:fixed;inset:0;z-index:2147483647;background:rgba(40,20,50,.45);display:flex;align-items:center;justify-content:center;font:14px/1.5 system-ui,-apple-system,'Sukhumvit Set','Noto Sans Thai',sans-serif;}
-    #vcb-pull .box{background:#fff;color:#3d2645;border-radius:14px;width:min(620px,94vw);max-height:86vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);}
-    #vcb-pull .hd{padding:16px 20px;border-bottom:1px solid #eee;font-weight:700;font-size:16px;display:flex;justify-content:space-between;align-items:center;}
+    #vcb-pull{position:fixed;inset:0;z-index:2147483647;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;font:14px/1.5 'Noto Sans Thai',system-ui,-apple-system,sans-serif;}
+    #vcb-pull .box{background:#fff;color:#0f172a;border-radius:14px;width:min(620px,94vw);max-height:86vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+    #vcb-pull .hd{padding:16px 20px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:16px;display:flex;justify-content:space-between;align-items:center;}
     #vcb-pull .bd{padding:12px 20px;overflow:auto;flex:1;}
-    #vcb-pull .ft{padding:12px 20px;border-top:1px solid #eee;display:flex;gap:8px;align-items:center;}
-    #vcb-pull label.bill{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid #ecdcf3;border-radius:10px;margin-bottom:8px;cursor:pointer;}
-    #vcb-pull label.bill:hover{background:#faf3fd;}
+    #vcb-pull .ft{padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;gap:8px;align-items:center;}
+    #vcb-pull label.bill{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;cursor:pointer;}
+    #vcb-pull label.bill:hover{background:#f1f5f9;}
     #vcb-pull .mono{font-family:ui-monospace,Menlo,monospace;font-weight:700;}
-    #vcb-pull small{color:#7a5a88;}
+    #vcb-pull small{color:#64748b;}
     #vcb-pull button{border:0;border-radius:8px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer;}
-    #vcb-pull .go{background:linear-gradient(135deg,#c084b0,#a96899);color:#fff;}
+    #vcb-pull .go{background:#a8853f;color:#fff;}
     #vcb-pull .go:disabled{opacity:.5;cursor:default;}
-    #vcb-pull .sec{background:#f2e8f9;color:#3d2645;}
-    #vcb-pull .x{background:none;font-size:20px;padding:0 4px;color:#7a5a88;}
-    #vcb-pull .msg{color:#7a5a88;font-size:13px;flex:1;}
-    #vcb-pull .err{color:#e05a7a;}
+    #vcb-pull .sec{background:#f1f5f9;color:#334155;}
+    #vcb-pull .x{background:none;font-size:20px;padding:0 4px;color:#64748b;}
+    #vcb-pull .msg{color:#64748b;font-size:13px;flex:1;}
+    #vcb-pull .err{color:#dc2626;}
   </style>
   <div class="box">
     <div class="hd"><span>📦 ดึงข้อมูลเข้าแอป VCANBUY</span><button class="x" data-act="close">✕</button></div>
