@@ -1085,6 +1085,32 @@ tbody tr[class*="trow-"] td:first-child{border-left:none!important;}
 tbody td{border-bottom:1px solid #f1f5f9;}
 body.dark tbody td{border-bottom-color:#3a3833;}
 .map-row-todo{background:#fffbeb!important;}
+
+/* ── ใบกำกับภาษี: ออกแบบ + ร่างอีเมล ── */
+.inv-sec-title{font-size:13px;font-weight:700;color:var(--tx-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.inv-note{font-size:12px;font-weight:400;color:var(--tx-secondary);}
+.inv-date-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+.inv-input{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:7px 11px;font-family:inherit;font-size:13px;color:#0f172a;}
+.inv-input:focus{border-color:#bf9c4f;box-shadow:0 0 0 3px #f3ead4;outline:none;}
+.inv-details{margin-top:14px;border-top:1px solid #e2e8f0;padding-top:12px;}
+.inv-details summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--tx-primary);}
+.inv-info-grid,.inv-mail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;margin-top:12px;}
+.inv-info-grid label,.inv-mail-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--tx-secondary);}
+.inv-info-grid input,.inv-mail-grid input,.inv-mail-grid textarea{width:100%;font-size:13px;padding:7px 11px;}
+.inv-wide{grid-column:1/-1;}
+.inv-paper{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;}
+.inv-paper-title{text-align:center;font-size:16px;font-weight:700;color:#0f172a;margin-bottom:10px;}
+.inv-paper-info{display:grid;grid-template-columns:max-content 1fr;gap:3px 12px;font-size:12.5px;color:#334155;}
+.inv-paper-info dt{color:#64748b;}
+.inv-paper-info dd{margin:0;color:#0f172a;}
+.inv-paper-info .inv-date-val{font-weight:700;color:#886a32;}
+.inv-cell{width:100%;border:1px solid transparent;border-radius:6px;padding:3px 6px;background:transparent;font:inherit;color:inherit;}
+.inv-cell:hover{border-color:#e2e8f0;background:#fff;}
+.inv-cell:focus{border-color:#bf9c4f;background:#fff;box-shadow:0 0 0 3px #f3ead4;outline:none;}
+.inv-cell.edited{background:#faf6ec;}
+#tfoot-7 td{font-weight:600;border-top:1px solid #e2e8f0;}
+.inv-attach{margin-top:10px;font-size:12.5px;color:var(--tx-primary);background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:8px 12px;}
+@media (max-width:640px){.inv-info-grid,.inv-mail-grid{grid-template-columns:1fr;}.inv-paper{padding:12px;}}
 </style>
 </head>
 <body class="min-h-screen" style="background:var(--bg);color:var(--tx-primary);">
@@ -1364,23 +1390,50 @@ body.dark tbody td{border-bottom-color:#3a3833;}
   <div class="result-title text-base font-bold mb-3 flex items-center gap-2">📋 Export to VCANBUY — ใบกำกับภาษี</div>
   <div class="alert alert-info" style="margin-bottom:14px;">
     <span>ℹ️</span>
-    <span>รวมรหัสสินค้าเดียวกันทุก Order <b>ในบิลขนส่งเดียวกัน</b> เป็นรายการเดียว — ราคา/หน่วย = ราคาเฉลี่ยถ่วงน้ำหนัก · วันที่ในใบ = วันที่เปิดบิลขนส่ง</span>
+    <span>รวมรหัสสินค้าเดียวกันทุก Order <b>ในบิลขนส่งเดียวกัน</b> เป็นรายการเดียว — ราคา/หน่วย = ราคาเฉลี่ยถ่วงน้ำหนัก · วันที่ในใบ = วันที่เปิดบิลขนส่ง (เปลี่ยนได้ · ใช้กับเอกสาร Peak ด้วย) · แก้ชื่อรายการ/หน่วยได้ในตัวอย่างด้านล่าง</span>
   </div>
   <div id="bill-bar-7" class="bill-bar" style="display:none;"></div>
 
-  <!-- Preview table -->
-  <div class="tbl-wrap" style="margin-bottom:16px;">
-    <table>
-      <thead><tr>
-        <th style="width:50px;">ลำดับ</th>
-        <th>รายการสินค้า</th>
-        <th style="width:90px;">จำนวน</th>
-        <th style="width:70px;">หน่วย</th>
-        <th style="width:110px;">ราคา/หน่วย</th>
-        <th style="width:120px;">รวมทั้งหมด</th>
-      </tr></thead>
-      <tbody id="tbody-7"></tbody>
-    </table>
+  <!-- ออกแบบใบกำกับภาษี: วันที่ + ข้อมูลผู้ขอ -->
+  <div class="glass-effect rounded-xl p-5 mb-4">
+    <div class="inv-sec-title">🗓️ วันที่ในใบกำกับภาษี</div>
+    <div class="inv-date-row">
+      <input type="date" id="inv-date" class="inv-input" onchange="invSetDate(this.value)">
+      <button class="btn btn-outline btn-sm" id="inv-date-reset" onclick="invSetDate('')">ใช้วันที่เปิดบิล</button>
+      <span id="inv-date-note" class="inv-note"></span>
+    </div>
+    <details class="inv-details">
+      <summary>🏢 ข้อมูลผู้ขอใบกำกับภาษี <span class="inv-note">(จำไว้ในเครื่องนี้ ใช้กับทุกบิล)</span></summary>
+      <div class="inv-info-grid">
+        <label>รหัสลูกค้า TH<input type="text" data-inv-info="code" oninput="invSetInfo(this)"></label>
+        <label>ชื่อ<input type="text" data-inv-info="name" oninput="invSetInfo(this)"></label>
+        <label class="inv-wide">ที่อยู่<input type="text" data-inv-info="addr" oninput="invSetInfo(this)"></label>
+        <label>เบอร์โทร<input type="text" data-inv-info="phone" oninput="invSetInfo(this)"></label>
+        <label>เลขประจำตัวผู้เสียภาษี<input type="text" data-inv-info="tax" oninput="invSetInfo(this)"></label>
+        <label>สาขา<input type="text" data-inv-info="branch" oninput="invSetInfo(this)"></label>
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="invResetDesign()">↺ คืนค่าเริ่มต้น (ข้อมูลบริษัท ชื่อรายการ หน่วย)</button>
+    </details>
+  </div>
+
+  <!-- ตัวอย่างใบกำกับภาษี (หน้าตาเหมือนไฟล์ที่ได้) -->
+  <div class="inv-paper" style="margin-bottom:16px;">
+    <div class="inv-paper-title">แบบฟอร์มขอใบกำกับภาษี</div>
+    <div class="inv-paper-info" id="inv-paper-info"></div>
+    <div class="tbl-wrap" style="margin-top:12px;">
+      <table>
+        <thead><tr>
+          <th style="width:50px;">ลำดับ</th>
+          <th>รายการสินค้า ✏️</th>
+          <th style="width:90px;">จำนวน</th>
+          <th style="width:90px;">หน่วย ✏️</th>
+          <th style="width:110px;">ราคา/หน่วย</th>
+          <th style="width:120px;">รวมทั้งหมด</th>
+        </tr></thead>
+        <tbody id="tbody-7"></tbody>
+        <tfoot id="tfoot-7"></tfoot>
+      </table>
+    </div>
   </div>
   <div class="copy-bar">
     <span id="sum-7"></span>
@@ -1395,6 +1448,28 @@ body.dark tbody td{border-bottom-color:#3a3833;}
     </button>
     <button class="btn btn-outline btn-sm" onclick="goto(6)">← กลับ</button>
   </div>
+
+  <!-- ร่างอีเมลส่งบัญชี VCANBUY พร้อมไฟล์แนบ -->
+  <div class="glass-effect rounded-xl p-5" style="margin-top:20px;">
+    <div class="inv-sec-title">✉️ ร่างอีเมลส่งบัญชี VCANBUY <span class="bill-btn-label inv-note"></span></div>
+    <div class="inv-mail-grid">
+      <label>ถึง<input type="text" id="mail-to" oninput="invMailEdit('to',this.value)"></label>
+      <label>สำเนา (CC)<input type="text" id="mail-cc" placeholder="ไม่บังคับ" oninput="invMailEdit('cc',this.value)"></label>
+      <label class="inv-wide">หัวเรื่อง<input type="text" id="mail-subject" oninput="invMailEdit('subject',this.value)"></label>
+      <label class="inv-wide">เนื้อหา<textarea id="mail-body" rows="11" oninput="invMailEdit('body',this.value)"></textarea></label>
+    </div>
+    <div class="inv-attach">📎 <span id="mail-attach" class="mono"></span></div>
+    <div class="action-row" style="margin-top:12px;">
+      <button class="btn btn-success" onclick="invMailGmail()">📧 เปิดร่างใน Gmail + ดาวน์โหลดไฟล์แนบ</button>
+      <button class="btn btn-outline" onclick="invMailEml()">✉️ อีเมลร่างพร้อมไฟล์แนบ (.eml)</button>
+      <button class="btn btn-outline" id="mail-share-btn" onclick="invMailShare()" style="display:none;">📤 แชร์ไปแอป Mail</button>
+      <button class="btn btn-outline btn-sm" onclick="invMailRegen()">↺ เขียนข้อความใหม่จากข้อมูลบิล</button>
+    </div>
+    <div class="inv-note" style="margin-top:10px;line-height:1.7;">
+      <b>Gmail</b> — ลิงก์ของ Gmail แนบไฟล์ให้อัตโนมัติไม่ได้: แอปจะเปิดร่างที่กรอกผู้รับ/หัวเรื่อง/เนื้อหาไว้ให้ และดาวน์โหลดไฟล์ — ลากไฟล์จากแถบดาวน์โหลดใส่ร่างแล้วกดส่ง<br>
+      <b>.eml</b> — ไฟล์อีเมลร่างที่แนบไฟล์มาแล้ว เปิดด้วย Outlook ได้เป็นร่างทันที · Apple Mail: เปิดแล้วกด ข้อความ › ส่งอีกครั้ง (⇧⌘D)
+    </div>
+  </div>
 </div>
 
 <!-- ══════════ STEP 8: Export to Peak ══════════ -->
@@ -1402,7 +1477,7 @@ body.dark tbody td{border-bottom-color:#3a3833;}
   <div class="result-title text-base font-bold mb-3 flex items-center gap-2">📊 Export to Peak — นำเข้าสินค้าคงคลัง</div>
   <div class="alert alert-info" style="margin-bottom:14px;">
     <span>ℹ️</span>
-    <span>รวม SKU เดียวกันทุก Order <b>ในบิลขนส่งเดียวกัน</b> — 1 บรรทัดต่อ 1 SKU (สี) — ราคาต่อหน่วย = weighted average · 1 บิล = 1 เอกสาร Peak (อ้างอิง = เลขบิล)</span>
+    <span>รวม SKU เดียวกันทุก Order <b>ในบิลขนส่งเดียวกัน</b> — 1 บรรทัดต่อ 1 SKU (สี) — ราคาต่อหน่วย = weighted average · 1 บิล = 1 เอกสาร Peak (อ้างอิง = เลขบิล) · วันที่เอกสาร = วันที่ในใบกำกับ VCANBUY</span>
   </div>
   <div id="bill-bar-8" class="bill-bar" style="display:none;"></div>
 
@@ -2565,8 +2640,7 @@ function computeRows7(src){
   const grouped={};
   for(const r of src){
     const code=r.code||'?';
-    const name=`เข็มขัด ${code}`;
-    if(!grouped[code]) grouped[code]={code,name,totalQty:0,totalCost:0};
+    if(!grouped[code]) grouped[code]={code,name:invItemName(code),totalQty:0,totalCost:0};
     grouped[code].totalQty+=r.qty;
     grouped[code].totalCost+=r.total;
   }
@@ -2577,9 +2651,10 @@ function computeRows7(src){
       const up=g.totalQty>0?r2(g.totalCost/g.totalQty):0;
       return {
         seq:i+1,
+        code:g.code,
         name:g.name,
         qty:g.totalQty,
-        unit:'ชิ้น',
+        unit:invItemUnit(g.code),
         unitPrice:up,
         total:r2(g.totalQty*up),
         costTotal:r2(g.totalCost)   // ยอดจริงจาก Vcanbuy (อ้างอิง)
@@ -2602,26 +2677,235 @@ function buildStep7(){
   renderBillBars();
   rows7=computeRows7(rowsOfBill(curBill));
 
-  // Render preview
+  // Render preview — ชื่อรายการ/หน่วย แก้ได้ (จำต่อรหัสสินค้า)
+  const D=_invDesign();
   const tbody=document.getElementById('tbody-7');
-  tbody.innerHTML=rows7.map(r=>`<tr class="${rowColor(r.name)}">
+  tbody.innerHTML=rows7.map(r=>`<tr class="${rowColor(r.code)}">
     <td class="ncell">${r.seq}</td>
-    <td>${esc(r.name)}</td>
+    <td><input class="inv-cell${D.names[r.code]?' edited':''}" value="${esc(r.name)}" title="แก้ชื่อรายการ (ใช้กับ ${esc(r.code)} ทุกบิล)" onchange="invSetItem('names','${esc(r.code)}',this.value)"></td>
     <td class="ncell">${r.qty.toLocaleString()}</td>
-    <td style="text-align:center;">${esc(r.unit)}</td>
+    <td style="text-align:center;"><input class="inv-cell${D.units[r.code]?' edited':''}" style="text-align:center;" value="${esc(r.unit)}" onchange="invSetItem('units','${esc(r.code)}',this.value)"></td>
     <td class="ncell">${fmt(r.unitPrice)}</td>
     <td class="ncell" style="color:var(--accent);font-weight:600;">${fmt(r.total)}</td>
   </tr>`).join('');
 
-  const grandTotal=rows7.reduce((s,r)=>s+r.total,0);
-  const vat=r2(grandTotal*0.07);
+  const t=_invTotals(rows7);
+  document.getElementById('tfoot-7').innerHTML=rows7.length?[['ยอดรวม',t.sum],['VAT 7%',t.vat],['ยอดทั้งหมด',t.grand]]
+    .map(([k,v])=>`<tr><td colspan="5" style="text-align:right;">${k}</td><td class="ncell" style="color:var(--accent);">${fmt(v)}</td></tr>`).join(''):'';
   const multi=getBillGroups().some(g=>g.key);
   document.getElementById('sum-7').innerHTML=(multi?`<b>${esc(_billLabel(curBill))}</b> | `:'')+
-    `${rows7.length} รายการ | ยอดรวม ฿${fmt(grandTotal)} | VAT 7% ฿${fmt(vat)} | <b>ยอดทั้งหมด ฿${fmt(r2(grandTotal+vat))}</b>`;
+    `${rows7.length} รายการ | ยอดรวม ฿${fmt(t.sum)} | VAT 7% ฿${fmt(t.vat)} | <b>ยอดทั้งหมด ฿${fmt(t.grand)}</b>`;
 
   _syncBillButtons();
+  invRenderDesign();
 }
 
+// ═══════════════════════════════════════════════════════════
+// ออกแบบใบกำกับภาษี — วันที่ต่อบิล · ข้อมูลผู้ขอ · ชื่อรายการ/หน่วยต่อรหัสสินค้า (เก็บในเครื่อง)
+// ═══════════════════════════════════════════════════════════
+const INV_INFO_DEFAULT={code:'1029528',name:'บริษัท ลำแสง กรุ๊ป จำกัด',addr:'41/8 หมู่ที่ 6 ต.เนินปอ อ.สามง่าม จ.พิจิตร 66140',
+  phone:'0984456397',tax:'0665567000361',branch:'สำนักงานใหญ่'};
+const INV_MAIL_TO='account@vcanbuy.com';
+let _invD=null;
+function _invDesign(){
+  if(_invD) return _invD;
+  let d={};
+  try{ d=JSON.parse(localStorage.getItem('vcb_inv_design')||'{}')||{}; }catch{ d={}; }
+  _invD={info:{...INV_INFO_DEFAULT,...(d.info||{})},names:d.names||{},units:d.units||{},dates:d.dates||{},
+    mail:{to:INV_MAIL_TO,cc:'',...(d.mail||{})}};
+  return _invD;
+}
+function _invSave(){ try{ localStorage.setItem('vcb_inv_design',JSON.stringify(_invDesign())); }catch{} }
+function invItemName(code){ return _invDesign().names[code]||`เข็มขัด ${code}`; }
+function invItemUnit(code){ return _invDesign().units[code]||'ชิ้น'; }
+const _ymdStr=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const _thDate=d=>`${d.getDate()} ${VF.TH_MONTHS[d.getMonth()]} ${d.getFullYear()+543}`;
+// วันที่เปิดบิล (ค่าเริ่มต้น) · ไม่มีบิล/รวมทุกบิล = วันนี้
+function _invDefaultDate(key){ return (key&&key!=='*')?billDateObj(key):new Date(); }
+// วันที่ในใบกำกับภาษีของบิลนี้ — ที่เลือกเอง หรือวันที่เปิดบิล
+function invDateOf(key){
+  const v=_invDesign().dates[key==null?'':key];
+  const m=(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m?new Date(+m[1],+m[2]-1,+m[3]):_invDefaultDate(key);
+}
+function _invTotals(items){
+  const sum=r2(items.reduce((a,r)=>a+r.total,0)), vat=r2(sum*0.07);
+  return {sum,vat,grand:r2(sum+vat)};
+}
+function invSetDate(v){
+  _ensureCurBill();
+  const D=_invDesign(), k=curBill==null?'':curBill;
+  if(v&&v!==_ymdStr(_invDefaultDate(curBill))) D.dates[k]=v; else delete D.dates[k];
+  _invSave(); invRenderDesign();
+}
+function invSetInfo(el){
+  const D=_invDesign();
+  D.info[el.dataset.invInfo]=el.value;
+  _invSave(); invRenderDesign(true);
+}
+function invSetItem(kind,code,v){
+  const D=_invDesign(), dflt=kind==='names'?`เข็มขัด ${code}`:'ชิ้น';
+  v=v.trim();
+  if(v&&v!==dflt) D[kind][code]=v; else delete D[kind][code];
+  _invSave(); buildStep7();
+}
+function invResetDesign(){
+  if(!confirm('คืนค่าข้อมูลบริษัท ชื่อรายการ และหน่วยทั้งหมดเป็นค่าเริ่มต้น?')) return;
+  const D=_invDesign();
+  D.info={...INV_INFO_DEFAULT}; D.names={}; D.units={};
+  _invSave(); buildStep7();
+}
+// วาดส่วนหัวใบ + ช่องวันที่ + ร่างอีเมล ตามบิลที่เลือก · keepFocus = กำลังพิมพ์ในช่องข้อมูลบริษัท (ไม่เขียนทับช่อง)
+let _invMailFor=null;   // บิลที่ร่างอีเมลปัจจุบันเขียนไว้ — เปลี่ยนบิล = เขียนใหม่
+function invRenderDesign(keepFocus){
+  const D=_invDesign(), I=D.info;
+  const d=invDateOf(curBill), dflt=_invDefaultDate(curBill);
+  const custom=_ymdStr(d)!==_ymdStr(dflt);
+  const di=document.getElementById('inv-date');
+  if(!di) return;
+  di.value=_ymdStr(d);
+  document.getElementById('inv-date-reset').style.display=custom?'':'none';
+  document.getElementById('inv-date-note').innerHTML=custom
+    ?`เลือกเอง · วันที่เปิดบิล ${esc(_thDate(dflt))}`
+    :((curBill&&curBill!=='*')?'= วันที่เปิดบิลขนส่ง':'= วันนี้ (ไม่มีเลขบิล)');
+  if(!keepFocus) document.querySelectorAll('[data-inv-info]').forEach(el=>{ el.value=I[el.dataset.invInfo]||''; });
+  const line=(k,v,cls)=>`<dt>${k}</dt><dd${cls?` class="${cls}"`:''}>${esc(v||'—')}</dd>`;
+  document.getElementById('inv-paper-info').innerHTML=
+    line('รหัสลูกค้า TH',I.code)+line('ชื่อ',I.name)+line('ที่อยู่',I.addr)+line('เบอร์โทร',I.phone)+
+    line('เลขประจำตัวผู้เสียภาษี',I.tax)+line('สาขา',I.branch)+line('ขอออกใบกำกับภาษี',_thDate(d),'inv-date-val');
+  // ร่างอีเมล — หัวเรื่อง/เนื้อหาเขียนใหม่ตามข้อมูลบิล จนกว่าจะแก้เอง (เปลี่ยนบิล = เขียนใหม่)
+  const M=D.mail;
+  document.getElementById('mail-to').value=M.to;
+  document.getElementById('mail-cc').value=M.cc;
+  if(_invMailFor!==curBill){ _invMailFor=curBill; _invMailDirty={}; }
+  const g=_invMailDraft();
+  if(!_invMailDirty.subject) document.getElementById('mail-subject').value=g.subject;
+  if(!_invMailDirty.body) document.getElementById('mail-body').value=g.body;
+  document.getElementById('mail-attach').textContent=_vcbFileName(curBill)+' · '+(rows7.length?`${rows7.length} รายการ · ฿${fmt(_invTotals(rows7).grand)}`:'ไม่มีรายการ');
+  const sb=document.getElementById('mail-share-btn');
+  if(sb) sb.style.display=(navigator.canShare&&navigator.canShare({files:[new File([''],'a.xlsx',{type:VCB_XLSX_MIME})]}))?'':'none';
+}
+
+// ═══════════════════════════════════════════════════════════
+// ร่างอีเมลถึงบัญชี VCANBUY พร้อมไฟล์แนบ (ไฟล์ = ใบกำกับของบิลที่เลือก)
+// ═══════════════════════════════════════════════════════════
+let _invMailDirty={};
+function _invMailDraft(){
+  const I=_invDesign().info, d=invDateOf(curBill), t=_invTotals(rows7);
+  const bill=(curBill&&curBill!=='*')?curBill.replace(/\+/g,' + '):'';
+  const subject=`ขอใบกำกับภาษี ${I.name} (รหัสลูกค้า TH ${I.code})${bill?' — บิล '+bill:''} — ${_thDate(d)}`;
+  const body=[
+    'เรียน ฝ่ายบัญชี VCANBUY',
+    '',
+    `${I.name} (รหัสลูกค้า TH ${I.code}) ขอส่งแบบฟอร์มขอใบกำกับภาษีตามไฟล์แนบ`,
+    '',
+    bill?`เลขบิลขนส่ง: ${bill}`:'',
+    `วันที่ขอออกใบกำกับภาษี: ${_thDate(d)}`,
+    `จำนวน ${rows7.length} รายการ`,
+    `ยอดรวม ${fmt(t.sum)} บาท · VAT 7% ${fmt(t.vat)} บาท · ยอดทั้งหมด ${fmt(t.grand)} บาท`,
+    '',
+    'รบกวนออกใบกำกับภาษี และส่งสำเนาใบกำกับภาษีกลับมาที่อีเมลนี้ด้วย',
+    '',
+    'ขอแสดงความนับถือ',
+    I.name,
+    `เลขประจำตัวผู้เสียภาษี ${I.tax} (${I.branch})`,
+    `โทร ${I.phone}`
+  ].filter((l,i,a)=>!(l===''&&a[i-1]===''));
+  return {subject,body:body.join('\n')};
+}
+function invMailEdit(field,v){
+  if(field==='to'||field==='cc'){ _invDesign().mail[field]=v.trim(); _invSave(); return; }
+  _invMailDirty[field]=true;
+}
+function invMailRegen(){ _invMailDirty={}; invRenderDesign(); }
+function _invMailFields(){
+  const val=id=>document.getElementById(id).value.trim();
+  return {to:val('mail-to')||INV_MAIL_TO,cc:val('mail-cc'),subject:val('mail-subject'),body:document.getElementById('mail-body').value};
+}
+function _downloadBlob(blob,fname){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=fname;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+// Gmail: เปิดหน้าร่าง (ต้องเปิดก่อน await ไม่งั้นเบราว์เซอร์บล็อกหน้าต่างใหม่) แล้วดาวน์โหลดไฟล์ไว้ลากใส่
+async function invMailGmail(){
+  if(!rows7.length){alert('ไม่มีข้อมูล');return;}
+  const m=_invMailFields();
+  const q=new URLSearchParams({view:'cm',fs:'1',to:m.to,su:m.subject,body:m.body});
+  if(m.cc) q.set('cc',m.cc);
+  window.open('https://mail.google.com/mail/?'+q.toString(),'_blank');
+  const f=await _buildVcanbuyFile(curBill);
+  if(!f) return;
+  _downloadBlob(f.blob,f.fname);
+  _markBillExported(f.rows,7);
+  Toast.show({msg:`เปิดร่างใน Gmail แล้ว — ลากไฟล์ <b>${esc(f.fname)}</b> จากแถบดาวน์โหลดใส่ร่าง แล้วกดส่ง`,type:'success',duration:8000});
+}
+// .eml = อีเมลร่างที่แนบไฟล์แล้ว (X-Unsent: 1 → Outlook เปิดเป็นร่างให้แก้/ส่ง)
+const _b64utf8=t=>btoa(unescape(encodeURIComponent(t)));
+const _wrap76=t=>t.replace(/.{1,76}/g,'$&\r\n');
+// หัวเรื่องภาษาไทย → encoded-word ทีละไม่เกิน 45 ไบต์ (ไม่ตัดกลางตัวอักษร) ขึ้นบรรทัดใหม่ระหว่างคำ
+function _mimeWord(t){
+  const parts=[]; let cur='', n=0;
+  for(const ch of t){
+    const b=unescape(encodeURIComponent(ch)).length;
+    if(n+b>45){ parts.push(cur); cur=''; n=0; }
+    cur+=ch; n+=b;
+  }
+  if(cur) parts.push(cur);
+  return parts.map(p=>`=?UTF-8?B?${_b64utf8(p)}?=`).join('\r\n ');
+}
+async function _blobB64(blob){
+  const u=new Uint8Array(await blob.arrayBuffer());
+  let bin='';
+  for(let i=0;i<u.length;i+=0x8000) bin+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));
+  return btoa(bin);
+}
+async function invMailEml(){
+  if(!rows7.length){alert('ไม่มีข้อมูล');return;}
+  const m=_invMailFields();
+  const f=await _buildVcanbuyFile(curBill);
+  if(!f) return;
+  const B='vcb_'+Date.now().toString(36);
+  const eml=[
+    `To: ${m.to}`,
+    m.cc?`Cc: ${m.cc}`:null,
+    `Subject: ${_mimeWord(m.subject)}`,
+    'X-Unsent: 1',
+    'MIME-Version: 1.0',
+    `Content-Type: multipart/mixed; boundary="${B}"`,
+    '',
+    `--${B}`,
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    _wrap76(_b64utf8(m.body.replace(/\r?\n/g,'\r\n'))),
+    `--${B}`,
+    `Content-Type: ${VCB_XLSX_MIME}; name="${f.fname}"`,
+    `Content-Disposition: attachment; filename="${f.fname}"`,
+    'Content-Transfer-Encoding: base64',
+    '',
+    _wrap76(await _blobB64(f.blob)),
+    `--${B}--`,
+    ''
+  ].filter(l=>l!==null).join('\r\n');
+  _downloadBlob(new Blob([eml],{type:'message/rfc822'}),f.fname.replace(/\.xlsx$/,'')+'.eml');
+  _markBillExported(f.rows,7);
+  Toast.show({msg:'ดาวน์โหลดอีเมลร่าง (.eml) พร้อมไฟล์แนบแล้ว — ดับเบิลคลิกเปิดด้วย Outlook / Apple Mail (Apple Mail: ข้อความ › ส่งอีกครั้ง ⇧⌘D)',type:'success',duration:8000});
+}
+// แชร์ไฟล์ไปแอป Mail ของเครื่อง (แอป Mail ไม่รับชื่อผู้รับจากเว็บ → คัดลอกอีเมลผู้รับไว้ให้วาง)
+async function invMailShare(){
+  if(!rows7.length){alert('ไม่มีข้อมูล');return;}
+  const m=_invMailFields();
+  const f=await _buildVcanbuyFile(curBill);
+  if(!f) return;
+  try{ await navigator.clipboard.writeText(m.to); }catch{}
+  try{
+    await navigator.share({title:m.subject,text:m.body,files:[new File([f.blob],f.fname,{type:VCB_XLSX_MIME})]});
+    _markBillExported(f.rows,7);
+  }catch(e){ if(e.name!=='AbortError') alert('แชร์ไม่ได้: '+e.message); return; }
+  Toast.show({msg:`คัดลอก ${esc(m.to)} ไว้แล้ว — วางในช่องผู้รับของแอป Mail`,type:'info',duration:6000});
+}
 
 // ═══════════════════════════════════════════════════════════
 // ฟอร์มขอใบกำกับภาษี VCANBUY — แก้ค่าในไฟล์ต้นฉบับของ Vcanbuy ตรง ๆ (XML)
@@ -2698,7 +2982,11 @@ const VF={
     return xml.replace(/<mergeCells count="\d+"/,`<mergeCells count="${n}"`);
   },
   // ชีต "ฟอร์ม": วันที่ + รายการสินค้า + ยอดรวม
-  fillForm(xml,items,date){
+  fillForm(xml,items,date,info){
+    if(info){
+      for(const [ref,k] of [['C3','code'],['C4','name'],['C5','addr'],['C6','phone'],['E7','tax'],['C8','branch']])
+        xml=this.setCell(xml,ref,'s',info[k]||'');
+    }
     xml=this.setCell(xml,'G9','s',`${date.getDate()} ${this.TH_MONTHS[date.getMonth()]}`);
     xml=this.setCell(xml,'H9','n',date.getFullYear()+543);
     const cap=this.ITEM_TPL_LAST-this.ITEM_FIRST+1;
@@ -2767,9 +3055,9 @@ const VF={
   },
   // zip = JSZip ของไฟล์ต้นฉบับ · คืน {sum, vat}
   // pictureRows = แถวในชีตรูปภาพ [{name}] (ไม่ส่ง = ใช้ชื่อรายการในชีตฟอร์ม) · pictures[].row อ้างลำดับใน pictureRows
-  async build(zip,{items,date,pictures,pictureRows}){
+  async build(zip,{items,date,info,pictures,pictureRows}){
     const s1=await zip.file(this.SHEET1).async('string');
-    const f=this.fillForm(s1,items,date);
+    const f=this.fillForm(s1,items,date,info);
     zip.file(this.SHEET1,f.xml);
     const names=(pictureRows||items).map(i=>i.name);
     const s2=await zip.file(this.SHEET2).async('string');
@@ -2816,21 +3104,26 @@ function _vcbPictureRows(rows){
       const code=it.resolvedCode||'?';
       const spec=(it.spec||it.variantLine||'').replace(/,\s*$/,'');
       const key=`${code}|${it.resolvedSku||''}|${it.offerId||it.shop||''}|${specKey(spec)}`;
-      if(!map.has(key)) map.set(key,{code,name:`เข็มขัด ${code}${it.resolvedColor?' '+it.resolvedColor:''}${spec?' · '+spec:''}`,img:it.img||'',qty:0});
+      if(!map.has(key)) map.set(key,{code,name:`${invItemName(code)}${it.resolvedColor?' '+it.resolvedColor:''}${spec?' · '+spec:''}`,img:it.img||'',qty:0});
       const r=map.get(key); r.qty+=it.qty; if(!r.img&&it.img) r.img=it.img;
     }
   }
   return [...map.values()].sort((a,b)=>a.code.localeCompare(b.code,'en',{numeric:true})||a.name.localeCompare(b.name,'th'));
 }
-// key = เลขบิลขนส่ง (TOUT…) · '*' = รวมทุกบิล · ไม่ส่ง = บิลที่เลือกอยู่
-async function exportVcanbuyExcel(key){
-  if(key===undefined){ _ensureCurBill(); key=curBill; }
+const VCB_XLSX_MIME='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+function _vcbFileName(key){
+  const now=invDateOf(key);
+  const tag=(key&&key!=='*')?key.replace(/\+/g,'-')+'_':(key==='*'?'ALL_':'');
+  return `vcanbuy_form_${tag}${_ymdStr(now).replace(/-/g,'')}.xlsx`;
+}
+// สร้างไฟล์ใบกำกับ VCANBUY ของบิลหนึ่ง → {blob, fname, rows} (null = ไม่มีข้อมูล)
+async function _buildVcanbuyFile(key){
   const rows=rowsOfBill(key);
   const items=computeRows7(rows);
-  if(!items.length){alert('ไม่มีข้อมูล');return false;}
-  if(typeof JSZip==='undefined'){alert('กำลังโหลดตัวสร้างไฟล์ กรุณารอสักครู่แล้วลองใหม่');return false;}
-  // วันที่ในฟอร์ม = วันที่เปิดบิลขนส่ง · ไม่มีบิล/รวมทุกบิล = วันนี้
-  const now=(key&&key!=='*')?billDateObj(key):new Date();
+  if(!items.length){alert('ไม่มีข้อมูล');return null;}
+  if(typeof JSZip==='undefined'){alert('กำลังโหลดตัวสร้างไฟล์ กรุณารอสักครู่แล้วลองใหม่');return null;}
+  // วันที่ในฟอร์ม = วันที่ที่เลือก หรือวันที่เปิดบิลขนส่ง · ไม่มีบิล/รวมทุกบิล = วันนี้
+  const now=invDateOf(key);
   const zip=await JSZip.loadAsync(VCANBUY_TEMPLATE_B64,{base64:true});
   const pictureRows=_vcbPictureRows(rows);
   const pictures=[];
@@ -2839,17 +3132,18 @@ async function exportVcanbuyExcel(key){
     const pic=url?await _vcbPicture(url):null;
     if(pic) pictures.push({...pic,row:i,name:pictureRows[i].name});
   }
-  await VF.build(zip,{items:items.map(it=>({name:it.name,qty:it.qty,unit:it.unit,unitPrice:it.unitPrice})),date:now,pictures,pictureRows});
-  const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',
-    mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const tag=(key&&key!=='*')?key.replace(/\+/g,'-')+'_':(key==='*'?'ALL_':'');
-  const fname=`vcanbuy_form_${tag}${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.xlsx`;
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download=fname;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
-  _markBillExported(rows,7);
+  await VF.build(zip,{items:items.map(it=>({name:it.name,qty:it.qty,unit:it.unit,unitPrice:it.unitPrice})),date:now,info:_invDesign().info,pictures,pictureRows});
+  const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',mimeType:VCB_XLSX_MIME});
   if(pictures.length<pictureRows.length) Toast.show({msg:`ใส่รูปสินค้าได้ ${pictures.length}/${pictureRows.length} รายการ — รายการที่ไม่มีรูปมาจากข้อมูลเก่าที่ copy มือ (ดึงบิลนั้นใหม่ด้วยปุ่มดึงข้อมูล Vcanbuy จะได้รูป)`,type:'info',duration:6000});
+  return {blob,fname:_vcbFileName(key),rows};
+}
+// key = เลขบิลขนส่ง (TOUT…) · '*' = รวมทุกบิล · ไม่ส่ง = บิลที่เลือกอยู่
+async function exportVcanbuyExcel(key){
+  if(key===undefined){ _ensureCurBill(); key=curBill; }
+  const f=await _buildVcanbuyFile(key);
+  if(!f) return false;
+  _downloadBlob(f.blob,f.fname);
+  _markBillExported(f.rows,7);
   return true;
 }
 const _sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -2942,7 +3236,7 @@ function buildStep8(){
   const totalQty=rows8.reduce((s,r)=>s+r.qty,0);
   const totalAmt=rows8.reduce((s,r)=>s+r.qty*r.unitPrice,0);
   const multi=getBillGroups().some(g=>g.key);
-  document.getElementById('sum-8').innerHTML=(multi?`<b>${esc(_billLabel(curBill))}</b> | `:'')+`${rows8.length} รายการ (SKU) | รวม ${totalQty.toLocaleString()} ชิ้น | <b>ยอดรวม ฿${fmt(r2(totalAmt))}</b>`;
+  document.getElementById('sum-8').innerHTML=(multi?`<b>${esc(_billLabel(curBill))}</b> | `:'')+`วันที่ ${_thDate(invDateOf(curBill))} | ${rows8.length} รายการ (SKU) | รวม ${totalQty.toLocaleString()} ชิ้น | <b>ยอดรวม ฿${fmt(r2(totalAmt))}</b>`;
   _syncBillButtons();
 }
 
@@ -2953,7 +3247,7 @@ function exportPeakExcel(keys){
   const ymd=d=>parseInt(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`);
   const docs=keys.map(k=>({
     ref: (k&&k!=='*')?k:'',
-    date: ymd((k&&k!=='*')?billDateObj(k):new Date()),
+    date: ymd(invDateOf(k)),   // = วันที่ในใบกำกับ VCANBUY (เลือกเอง หรือวันที่เปิดบิล)
     items: computeRows8(rowsOfBill(k))
   })).filter(d=>d.items.length);
   if(!docs.length){alert('ไม่มีข้อมูล');return;}
@@ -2989,7 +3283,7 @@ function exportPeakExcel(keys){
     };
 
     setCell('A', di+1,       'n');          // ลำดับที่* — แถวที่เลขเดียวกัน = เอกสารเดียวกัน (1 บิล = 1 เอกสาร)
-    setCell('B', doc.date,   'n');          // วันที่เอกสาร YYYYMMDD = วันที่เปิดบิลขนส่ง
+    setCell('B', doc.date,   'n');          // วันที่เอกสาร YYYYMMDD = วันที่ในใบกำกับ VCANBUY
     if(doc.ref) setCell('C', doc.ref, 's'); // อ้างอิงถึง = เลขบิลขนส่ง TOUT…
     setCell('D', 'C00253',   's');          // ผู้รับเงิน/คู่ค้า
     setCell('E', '0125566031560','s','@'); // เลขทะเบียน 13 หลัก (text)
